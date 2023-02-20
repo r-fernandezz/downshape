@@ -1,0 +1,13 @@
+outputs/*
+
+# root files and folders
+downshape.code-workspace
+.Rhistory
+.Rproj.user/
+downshape.Rproj
+.RData
+
+# renv environment
+renv/*
+.Rbuildignore
+.Rprofile
