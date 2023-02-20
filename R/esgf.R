@@ -224,8 +224,8 @@ select_datasets <- function(res_init) {
 
     #res_init <- targets::tar_read("cmip6_datasets")
 
-    vars <- attr(res_init, "vars")
-    experiments <- attr(res_init, "experiments")
+    vars <- targets::tar_read(vars)
+    experiments <- targets::tar_read(experiments)
 
     res <- cmip_parse_search(res_init)
 
@@ -242,22 +242,25 @@ select_datasets <- function(res_init) {
         
         # models X variable (check we have at least one member per variable)
         mods_vars <- ifelse(table(sub_experiment[, sel_var], sub_experiment$variable_id) > 0, 1, 0)
-        # models with all vars
-        all_mods <- rownames(mods_vars[apply(mods_vars, 1, sum) == length(vars), ])
-        d <- data.frame(model = all_mods, stringsAsFactors = FALSE)
-        # d[, vars_types[1]] <- is.element(d$model, all_vars_mods[[vars_types[1]]])
-        # if (length(vars_types) > 1) for (i in vars_types[-1]) d[, i] <- is.element(d$model, all_vars_mods[[i]])
-        d[, experiment] <- TRUE
-        names(d)[1] <- paste0(level, "_id")
-        d
+        # # models with all vars
+        # all_mods <- rownames(mods_vars[apply(mods_vars, 1, sum) == length(vars), ])
+        # d <- data.frame(model = all_mods, stringsAsFactors = FALSE)
+        # # d[, vars_types[1]] <- is.element(d$model, all_vars_mods[[vars_types[1]]])
+        # # if (length(vars_types) > 1) for (i in vars_types[-1]) d[, i] <- is.element(d$model, all_vars_mods[[i]])
+        # d[, experiment] <- TRUE
+        # names(d)[1] <- paste0(level, "_id")
+        # d
+        return(mods_vars)
         
     }
 
     # # scenario-list of type of variable availability
     mods_experiments <- setNames(lapply(experiments, get_models_for_experiment, res = res), experiments)
 
+    return(mods_experiments)
+
     # # vector of all models
-    all_mods <- sort(unique(unlist(lapply(mods_experiments, "[[", "source_id"))))
+    # all_mods <- sort(unique(unlist(lapply(mods_experiments, "[[", "source_id"))))
 
     # #choose data provenance (os or d3)
     # # mods_experiments <- lapply(mods_experiments, function(x) {
@@ -267,9 +270,8 @@ select_datasets <- function(res_init) {
     # # })
 
     # # prefilter models
-    mods_experiments_sum <- sapply(mods_experiments, function(x) setNames(all_mods %in% x[, "source_id"], all_mods))
+    # mods_experiments_sum <- sapply(mods_experiments, function(x) setNames(all_mods %in% x[, "source_id"], all_mods))
 
-    return(mods_experiments_sum)
 
     # # remove models with less than 'min_scen_num' or less scenario
     # #min_scen_num <- 4 #TODO this is fixed !
@@ -385,7 +387,9 @@ search_and_parse <- function(experiments,
     write.csv(tab, file = "outputs/available_dataset.csv", row.names = FALSE)
 
     tab_binaire <- select_datasets(res)
-    write.csv(tab_binaire, file = "outputs/available_model_ssp.csv", row.names = TRUE)
+    tab_binaire <- Map(function(x, y) cbind(x, list_name = y), tab_binaire, names(tab_binaire))
+    tab_binaire <- do.call(rbind, tab_binaire)
+    write.csv(tab_binaire, file = "outputs/available_model_ssp_vars.csv", row.names = TRUE)
 
     return(c(
         here::here("outputs", "selected_dataset.csv")
