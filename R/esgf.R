@@ -1,15 +1,22 @@
-#' Construct an url to query the api at https://esgf-node.llnl.gov
+#' make_url
 #'
-#' @param experiments (character) the desired experiments
-#' @param freq (character) the desired temporal frequency
-#' @param vars (character) the desired variable ids
-#' @param sources (character) the desired models (sources) ids (may be NULL)
-#' @param grids (character) the desired kind(s) of grid
-#' @param type (character) "search" to query esgf for availaible data info, "wget" to download a bash script
-#' @param limit (character) the maximum number of results to return
+#' @description Construct an url to query the api at https://esgf-node.llnl.gov
 #'
-#' @return (character) a json query to run over https://esgf-node.llnl.gov
-#' @export
+#' @param experiments Character. The desired experiments
+#' @param freq Character. The desired temporal frequency
+#' @param vars Character. The desired variable ids
+#' @param time_span
+#' @param sources Character. The desired models (sources) ids (may be NULL)
+#' @param grids Character. The desired kind(s) of grid
+#' @param members
+#' @param res_type
+#' @param type Character. Tsearch" to query esgf for availaible data info, "wget" to download a bash script
+#' @param limit Character. The maximum number of results to return
+#' @param offset
+#'
+#' @return Character. A json query to run over https://esgf-node.llnl.gov
+#' 
+#' @export NULL
 
 make_url <- function(experiments,
                      freq,
@@ -83,20 +90,24 @@ make_url <- function(experiments,
 }
 
 
-#' Query https://esgf-node.llnl.gov 
-#'
+#' query_esgf
+#' 
+#' @description Query the api https://esgf-node.llnl.gov
+#' 
 #' @param url a formated http query url
-#' @param show_url print the query url ?
-#' @param type
-#' @param verb (bolean) should the funciton be verbose ?
+#' @param show_url print the query url
+#' @param type Boolean.
+#' @param verb Boolean. Should the function be verbose. indicate number of matches found.
 #'
-#' @return a parsed json list
-#' @export
+#' @return json list
+#'
+#' @export NULL
 
-query_esgf <- function(url,
-                        type ="search",
+query_esgf <- function( url,
+                        type = "search",
                         show_url = TRUE,
                         verb = TRUE) {
+
   if (attr(url, "type") != type) stop("url type does not match the requested query type")
   if (show_url) message("-- url:\n", url)
   httcont <- httr::content(httr::GET(url))
@@ -111,20 +122,27 @@ query_esgf <- function(url,
 }
 
 
-#' Construct urls and query over https://esgf-node.llnl.gov
+#' search_esgf
 #'
-#' @param experiments (character) the desired experiments
-#' @param freq (character) the desired temporal frequency
-#' @param vars (character) the desired variable ids
-#' @param mods (character) the desired models (sources) ids (may be NULL)
-#' @param grids (character) the desired kind(s) of grid
-#' @param members (character) the desired member(s)
-#' @param type (character) "search" to query esgf for availaible data info, "wget" to download a bash script
-#' @param limit (character) the maximum number of results to return
-#' @param verb (bolean) should the funciton be verbose ?
+#' @description Construct urls and query over https://esgf-node.llnl.gov
+#' 
+#' @param experiments Character. the desired experiments
+#' @param freq Character. the desired temporal frequency
+#' @param vars Character. the desired variable ids
+#' @param time_span
+#' @param sources
+#' @param grids Character. the desired kind(s) of grid
+#' @param members Character. the desired member(s)
+#' @param res_type
+#' @param type Character. "search" to query esgf for availaible data info, "wget" to download a bash script
+#' @param limit Character. the maximum number of results to return
+#' @param offset
+#' @param verb Boolean. should the funciton be verbose ?
+#' @param count
 #'
 #' @return a parsed json list
-#' @export
+#' 
+#' @export NULL
 
 search_esgf <- function(experiments,
                          freq,
@@ -187,12 +205,15 @@ search_esgf <- function(experiments,
   resp
 }
 
-#' Parse an ESGF json result as a data.frame
+#' cmip_parse_search
 #'
-#' @param results an ESGF json result
+#' @description Parse an ESGF json result as a data.frame
+#' 
+#' @param results an ESGF json result come from search_esgf function.
 #'
 #' @return a data.frame
-#' @export
+#
+#' @export NULL
 
 cmip_parse_search <- function(results) {
 
@@ -212,50 +233,101 @@ cmip_parse_search <- function(results) {
   do.call(rbind, parsed)
 }
 
+#' get_models_for_experiment
+#'
+#' @description Get models with all variables available by experiments. The function keep model if speed variables or component variables are availables.
+#'
+#' @param res Table. Output of cmip_parse_search function (and search_esgf function before)
+#' @param experiment Character. ssp scénarios availables on esgf website.
+#' @param level Character. Select column for models name in table input ("source_id" or "institution_id").
+#' @param speed_vars Vector. Variable calculed with component.
+#' @param compo_vars List of vector. x and y component to calcul variable.
+#' 
+#' @return Binaire table with (models by variables) with all models available for variables selected.
+#'
+#' @export NULL
 
-#' Select among CMIP6 Datasets (lowest member id & native grid if available)
+get_models_for_experiment <- function(res_init = res_init, 
+                                      experiment, 
+                                      level = "source", 
+                                      speed_vars = c("sfcWind"), 
+                                      compo_vars = list(c("uas", "vas"))) {
+    
+    #vars_types <- names(res)
+    
+    sub_experiment <- res[res$experiment_id == experiment,]
+
+    if(nrow(sub_experiment) == 0){stop(message("Error: Experiment doen't found into table (res)"))}
+
+    sel_var <- switch(level,
+                    source = "source_id",
+                    institution = "institution_id")
+    
+    # models X variable (check we have at least one member per variable)
+    mods_vars <- ifelse(table(sub_experiment[, sel_var], sub_experiment$variable_id) > 0, 1, 0)
+
+    # select models with all variables (initialisation loop)
+    composent <- c(speed_vars, unlist(compo_vars))
+    no_composent <- colnames(mods_vars)[!(colnames(mods_vars) %in% composent)]
+    models_select <- c()
+    boleen_test <- c()
+
+    for(i in 1:nrow(mods_vars)){
+
+      if(all(lapply(no_composent, function(x) mods_vars[i, x] > 0) == rep(TRUE, length(no_composent))) == TRUE){ #if standard variable available for this model check speed and component variables
+
+        boleen_vars <- lapply(speed_vars, function(x) mods_vars[i, x] > 0)
+        boleen_compo <- lapply(compo_vars, function(x) mods_vars[i, x] > 0)
+
+        for(z in 1:length(boleen_vars)){ #check available composant or speed variable
+
+          if(boleen_vars[[z]] == TRUE){
+            boleen_test <- c(boleen_test, "present")
+            } else if(boleen_vars[[z]] == FALSE && all(boleen_compo[[z]] == c(TRUE, TRUE)) == TRUE){
+            boleen_test <- c(boleen_test, "present")
+            } else{
+              boleen_test <- c(boleen_test, "absent")
+            }
+
+        }
+
+        if(all(boleen_test == rep("present", length(boleen_vars))) == TRUE){ #if speed variable or component available all TRUE
+          models_select <- c(models_select, rownames(mods_vars)[i])
+        } # else() speed variable and component aren't available
+
+        boleen_test <- c() #remove test vector
+
+      }# else() standard variables no availables for this model (row i) not select this model
+
+    }
+
+    all_mods <- mods_vars[models_select, ]
+
+    return(all_mods)
+
+}
+
+#' select_datasets
+#' 
+#' @description Select among CMIP6 Datasets (lowest member id & native grid if available). 
+#' This fucntion use get_model_for_experiment function to select model availables.
+#' 
+#' @param res_init Dataframe. Output of cmip_parse_search function (and search_esgf function before) 
 #'
-#' @param res_init 
-#'
-#' @return
-#' @export
+#' @return ? not finished
+#' @export ? not finished
 
 select_datasets <- function(res_init) {
 
-    #res_init <- targets::tar_read("cmip6_datasets")
+    #res_init <- targets::tar_read("available_dataset_d")
 
     vars <- targets::tar_read(vars)
     experiments <- targets::tar_read(experiments)
 
-    res <- cmip_parse_search(res_init)
-
     # models X experiments  
-    get_models_for_experiment <- function(res, experiment = "historical", level = "source") {
-        
-        #vars_types <- names(res)
-        
-        sub_experiment <- res[res$experiment_id == experiment,]
-        
-        sel_var <- switch(level,
-                        source = "source_id",
-                        institution = "institution_id")
-        
-        # models X variable (check we have at least one member per variable)
-        mods_vars <- ifelse(table(sub_experiment[, sel_var], sub_experiment$variable_id) > 0, 1, 0)
-        # # models with all vars
-        # all_mods <- rownames(mods_vars[apply(mods_vars, 1, sum) == length(vars), ])
-        # d <- data.frame(model = all_mods, stringsAsFactors = FALSE)
-        # # d[, vars_types[1]] <- is.element(d$model, all_vars_mods[[vars_types[1]]])
-        # # if (length(vars_types) > 1) for (i in vars_types[-1]) d[, i] <- is.element(d$model, all_vars_mods[[i]])
-        # d[, experiment] <- TRUE
-        # names(d)[1] <- paste0(level, "_id")
-        # d
-        return(mods_vars)
-        
-    }
 
     # # scenario-list of type of variable availability
-    mods_experiments <- setNames(lapply(experiments, get_models_for_experiment, res = res), experiments)
+    mods_experiments <- setNames(lapply(experiments, get_models_for_experiment, res_init = res_init), experiments)
 
     return(mods_experiments)
 
@@ -371,6 +443,20 @@ select_datasets <- function(res_init) {
     # f_out
 }
 
+
+#' search_and_parse
+#'
+#' @description Function provisional to check data available into esgf. Not used, remove it?
+#'
+#'
+#' @param Variable Type. Explication.
+#' @param Variable Type. Explication.
+#'
+#' @return Two csv files
+#'
+#' @export Two tables one with all caracteristics of data availables and one bianire table with models by variables.
+#' 
+
 search_and_parse <- function(experiments,
                                 freq,
                                 vars,
@@ -384,14 +470,14 @@ search_and_parse <- function(experiments,
     res <- search_esgf(experiments, freq, vars, time_span)
 
     tab <- cmip_parse_search(res)
-    write.csv(tab, file = "outputs/available_dataset.csv", row.names = FALSE)
+    res_path <- "outputs/available_dataset.csv"
+    write.csv(tab, file = res_path, row.names = FALSE)
 
     tab_binaire <- select_datasets(res)
     tab_binaire <- Map(function(x, y) cbind(x, list_name = y), tab_binaire, names(tab_binaire))
     tab_binaire <- do.call(rbind, tab_binaire)
-    write.csv(tab_binaire, file = "outputs/available_model_ssp_vars.csv", row.names = TRUE)
+    res_path_bin <- "outputs/available_model_ssp_vars.csv"
+    write.csv(tab_binaire, file = res_path_bin, row.names = TRUE)
 
-    return(c(
-        here::here("outputs", "selected_dataset.csv")
-    ))
+    return(c(res_path, res_path_bin))
 }
