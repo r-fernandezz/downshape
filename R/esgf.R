@@ -96,8 +96,8 @@ make_url <- function(experiments,
 #' 
 #' @param url a formated http query url
 #' @param show_url print the query url
-#' @param type Boolean.
-#' @param verb Boolean. Should the function be verbose. indicate number of matches found.
+#' @param type Logical.
+#' @param verb Logical. Should the function be verbose. indicate number of matches found.
 #'
 #' @return json list
 #'
@@ -137,7 +137,7 @@ query_esgf <- function( url,
 #' @param type Character. "search" to query esgf for availaible data info, "wget" to download a bash script
 #' @param limit Character. the maximum number of results to return
 #' @param offset
-#' @param verb Boolean. should the funciton be verbose ?
+#' @param verb Logical. should the funciton be verbose ?
 #' @param count
 #'
 #' @return a parsed json list
@@ -243,7 +243,7 @@ cmip_parse_search <- function(results) {
 #' @param speed_vars Vector. Variable calculed with component.
 #' @param compo_vars List of vector. x and y component to calcul variable.
 #' 
-#' @return Binaire table with (models by variables) with all models available for variables selected.
+#' @return List of two binaire tables (models by variables). One with models selected and second with all models before selection.
 #'
 #' @export NULL
 
@@ -255,7 +255,7 @@ get_models_for_experiment <- function(res_init = res_init,
     
     #vars_types <- names(res)
     
-    sub_experiment <- res[res$experiment_id == experiment,]
+    sub_experiment <- res_init[res_init$experiment_id == experiment,]
 
     if(nrow(sub_experiment) == 0){stop(message("Error: Experiment doen't found into table (res)"))}
 
@@ -303,7 +303,18 @@ get_models_for_experiment <- function(res_init = res_init,
 
     all_mods <- mods_vars[models_select, ]
 
-    return(all_mods)
+    # remove rowname and replace by a new column
+    all_mods <- as.data.frame(cbind(rownames(all_mods), all_mods))
+    rownames(all_mods) <- NULL
+    colnames(all_mods)[1] <- paste0(level, "_id")
+
+    mods_vars <- as.data.frame(cbind(rownames(mods_vars), mods_vars))
+    rownames(mods_vars) <- NULL
+    colnames(mods_vars)[1] <- paste0(level, "_id")
+
+    return(list(
+              select_models = all_mods,
+              all_models =  mods_vars))
 
 }
 
@@ -315,7 +326,7 @@ get_models_for_experiment <- function(res_init = res_init,
 #' @param res_init Dataframe. Output of cmip_parse_search function (and search_esgf function before) 
 #'
 #' @return ? not finished
-#' @export ? not finished
+#' @export csv file with model selected
 
 select_datasets <- function(res_init) {
 
@@ -324,123 +335,111 @@ select_datasets <- function(res_init) {
     vars <- targets::tar_read(vars)
     experiments <- targets::tar_read(experiments)
 
-    # models X experiments  
+    # selection with get_model_for_experiment() function: check variable available by experiment
+    mods_experiments_both <- setNames(lapply(experiments, get_models_for_experiment, res_init = res_init), experiments)
+    mods_experiments <- setNames(lapply(experiments, function(x) mods_experiments_both[[x]]$select_models), experiments)
 
-    # # scenario-list of type of variable availability
-    mods_experiments <- setNames(lapply(experiments, get_models_for_experiment, res_init = res_init), experiments)
+    # export table with all models before selection
+    mods_initial <- setNames(lapply(experiments, function(x) mods_experiments_both[[x]]$all_models), experiments)
+    mods_initial <- Map(function(x, y) cbind(x, list_name = y), mods_initial, names(mods_initial))
+    mods_initial <- do.call(rbind, mods_initial)
+    mods_initial_path <- here::here("outputs", "dataset_found_before_filter.csv")
+    write.csv(mods_initial, file = mods_initial_path, row.names = TRUE)
 
-    return(mods_experiments)
+    # vector of all models
+    all_mods <- sort(unique(unlist(lapply(mods_experiments, "[[", "source_id"))))
 
-    # # vector of all models
-    # all_mods <- sort(unique(unlist(lapply(mods_experiments, "[[", "source_id"))))
+    message("# filter 1: the following sources have data for all environmental variables (", paste(vars, collapse = ", "), "):\n", paste(all_mods, collapse = ",\n"))
 
-    # #choose data provenance (os or d3)
-    # # mods_experiments <- lapply(mods_experiments, function(x) {
-    # #   xy <- cbind(x[, 2], x[,3] * 2)
-    # #   choice <- ifelse(apply(xy, 1, sum) %in% c(1, 3), names(x)[2], names(x)[3] ) 
-    # #   data.frame(x, var_type = choice, stringsAsFactors = FALSE)[, -c(2,3)]
-    # # })
+    # prefilter models: what are model available for all experiments? TRUE/FALSE table
+    mods_experiments_sum <- sapply(experiments, function(x) setNames(all_mods %in% mods_experiments[[x]][, "source_id"], all_mods))
 
-    # # prefilter models
-    # mods_experiments_sum <- sapply(mods_experiments, function(x) setNames(all_mods %in% x[, "source_id"], all_mods))
-
-
-    # # remove models with less than 'min_scen_num' or less scenario
-    # #min_scen_num <- 4 #TODO this is fixed !
-    # #mods_experiments_filt_scenario <- mods_experiments_sum[apply(mods_experiments_sum, 1, sum) >= min_scen_num, ]
-
-    # # keep only models that implement ssp534-over
-    # #mods_experiments_filt_scenario <- data.frame(mods_experiments_sum[mods_experiments_sum[,"ssp534-over"], ], check.names = FALSE)
-
-    # # keep only models that implement all scenarios
-    # mods_experiments_filt_scenario <- data.frame(mods_experiments_sum[apply(mods_experiments_sum, 1, sum) == length(experiments), ], check.names = FALSE)
-
-    # # remove c("CanESM5-CanOE", "CESM2")  
-    # # mods_experiments_filt_institution <- mods_experiments_filt_scenario[!(rownames(mods_experiments_filt_scenario) %in% c("CanESM5-CanOE", "CESM2")), ]
-    # # mods_experiments_ok <- rownames(mods_experiments_filt_institution)
+    # keep only models that implement all scenarios
+    mods_experiments_sum_d <- as.data.frame(mods_experiments_sum)
+    mods_experiments_filt_scenario <- mods_experiments_sum_d[apply(mods_experiments_sum_d, 1, sum) == length(experiments), ]
     
-    # mods_experiments_ok <- rownames(mods_experiments_filt_scenario)
+    mods_experiments_ok <- rownames(mods_experiments_filt_scenario)
     
-    # message("# the following sources have data for all experiments (", paste(experiments, collapse = ", "), "):\n", paste(mods_experiments_ok, collapse = ",\n"))
+    message("# filter 2: the following sources have data for all experiments (", paste(experiments, collapse = ", "), "):\n", paste(mods_experiments_ok, collapse = ",\n"))
     
-    # message("## selecting the datasets")
-    # datasets_todown <- lapply(names(mods_experiments_filt_scenario), function(x) {
-    #   #x  = "historical" ; x = "ssp534-over"
-    #   message("### experiment: ", x)
-    #   # d <- mods_experiments[[x]]
-    #   # d <- d[d[, "source_id"] %in% mods_experiments_ok, ]
-    #   r <-  do.call(c, lapply(mods_experiments_ok, function(mm) {
-    #     #mm = "CESM2-WACCM" mm = "IPSL-CM6A-LR" mm = "MIROC-ES2L" mm = "NorESM2-LM"
-    #     message("#### source model: ", mm)
+    message("## selecting the datasets")
+    datasets_todown <- lapply(names(mods_experiments_filt_scenario), function(x) {
+      #x  = "historical" ; x = "ssp534-over"
+      message("### experiment: ", x)
+      # d <- mods_experiments[[x]]
+      # d <- d[d[, "source_id"] %in% mods_experiments_ok, ]
+      r <-  do.call(c, lapply(mods_experiments_ok, function(mm) {
+        #mm = "CESM2-WACCM" mm = "IPSL-CM6A-LR" mm = "MIROC-ES2L" mm = "NorESM2-LM"
+        message("#### source model: ", mm)
         
-    #     rrr_d <- subset(res, experiment_id == x & source_id == mm)
+        rrr_d <- subset(res_init, experiment_id == x & source_id == mm)
         
-    #     # rrr <- search_esgf(experiments = x, freq = freq, vars = vars[[vt]],
-    #     #                     mods = mm)
-    #     # rrr_d <- cmip_parse_search(rrr)
+        # rrr <- search_esgf(experiments = x, freq = freq, vars = vars[[vt]],
+        #                     mods = mm)
+        # rrr_d <- cmip_parse_search(rrr)
         
-    #     #filter members
-    #     memb_vars <- ifelse(table(rrr_d$member_id, rrr_d$variable_id) > 0, 1, 0)
-    #     #memb_vars <- memb_vars[!grepl("i1000", rownames(memb_vars)),]
-    #     membs_ok <- apply(memb_vars, 1, sum) ==  length(vars)
-    #     if (sum(membs_ok) == 0) stop("no members for all vars for ", mm)
-    #     av_members <- stringr::str_sort(rownames(memb_vars)[membs_ok], numeric = TRUE)
-    #     message("##### available members: ", paste(av_members, collapse = ", "))
-    #     filter_member <- grepl(av_members[1], rrr_d$member_id)
-    #     rrr_dd <- rrr_d[filter_member,]
-    #     # if(nrow(rrr_dd) == 0) stop("avail members: ", paste(rrr_d$member_id, collapse = " | "))
-    #     if(nrow(rrr_dd) == length(vars)) {
-    #       message("---> selected dataset: ", unique(rrr_dd$experiment_id),
-    #               " ", unique(rrr_dd$grid_label),
-    #               " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
-    #               " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
-    #       return(res_init[as.numeric(rownames(rrr_dd))])
-    #     }
+        #filter members
+        memb_vars <- ifelse(table(rrr_d$member_id, rrr_d$variable_id) > 0, 1, 0)
+        #memb_vars <- memb_vars[!grepl("i1000", rownames(memb_vars)),]
+        membs_ok <- apply(memb_vars, 1, sum) ==  length(vars)
+        if (sum(membs_ok) == 0) stop("no members for all vars for ", mm)
+        av_members <- stringr::str_sort(rownames(memb_vars)[membs_ok], numeric = TRUE)
+        message("##### available members: ", paste(av_members, collapse = ", "))
+        filter_member <- grepl(av_members[1], rrr_d$member_id)
+        rrr_dd <- rrr_d[filter_member,]
+        # if(nrow(rrr_dd) == 0) stop("avail members: ", paste(rrr_d$member_id, collapse = " | "))
+        if(nrow(rrr_dd) == length(vars)) {
+          message("---> selected dataset: ", unique(rrr_dd$experiment_id),
+                  " ", unique(rrr_dd$grid_label),
+                  " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
+                  " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
+          return(res_init[as.numeric(rownames(rrr_dd)) ])
+        }
         
-    #     rrr <- res_init[as.numeric(rownames(rrr_dd))]
-    #     rrr_d <- rrr_dd
+        rrr <- res_init[as.numeric(rownames(rrr_dd)) ]
+        rrr_d <- rrr_dd
         
-    #     #grids
-    #     if(length(unique(rrr_d$grid_label)) == 1) {
-    #       message("only one grid available: ", unique(rrr_d$grid_label))
-    #       message("---> selected dataset: ", unique(rrr_dd$experiment_id),
-    #               " ", unique(rrr_dd$grid_label),
-    #               " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
-    #               " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
-    #       return(rrr)
-    #     }
-    #     if(length(unique(rrr_d$grid_label)) > 1) {
-    #       filter_grid <- rrr_d$grid_label == "gn"
-    #       rrr_dd <- rrr_d[filter_grid, ]
-    #     }
-    #     if(nrow(rrr_dd) != length(vars)) {
-    #       filter_grid <- rrr_d$grid_label == "gr"
-    #       rrr_dd <- rrr_d[filter_grid, ]
-    #     }
-    #     if(nrow(rrr_dd) != length(vars)) {
-    #       filter_grid <- rrr_d$grid_label == "gr1"
-    #       rrr_dd <- rrr_d[filter_grid, ]
-    #     }
-    #     if(nrow(rrr_dd) != length(vars)) stop("avail grids: ", paste(unique(rrr_d$grid_label), collapse = " | "))
+        #grids
+        if(length(unique(rrr_d$grid_label)) == 1) {
+          message("only one grid available: ", unique(rrr_d$grid_label))
+          message("---> selected dataset: ", unique(rrr_dd$experiment_id),
+                  " ", unique(rrr_dd$grid_label),
+                  " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
+                  " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
+          return(rrr)
+        }
+        if(length(unique(rrr_d$grid_label)) > 1) {
+          filter_grid <- rrr_d$grid_label == "gn"
+          rrr_dd <- rrr_d[filter_grid, ]
+        }
+        if(nrow(rrr_dd) != length(vars)) {
+          filter_grid <- rrr_d$grid_label == "gr"
+          rrr_dd <- rrr_d[filter_grid, ]
+        }
+        if(nrow(rrr_dd) != length(vars)) {
+          filter_grid <- rrr_d$grid_label == "gr1"
+          rrr_dd <- rrr_d[filter_grid, ]
+        }
+        if(nrow(rrr_dd) != length(vars)) stop("avail grids: ", paste(unique(rrr_d$grid_label), collapse = " | "))
 
-    #     rrr <- res_init[as.numeric(rownames(rrr_dd))]
-    #     if (length(rrr) != length(vars)) stop("check me please !")
-    #     message("---> selected dataset: ", unique(rrr_dd$experiment_id),
-    #             " ", unique(rrr_dd$grid_label),
-    #             " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
-    #             " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
-    #     rrr
-    #   }))
-    # })
+        rrr <- res_init[as.numeric(rownames(rrr_dd)) ]
+        if (length(rrr) != length(vars)) stop("check me please !")
+        message("---> selected dataset: ", unique(rrr_dd$experiment_id),
+                " ", unique(rrr_dd$grid_label),
+                " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
+                " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
+        rrr
+      }))
+    })
       
-    # datasets_todown <- do.call(c, datasets_todown)
-    # #attributes(datasets_todown) <- attributes(res_init)
-    # #datasets_todown
+    datasets_todown <- do.call(c, datasets_todown)
+    #attributes(datasets_todown) <- attributes(res_init)
+    #datasets_todown
     
-    # dat <- cmip_parse_search(datasets_todown)
-    # f_out <- "outputs/selected_datasets.csv"
-    # write.csv(dat, file = f_out, row.names = FALSE)
-    # f_out
+    dat <- cmip_parse_search(datasets_todown)
+    f_out <- "outputs/selected_datasets.csv"
+    write.csv(datasets_todown, file = f_out, row.names = FALSE)
+    f_out
 }
 
 
