@@ -217,6 +217,9 @@ search_esgf <- function(experiments,
 
 cmip_parse_search <- function(results) {
 
+  # results <- targets::tar_read("available_dataset_json")
+  # results <- datasets_todown #output of select_datasets() function
+
   # keep all possible meta data  
 
   # here comes the incremental loop (omg)
@@ -330,7 +333,7 @@ get_models_for_experiment <- function(res_init = res_init,
 
 select_datasets <- function(res_init) {
 
-    #res_init <- targets::tar_read("available_dataset_d")
+    #res_init <- targets::tar_read("available_dataset_df")
 
     vars <- targets::tar_read(vars)
     experiments <- targets::tar_read(experiments)
@@ -357,7 +360,7 @@ select_datasets <- function(res_init) {
     # keep only models that implement all scenarios
     mods_experiments_sum_d <- as.data.frame(mods_experiments_sum)
     mods_experiments_filt_scenario <- mods_experiments_sum_d[apply(mods_experiments_sum_d, 1, sum) == length(experiments), ]
-    
+
     mods_experiments_ok <- rownames(mods_experiments_filt_scenario)
     
     message("# filter 2: the following sources have data for all experiments (", paste(experiments, collapse = ", "), "):\n", paste(mods_experiments_ok, collapse = ",\n"))
@@ -393,10 +396,10 @@ select_datasets <- function(res_init) {
                   " ", unique(rrr_dd$grid_label),
                   " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
                   " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
-          return(res_init[as.numeric(rownames(rrr_dd)) ])
+          return(res_init[as.numeric(rownames(rrr_dd)), ])
         }
         
-        rrr <- res_init[as.numeric(rownames(rrr_dd)) ]
+        rrr <- res_init[as.numeric(rownames(rrr_dd)), ]
         rrr_d <- rrr_dd
         
         #grids
@@ -422,7 +425,7 @@ select_datasets <- function(res_init) {
         }
         if(nrow(rrr_dd) != length(vars)) stop("avail grids: ", paste(unique(rrr_d$grid_label), collapse = " | "))
 
-        rrr <- res_init[as.numeric(rownames(rrr_dd)) ]
+        rrr <- res_init[as.numeric(rownames(rrr_dd)), ]
         if (length(rrr) != length(vars)) stop("check me please !")
         message("---> selected dataset: ", unique(rrr_dd$experiment_id),
                 " ", unique(rrr_dd$grid_label),
@@ -431,15 +434,13 @@ select_datasets <- function(res_init) {
         rrr
       }))
     })
-      
-    datasets_todown <- do.call(c, datasets_todown)
-    #attributes(datasets_todown) <- attributes(res_init)
-    #datasets_todown
-    
+
     dat <- cmip_parse_search(datasets_todown)
-    f_out <- "outputs/selected_datasets.csv"
+    f_out <- here::here("outputs", "selected_datasets.csv")
     write.csv(datasets_todown, file = f_out, row.names = FALSE)
-    f_out
+
+    return(c(mods_initial_path, f_out))
+
 }
 
 
