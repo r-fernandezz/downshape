@@ -1,0 +1,45 @@
+---
+title: "downshap"
+author: ""
+format: gfm
+---
+
+Table of contents
+
+- [Basic Overview](#basic-overview)
+- [Step by step](#step-by-step)
+- [Dependencies](#dependencies)
+- [Output Folders Structuration Creation](#output-folders-structuration-creation)
+
+# :star: Basic Overview 
+
+:red_circle: *downshape* is an R research compendium exposing functions to search, download, preprocess and bias-adjust CMIP6 data discovered via the [ESGF Search RESTful API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html). This compendium allow to download observed data come from Copernicus website.
+
+```{R}
+#| echo: false
+#| output : asis
+project_mermaid_graph <- targets::tar_mermaid(script = "_targets.R", 
+                                              targets_only = TRUE, 
+                                              legend = FALSE, 
+                                              color = FALSE)
+cat("```mermaid\n")
+cat(paste(project_mermaid_graph, collapse = "\n"))
+cat("\n```")
+```
+
+# :point_right: Step by step 
+
+- :one: Edit experiments (ssp scenario), vars (variables), freq (frequence), time_span (min and max time) targets of "_targets.R" file. 
+- :two: Run pipeline launching the first part of *makefile.R* script.
+
+# :heavy_check_mark: Dependencies
+
+No sowfware dependencies.
+
+This R research compendium using renv package to fixe package version. Run renv::restore() to update your packages in your computer and renv::status() to check if everything is ready.
+
+# :pushpin: Output Folders Structuration Creation
+
+- :open_file_folder:  output *--[make.r]--*
+    - :page_facing_up: dataset_found_before_filter.csv *--[select_dataset()]--*
+    - :page_facing_up: selected_datasets.csv *--[select_dataset()]--*
