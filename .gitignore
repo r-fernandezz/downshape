@@ -1,5 +1,8 @@
 outputs/*
 
+#data folder
+*_logging.txt
+
 # root files and folders
 downshape.code-workspace
 .Rhistory

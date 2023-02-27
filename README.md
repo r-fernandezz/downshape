@@ -1,10 +1,11 @@
-downshap
+downshape
 ================
 
 Table of contents
 
 - [Basic Overview](#basic-overview)
 - [Step by step](#step-by-step)
+- [Input Data Informations](#input-data-informations)
 - [Dependencies](#dependencies)
 - [Output Folders Structuration
   Creation](#output-folders-structuration-creation)
@@ -28,6 +29,7 @@ graph LR
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
   end
 ```
 
@@ -36,9 +38,15 @@ graph LR
 - :one: Edit experiments (ssp scenario), vars (variables), freq
   (frequence), time_span (min and max time) targets of “\_targets.R”
   file.
-- :two: Run pipeline launching the first part of *makefile.R* script.
+- :two: Run pipeline launching *make.R* script.
 
-# :heavy_check_mark: Dependencies
+# :heavy_check_mark: Input Data Informations
+
+:heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
+Parameters of data we want dto download. Check table structuration on
+github.
+
+# :key: Dependencies
 
 No sowfware dependencies.
 
@@ -52,3 +60,7 @@ renv::status() to check if everything is ready.
   - :page_facing_up: dataset_found_before_filter.csv
     *–\[select_dataset()\]–*
   - :page_facing_up: selected_datasets.csv *–\[select_dataset()\]–*
+  - :open_file_folder: copernicus *–\[copernicus_download_api()\]–*
+    - :page_facing_up: Vars1.nc *–\[copernicus_download_api()\]–*
+    - :page_facing_up: Vars2.nc *–\[copernicus_download_api()\]–*
+    - :page_facing_up: VarsX.nc … *–\[copernicus_download_api()\]–*

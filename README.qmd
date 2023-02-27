@@ -1,5 +1,5 @@
 ---
-title: "downshap"
+title: "downshape"
 author: ""
 format: gfm
 ---
@@ -8,6 +8,7 @@ Table of contents
 
 - [Basic Overview](#basic-overview)
 - [Step by step](#step-by-step)
+- [Input Data Informations](#input-data-informations)
 - [Dependencies](#dependencies)
 - [Output Folders Structuration Creation](#output-folders-structuration-creation)
 
@@ -30,9 +31,13 @@ cat("\n```")
 # :point_right: Step by step 
 
 - :one: Edit experiments (ssp scenario), vars (variables), freq (frequence), time_span (min and max time) targets of "_targets.R" file. 
-- :two: Run pipeline launching the first part of *makefile.R* script.
+- :two: Run pipeline launching *make.R* script.
 
-# :heavy_check_mark: Dependencies
+# :heavy_check_mark: Input Data Informations
+
+:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want dto download. Check table structuration on github.
+
+# :key: Dependencies
 
 No sowfware dependencies.
 
@@ -43,3 +48,7 @@ This R research compendium using renv package to fixe package version. Run renv:
 - :open_file_folder:  output *--[make.r]--*
     - :page_facing_up: dataset_found_before_filter.csv *--[select_dataset()]--*
     - :page_facing_up: selected_datasets.csv *--[select_dataset()]--*
+    - :open_file_folder: copernicus *--[copernicus_download_api()]--*
+        - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
+        - :page_facing_up: Vars2.nc *--[copernicus_download_api()]--*
+        - :page_facing_up: VarsX.nc ... *--[copernicus_download_api()]--*
