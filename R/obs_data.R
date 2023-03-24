@@ -16,7 +16,7 @@
 
 copernicus_download_api <- function(path_tab_param,
                                     path_output = here::here("outputs"),
-                                    folder_output = "copernicus",
+                                    folder_output = "data_copernicus",
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
 

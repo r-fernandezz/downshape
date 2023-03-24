@@ -22,6 +22,7 @@ Imports:
   devtools,
   httr,
   jsonlite,
+  lubridate,
   parallel,
   stringr,
   targets

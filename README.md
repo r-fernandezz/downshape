@@ -19,17 +19,24 @@ API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html).
 This compendium allow to download observed data come from Copernicus
 website.
 
+Message d’avis : Targets and globals must have unique names. Ignoring
+global objects that conflict with target names: download_cmip_data,
+select_dataset. Warnings like this one are important, but if you must
+suppress them, you can do so with Sys.setenv(TAR_WARN = “false”).
+
 ``` mermaid
 graph LR
   subgraph Graph
     direction LR
+    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::errored
   end
 ```
 
@@ -60,7 +67,17 @@ renv::status() to check if everything is ready.
   - :page_facing_up: dataset_found_before_filter.csv
     *–\[select_dataset()\]–*
   - :page_facing_up: selected_datasets.csv *–\[select_dataset()\]–*
-  - :open_file_folder: copernicus *–\[copernicus_download_api()\]–*
+  - :open_file_folder: data_copernicus *–\[copernicus_download_api()\]–*
     - :page_facing_up: Vars1.nc *–\[copernicus_download_api()\]–*
     - :page_facing_up: Vars2.nc *–\[copernicus_download_api()\]–*
     - :page_facing_up: VarsX.nc … *–\[copernicus_download_api()\]–*
+  - :open_file_folder: data_cmip6 *–\[download_cmip_data()\]–*
+    - :open_file_folder: Model_name_download
+      *–\[download_cmip_data()\]–*
+      - :open_file_folder: Experiment_name_download
+        *–\[download_cmip_data()\]–*
+        - :page_facing_up: ModelName_ExperimentName_VarsName.sh
+          *–\[download_cmip_data()\]–*
+        - :page_facing_up: Vars1.nc *–\[download_cmip_data()\]–*
+        - :page_facing_up: Vars2.nc *–\[download_cmip_data()\]–*
+        - :page_facing_up: VarsX.nc … *–\[download_cmip_data()\]–*

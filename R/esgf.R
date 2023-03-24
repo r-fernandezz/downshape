@@ -443,6 +443,147 @@ select_dataset <- function(res_init) {
 
 }
 
+#' Download CMIP6 Data Files
+#'
+#' @param selected_datasets Dataframe from select_dataset() function with variables selected
+#' @param time_span 
+#'
+#' @return ???? paths to surface layer output netcdf files
+#' @export variable files (.nc)
+#'
+download_cmip_data <- function( selected_datasets,
+                                time_span = targets::tar_load("time_span")){
+
+  message("# Download data files")
+  
+  selected_datasets <- read.csv2(here::here("outputs", "selected_datasets.csv"))
+  
+  res_dir <- "outputs/data_cmip6"
+  dir.create(res_dir, showWarnings = FALSE)
+    
+  n_datasets <- nrow(selected_datasets)
+  
+  nc_data <- unlist(lapply(1:n_datasets, function(s) {
+    #s = 1
+    #get data features
+    meta        <- selected_datasets[s, ]
+    experiment  <- meta$experiment_id
+    var         <- meta$variable_id
+    source      <- meta$source_id
+    memb        <- meta$member_id
+    freq        <- meta$frequency
+    grid        <- meta$grid_label
+    
+    message(paste0("# Dataset ", s, "/", n_datasets, " -> ",
+                      source, " - ", experiment, " - ", var))
+    
+    # make dirs
+    source_dir     <- paste0(res_dir, "/", source)
+    dir.create(source_dir, showWarnings = FALSE)
+    experiment_dir <- paste0(source_dir, "/", experiment)
+    dir.create(experiment_dir, showWarnings = FALSE)
+    
+    #wget bash script
+    wgs_f    <- paste0(paste(source, experiment, var, sep = "_"), ".sh")
+    wgs_path <- file.path(experiment_dir, wgs_f)
+    
+    if (file.exists(wgs_path)) {
+      message("# Previously downloaded bash script detected: deleting it")
+      unlink(wgs_path)
+    }
+    
+    #get the script
+    wgs <- search_esgf(experiments = experiment,
+                        vars = var,
+                        freq = freq,
+                        time_span = NULL,
+                        sources = source,
+                        grids = grid,
+                        members = memb,
+                        type = "wget",
+                        verb = TRUE)
+    
+    cat(wgs, file = wgs_path)
+    Sys.sleep(5)
+    Sys.chmod(wgs_path)
+        
+    message("# Modifying the script to download only files overlapping the project time interval")
+    
+    #list files to download (as listed in the bash script)
+    wgs_content         <- readLines(wgs_path)
+    files_to_down_index <- grep("\\.nc", wgs_content)
+    files_to_down       <- wgs_content[files_to_down_index]
+    files_to_down       <- setNames(gsub("'", "", sapply(files_to_down, function(f) strsplit(f, " ")[[1]][1])), NULL)
+    
+    if (length(files_to_down) > 1) { #modify bash script for good time interval
+      #select by time
+      ##files intervals
+      splits           <- data.frame(t(data.frame(strsplit(gsub(".nc", "", sapply(strsplit(files_to_down, "_"), "[", 7)), "-"))), stringsAsFactors = FALSE)
+      rownames(splits) <- files_to_down
+      names(splits)    <- c("start", "end")
+      splits$start     <- lubridate::ymd_hms(paste0(splits$start,"01 00:00:00"), tz = "UTC")
+      splits$end       <- lubridate::ymd_hms(paste0(splits$end,"12 23:59:59"), tz = "UTC")
+      splits$interval  <- lubridate::interval(splits$start, splits$end)
+      
+      time_span_interval   <- lubridate::interval(lubridate::ymd_hms(time_span$start), lubridate::ymd_hms(time_span$end))
+      splits$out_time_span <- !lubridate::int_overlaps(splits$interval, time_span_interval)
+      
+      elems_to_rem <- files_to_down_index[splits$out_time_span]
+      wgs_content  <- wgs_content[-elems_to_rem]
+      
+      wgs_content[grepl("Script created for",  wgs_content)] <- paste0(wgs_content[grepl("Script created for",  wgs_content)], " and edited programmatically by 'rcmip6' to download ", sum(!splits$out_time_span)," files")
+      
+      #update script file
+      unlink(wgs_path)
+      cat(paste(wgs_content, collapse = "\n"), file = wgs_path)
+      Sys.sleep(5)
+      Sys.chmod(wgs_path)
+      
+    }
+    
+    wd <- here::here()
+    setwd(experiment_dir)
+    wgs_out <- system(paste0("./", wgs_f, " -s"), intern = FALSE)
+    
+    Sys.sleep(30)
+    
+    n_retries <- 0
+    downloads_all_ok <- FALSE
+    
+    #check downloads and retry
+    while (!downloads_all_ok) {
+      wgs_out_report <- system(paste0("./", wgs_f, " -ns"), intern = TRUE)
+      files_reports  <- grep("\\.nc", wgs_out_report, value = TRUE)
+      reports_ok     <- grepl("Already downloaded and verified", files_reports)
+      fail           <- any(!reports_ok)
+      failed_files   <- sapply(strsplit(files_reports, " "), "[", 1)[!reports_ok]
+      ok_files       <- sapply(strsplit(files_reports, " "), "[", 1)[reports_ok]
+      
+      if (n_retries > 3) {
+        message(paste0("Too many retries (", n_retries, ")\n"))
+        message(paste0("Failed files: ", paste(failed_files, collapse = ",\n")))
+        return(failed_files) #TODO return a better object
+      }
+      
+      if (fail) {
+        n_retries <- n_retries + 1
+        message(paste0("Failed files: ", paste(failed_files, collapse = ",\n")))
+        wgs_out   <- system(paste0("./", wgs_f, " -s"), intern = FALSE)
+      } else {
+        message(paste0("Download succes: \n", paste(ok_files, collapse = ",\n")))
+        downloads_all_ok <- TRUE
+      }
+    }
+    
+    setwd(wd)
+
+  }))
+
+  message("All variables into selected_datasets.csv table downloaded")
+
+  return(nc_data)
+
+}
 
 #' search_and_parse
 #'
