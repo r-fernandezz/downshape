@@ -13,9 +13,9 @@ list(
     # Esgf dataset search & select
     ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
     ,tar_target(available_dataset_df, cmip_parse_search(available_dataset_json))
-    ,tar_target(select_dataset, select_datasets(available_dataset_df), format = "file")
+    ,tar_target(select_dataset, select_dataset(available_dataset_df), format = "file")
 
     # Download environmentale variables observed 
-    ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"))
+    ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters), format = "file")
 )

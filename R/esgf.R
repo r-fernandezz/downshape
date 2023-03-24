@@ -218,7 +218,7 @@ search_esgf <- function(experiments,
 cmip_parse_search <- function(results) {
 
   # results <- targets::tar_read("available_dataset_json")
-  # results <- datasets_todown #output of select_datasets() function
+  # results <- datasets_todown #output of select_dataset() function
 
   # keep all possible meta data  
 
@@ -321,7 +321,7 @@ get_models_for_experiment <- function(res_init = res_init,
 
 }
 
-#' select_datasets
+#' select_dataset
 #' 
 #' @description Select among CMIP6 Datasets (lowest member id & native grid if available). 
 #' This fucntion use get_model_for_experiment function to select model availables.
@@ -329,9 +329,9 @@ get_models_for_experiment <- function(res_init = res_init,
 #' @param res_init Dataframe. Output of cmip_parse_search function (and search_esgf function before) 
 #'
 #' @return ? not finished
-#' @export csv file with model selected
+#' @export two csv files with model selected after filtration and before (all available models)
 
-select_datasets <- function(res_init) {
+select_dataset <- function(res_init) {
 
     #res_init <- targets::tar_read("available_dataset_df")
 
@@ -347,7 +347,7 @@ select_datasets <- function(res_init) {
     mods_initial <- Map(function(x, y) cbind(x, list_name = y), mods_initial, names(mods_initial))
     mods_initial <- do.call(rbind, mods_initial)
     mods_initial_path <- here::here("outputs", "dataset_found_before_filter.csv")
-    write.csv(mods_initial, file = mods_initial_path, row.names = TRUE)
+    write.csv2(mods_initial, file = mods_initial_path, row.names = TRUE)
 
     # vector of all models
     all_mods <- sort(unique(unlist(lapply(mods_experiments, "[[", "source_id"))))
@@ -437,7 +437,7 @@ select_datasets <- function(res_init) {
 
     dat <- cmip_parse_search(datasets_todown)
     f_out <- here::here("outputs", "selected_datasets.csv")
-    write.csv(datasets_todown, file = f_out, row.names = FALSE)
+    write.csv2(datasets_todown, file = f_out, row.names = FALSE)
 
     return(c(mods_initial_path, f_out))
 
@@ -473,7 +473,7 @@ search_and_parse <- function(experiments,
     res_path <- "outputs/available_dataset.csv"
     write.csv(tab, file = res_path, row.names = FALSE)
 
-    tab_binaire <- select_datasets(res)
+    tab_binaire <- select_dataset(res)
     tab_binaire <- Map(function(x, y) cbind(x, list_name = y), tab_binaire, names(tab_binaire))
     tab_binaire <- do.call(rbind, tab_binaire)
     res_path_bin <- "outputs/available_model_ssp_vars.csv"
