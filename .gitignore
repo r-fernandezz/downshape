@@ -9,6 +9,7 @@ downshape.code-workspace
 .Rproj.user/
 downshape.Rproj
 .RData
+*.out
 
 # renv environment
 renv/*

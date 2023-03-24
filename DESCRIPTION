@@ -25,4 +25,5 @@ Imports:
   lubridate,
   parallel,
   stringr,
-  targets
+  targets,
+  visNetwork
