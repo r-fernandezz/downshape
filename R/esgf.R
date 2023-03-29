@@ -346,7 +346,7 @@ select_dataset <- function(res_init) {
     mods_initial <- setNames(lapply(experiments, function(x) mods_experiments_both[[x]]$all_models), experiments)
     mods_initial <- Map(function(x, y) cbind(x, list_name = y), mods_initial, names(mods_initial))
     mods_initial <- do.call(rbind, mods_initial)
-    mods_initial_path <- here::here("outputs", "dataset_found_before_filter.csv")
+    mods_initial_path <- here::here("output", "dataset_found_before_filter.csv")
     write.csv2(mods_initial, file = mods_initial_path, row.names = TRUE)
 
     # vector of all models
@@ -367,10 +367,9 @@ select_dataset <- function(res_init) {
     
     message("## selecting the datasets")
     datasets_todown <- lapply(names(mods_experiments_filt_scenario), function(x) {
-      #x  = "historical" ; x = "ssp534-over"
+
       message("### experiment: ", x)
-      # d <- mods_experiments[[x]]
-      # d <- d[d[, "source_id"] %in% mods_experiments_ok, ]
+
       r <-  do.call(c, lapply(mods_experiments_ok, function(mm) {
         #mm = "CESM2-WACCM" mm = "IPSL-CM6A-LR" mm = "MIROC-ES2L" mm = "NorESM2-LM"
         message("#### source model: ", mm)
@@ -433,11 +432,12 @@ select_dataset <- function(res_init) {
                 " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
         rrr
       }))
+
     })
 
-    dat <- cmip_parse_search(datasets_todown)
-    f_out <- here::here("outputs", "selected_datasets.csv")
-    write.csv2(datasets_todown, file = f_out, row.names = FALSE)
+    dat <- data.table::rbindlist(datasets_todown)
+    f_out <- here::here("output", "selected_datasets.csv")
+    write.csv2(dat, file = f_out, row.names = FALSE)
 
     return(c(mods_initial_path, f_out))
 
@@ -456,9 +456,9 @@ download_cmip_data <- function( selected_datasets,
 
   message("# Download data files")
   
-  selected_datasets <- read.csv2(here::here("outputs", "selected_datasets.csv"))
+  selected_datasets <- read.csv2(here::here("output", "selected_datasets.csv"))
   
-  res_dir <- "outputs/data_cmip6"
+  res_dir <- "output/data_cmip6"
   dir.create(res_dir, showWarnings = FALSE)
     
   n_datasets <- nrow(selected_datasets)
@@ -611,13 +611,13 @@ search_and_parse <- function(experiments,
     res <- search_esgf(experiments, freq, vars, time_span)
 
     tab <- cmip_parse_search(res)
-    res_path <- "outputs/available_dataset.csv"
+    res_path <- "output/available_dataset.csv"
     write.csv(tab, file = res_path, row.names = FALSE)
 
     tab_binaire <- select_dataset(res)
     tab_binaire <- Map(function(x, y) cbind(x, list_name = y), tab_binaire, names(tab_binaire))
     tab_binaire <- do.call(rbind, tab_binaire)
-    res_path_bin <- "outputs/available_model_ssp_vars.csv"
+    res_path_bin <- "output/available_model_ssp_vars.csv"
     write.csv(tab_binaire, file = res_path_bin, row.names = TRUE)
 
     return(c(res_path, res_path_bin))

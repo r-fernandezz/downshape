@@ -19,7 +19,7 @@ API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html).
 This compendium allow to download observed data come from Copernicus
 website.
 
-Message d’avis : Targets and globals must have unique names. Ignoring
+Warning message: Targets and globals must have unique names. Ignoring
 global objects that conflict with target names: download_cmip_data,
 select_dataset. Warnings like this one are important, but if you must
 suppress them, you can do so with Sys.setenv(TAR_WARN = “false”).
@@ -28,15 +28,15 @@ suppress them, you can do so with Sys.setenv(TAR_WARN = “false”).
 graph LR
   subgraph Graph
     direction LR
-    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
-    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::errored
+    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::outdated --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
+    xac02e5e58926353b(["experiments"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x906e78a8df9f52cb(["freq"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x8f15ec77b8dbd81a(["vars"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
   end
 ```
 
@@ -55,7 +55,9 @@ github.
 
 # :key: Dependencies
 
-No sowfware dependencies.
+To download Copernicus data it’s necessary to install
+[python3](https://www.python.org/downloads/) and motuclient (with this
+command: *python3 -m pip install motuclient==1.8.4 –no-cache-dir*)
 
 This R research compendium using renv package to fixe package version.
 Run renv::restore() to update your packages in your computer and

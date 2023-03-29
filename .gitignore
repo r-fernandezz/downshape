@@ -1,4 +1,4 @@
-outputs/*
+output/*
 
 #data folder
 *_logging.txt

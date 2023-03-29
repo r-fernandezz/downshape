@@ -39,7 +39,7 @@ cat("\n```")
 
 # :key: Dependencies
 
-No sowfware dependencies.
+To download Copernicus data it's necessary to install [python3](https://www.python.org/downloads/) and motuclient (with this command: *python3 -m pip install motuclient==1.8.4 --no-cache-dir*)
 
 This R research compendium using renv package to fixe package version. Run renv::restore() to update your packages in your computer and renv::status() to check if everything is ready.
 
