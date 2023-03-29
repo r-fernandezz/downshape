@@ -110,7 +110,7 @@ copernicus_download_api <- function(path_tab_param,
 
     }
 
-    return(list.files(here::here("output", "data_copernicus")))
+    return(list.files(here::here("output", "data_copernicus"), full.name = TRUE))
 
 }
 
