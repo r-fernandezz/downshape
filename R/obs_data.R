@@ -4,9 +4,8 @@
 #' Complete column of csv table with MOTU API requeste output on Copernicus website (one row by product downloading).
 #' If a parameter into csv table doesn't exist for your product (example : depth) just leave the box empty.
 #'
-#'
-#' @param path_output Path. Path where netcdf data will be exported.
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
+#' @param path_output Path. Path where netcdf data will be exported.
 #' @param user Character. User used to connect you on Copernicus marine service website.
 #' @param passwd Character. Password to connect you on Copernicus marine service website.
 #' 
@@ -16,13 +15,12 @@
 
 copernicus_download_api <- function(path_tab_param,
                                     path_output = here::here("output"),
-                                    folder_output = "data_copernicus",
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
 
     #path_tab_param <- targets::tar_read(tab_parameters)
 
-    dir.create(paste(path_output, folder_output, sep = "/"), showWarnings = FALSE)
+    dir.create(paste(path_output, "data_copernicus", sep = "/"), showWarnings = FALSE)
 
     # check encodage csv
     if(ncol(read.csv2(path_tab_param)) < 2){ 
@@ -98,7 +96,7 @@ copernicus_download_api <- function(path_tab_param,
         }else("variable parameter doesn't exist")
 
         command <- paste0(command, 
-                            " --out-dir ", paste0(path_output, "/", folder_output), 
+                            " --out-dir ", paste0(path_output, "/", "data_copernicus"), 
                             " --out-name ", tab_param[i, "my_variable_name"], ".nc", 
                             " --user ", user,
                             " --pwd ", passwd)
