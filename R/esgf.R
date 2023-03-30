@@ -328,10 +328,10 @@ get_models_for_experiment <- function(res_init = res_init,
 #' 
 #' @param res_init Dataframe. Output of cmip_parse_search function (and search_esgf function before) 
 #'
-#' @return ? not finished
+#' @return same of export (list)
 #' @export two csv files with model selected after filtration and before (all available models)
 
-select_dataset <- function(res_init) {
+select_dataset <- function(res_init){
 
     #res_init <- targets::tar_read("available_dataset_df")
 
@@ -443,14 +443,17 @@ select_dataset <- function(res_init) {
 
 }
 
-#' Download CMIP6 Data Files
+#' download_cmip_data
 #'
+#' @description Download CMIP data.
+#' 
 #' @param selected_datasets Dataframe from select_dataset() function with variables selected
-#' @param time_span 
+#' @param time_span time period downloaded 
 #'
-#' @return ???? paths to surface layer output netcdf files
-#' @export variable files (.nc)
+#' @return paths of folders into surface layer output netcdf files are downloaded
+#' @export variable files (.nc) into folder structure
 #'
+
 download_cmip_data <- function( selected_datasets,
                                 time_span = targets::tar_load("time_span")){
 
