@@ -2,7 +2,7 @@
 #'
 #' @description To download data on Copernicus marine service website with MOTU API and csv table. 
 #' Complete column of csv table with MOTU API requeste output on Copernicus website (one row by product downloading).
-#' If a parameter into csv table doesn't exist for your product (example : depth) just leave the box empty.
+#' If a parameter into csv table doesn't exist for your product (example : depth) just leave the cell empty.
 #'
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
 #' @param path_output Path. Path where netcdf data will be exported.
@@ -111,7 +111,3 @@ copernicus_download_api <- function(path_tab_param,
     return(list.files(here::here("output", "data_copernicus"), full.name = TRUE))
 
 }
-
-# copernicus_download_api()
-
-# stars::read_stars(paste0(here::here("output", "copernicus"), "/DUV.nc"))
