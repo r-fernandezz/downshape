@@ -10,6 +10,7 @@ downshape.code-workspace
 downshape.Rproj
 .RData
 *.out
+_targets.yaml
 
 # renv environment
 renv/*

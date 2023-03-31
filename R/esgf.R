@@ -584,7 +584,7 @@ download_cmip_data <- function( selected_datasets,
 
   message("All variables into selected_datasets.csv table downloaded")
 
-  return(nc_data)
+  return(list.files(here::here("output", "data_cmip6"), recursive = TRUE, full.names = TRUE))
 
 }
 
