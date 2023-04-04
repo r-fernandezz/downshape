@@ -23,7 +23,9 @@ Imports:
   httr,
   jsonlite,
   lubridate,
+  ncmeta,
   parallel,
+  stars,
   stringr,
   targets,
   visNetwork

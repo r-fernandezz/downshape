@@ -19,10 +19,11 @@ API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html).
 This compendium allow to download observed data come from Copernicus
 website.
 
-Warning message: Targets and globals must have unique names. Ignoring
+Message d’avis : Targets and globals must have unique names. Ignoring
 global objects that conflict with target names: download_cmip_data,
-select_dataset. Warnings like this one are important, but if you must
-suppress them, you can do so with Sys.setenv(TAR_WARN = “false”).
+select_dataset, concatenate_data. Warnings like this one are important,
+but if you must suppress them, you can do so with Sys.setenv(TAR_WARN =
+“false”).
 
 ``` mermaid
 graph LR
@@ -36,28 +37,66 @@ graph LR
     x2c0118dd07b06ac8(["time_span"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x8f15ec77b8dbd81a(["vars"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
+    xba5d8678b6176d68(["download_cmip_data"]):::outdated --> x96804873c73726bd(["concatenate_data"]):::outdated
     x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
+    x96804873c73726bd(["concatenate_data"]):::outdated --> x9543d9ff8a85b869(["remap_data"]):::outdated
+    xe73cbbcc20086ecd(["spat_reso"]):::outdated --> x9543d9ff8a85b869(["remap_data"]):::outdated
   end
 ```
 
 # :point_right: Step by step
 
-- :one: Edit experiments (ssp scenario), vars (variables), freq
-  (frequence), time_span (min and max time) targets of “\_targets.R”
-  file.
-- :two: Run pipeline launching *make.R* script.
+- :one: Import files necessary into data folder
+- :two: Edit targets of “\_targets.R” file.
+- :three: Run pipeline launching *make.R* script
 
-# :heavy_check_mark: Input Data Informations
+# :heavy_check_mark: Input Informations
+
+## Data folder
 
 :heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
 Parameters of data we want dto download. Check table structuration on
 github.
 
+:heavy_check_mark: **\[Mask_PA_variable.shp\]** : Shapefile. Mask of
+study area to crop environmental rasters with CDO. This shapefile will
+be convert to NETCDF file with *gdal* before being used by CDO.
+
+## Targets script
+
+:heavy_check_mark: **\[experiments\]** : To select ssp scenario
+downloaded (check on esgf website menu)
+
+:heavy_check_mark: **\[vars\]** : To select variables downloaded (check
+on esgf website menu).
+
+:heavy_check_mark: **\[freq\]** : To select frequence of variables
+downloaded (check on esgf website menu).
+
+:heavy_check_mark: **\[time_span\]** : To select min and max time of
+variables downloaded (format example:“1982-01-01T00:00:00Z”).
+
+:heavy_check_mark: **\[historical_period\]** : To define min and max of
+historical period (format example: “185001-201412”).
+
+:heavy_check_mark: **\[future_period\]** : To define min and max time of
+future period (format example: “201501-210012”).
+
+:heavy_check_mark: **\[spat_reso\]** : To remap variables with CDO
+swoftware by bilinear method allowing change spatial resolution (cdo
+command format: “180x90” correspond to 2°x2°, “360x180” correspond to
+1°x1°)
+
 # :key: Dependencies
 
 To download Copernicus data it’s necessary to install
-[python3](https://www.python.org/downloads/) and motuclient (with this
-command: *python3 -m pip install motuclient==1.8.4 –no-cache-dir*)
+[python3](https://www.python.org/downloads/) and motuclient (Ubuntu
+command: *python3 -m pip install motuclient==1.8.4 –no-cache-dir*).
+
+To formate cmip data it’s necessary to install
+[gdal](https://gdal.org/download.html),
+[cdo](https://code.mpimet.mpg.de/projects/cdo/embedded/index.html#x1-30001.1),
+[nco](https://command-not-found.com/ncrename).
 
 This R research compendium using renv package to fixe package version.
 Run renv::restore() to update your packages in your computer and
@@ -83,3 +122,8 @@ renv::status() to check if everything is ready.
         - :page_facing_up: Vars1.nc *–\[download_cmip_data()\]–*
         - :page_facing_up: Vars2.nc *–\[download_cmip_data()\]–*
         - :page_facing_up: VarsX.nc … *–\[download_cmip_data()\]–*
+  - :open_file_folder: cmip6_data_remapped *–\[remap_cmip_data()\]–*
+    - :open_file_folder: Model_name_download *–\[remap_cmip_data()\]–*
+      - :page_facing_up: Vars1.nc *–\[remap_cmip_data()\]–*
+      - :page_facing_up: Vars2.nc *–\[remap_cmip_data()\]–*
+      - :page_facing_up: VarsX.nc *–\[remap_cmip_data()\]–*
