@@ -19,11 +19,19 @@ API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html).
 This compendium allow to download observed data come from Copernicus
 website.
 
-Message d’avis : Targets and globals must have unique names. Ignoring
-global objects that conflict with target names: download_cmip_data,
-select_dataset, concatenate_data. Warnings like this one are important,
-but if you must suppress them, you can do so with Sys.setenv(TAR_WARN =
-“false”).
+no ‘var’ specified, using chl other available variables: time,
+time_bnds, longitude, longitude_bnds, latitude, latitude_bnds, j, i,
+lev, lev_bnds Large netcdf source found, returning proxy object. no
+‘var’ specified, using chl other available variables: time, time_bnds,
+longitude, longitude_bnds, latitude, latitude_bnds, j, i, lev, lev_bnds
+Large netcdf source found, returning proxy object. Messages d’avis : 1:
+Dans
+.get_nc_projection(meta$attribute, rep_var, cv) :  No projection information found in nc file. 2: Dans .get_nc_projection(meta$attribute,
+rep_var, cv) : No projection information found in nc file. 3: Targets
+and globals must have unique names. Ignoring global objects that
+conflict with target names: download_cmip_data, select_dataset,
+concatenate_data. Warnings like this one are important, but if you must
+suppress them, you can do so with Sys.setenv(TAR_WARN = “false”).
 
 ``` mermaid
 graph LR
@@ -41,6 +49,8 @@ graph LR
     x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
     x96804873c73726bd(["concatenate_data"]):::outdated --> x9543d9ff8a85b869(["remap_data"]):::outdated
     xe73cbbcc20086ecd(["spat_reso"]):::outdated --> x9543d9ff8a85b869(["remap_data"]):::outdated
+    xbce5cad1cf7e7103(["futur_period"]):::outdated --> xbce5cad1cf7e7103(["futur_period"]):::outdated
+    x57dd1d5e854c11b6(["historical_period"]):::outdated --> x57dd1d5e854c11b6(["historical_period"]):::outdated
   end
 ```
 
@@ -76,11 +86,13 @@ downloaded (check on esgf website menu).
 :heavy_check_mark: **\[time_span\]** : To select min and max time of
 variables downloaded (format example:“1982-01-01T00:00:00Z”).
 
-:heavy_check_mark: **\[historical_period\]** : To define min and max of
-historical period (format example: “185001-201412”).
+:heavy_check_mark: **\[historical_period\]** : List start and end time.
+To define min and max time of historical period (cdo format:
+“YYYY-MM-DDThh:mm:ss”).
 
-:heavy_check_mark: **\[future_period\]** : To define min and max time of
-future period (format example: “201501-210012”).
+:heavy_check_mark: **\[future_period\]** : List start and end time. To
+define min and max time of future period (cdo format:
+“YYYY-MM-DDThh:mm:ss”).
 
 :heavy_check_mark: **\[spat_reso\]** : To remap variables with CDO
 swoftware by bilinear method allowing change spatial resolution (cdo

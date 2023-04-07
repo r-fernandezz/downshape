@@ -9,8 +9,8 @@ list(
     ,tar_target(vars, c("so", "zos", "uo", "vo", "thetao", "chl", "uas", "vas", "sfcWind"))
     ,tar_target(freq, "mon")
     ,tar_target(time_span, list(start = "1982-01-01T00:00:00Z", end = "2100-12-31T23:59:59Z"))
-    #,tar_target(historical_period, "185001-201412")
-    #,tar_target(futur_period, "201501-210012")
+    ,tar_target(historical_period, list(start = "1850-01-01T00:00:00", end = "2014-12-01T00:00:00"))
+    ,tar_target(futur_period, list(start = "2015-01-01T00:00:00", end = "2100-12-01T00:00:00"))
     ,tar_target(spat_reso, "180x90")
 
     # Esgf dataset search & select

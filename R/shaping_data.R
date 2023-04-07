@@ -157,7 +157,7 @@ remap_cmip_data <- function(concatenate_data, spat_reso){
 
                 f_final <- gsub(paste0("output/data_cmip6/", m, "/", r, "/"), 
                                 paste0("output/cmip6_data_remapped/", m, "/"), 
-                                gsub(".nc", "_regrid_miss_maskArea_spatReso_dimName.nc", file))
+                                gsub(".nc", "_seltime_regrid_miss_maskArea_spatReso_dimName.nc", file))
 
                 if (file.exists(f_final)) return(f_final)
                 
@@ -176,19 +176,23 @@ remap_cmip_data <- function(concatenate_data, spat_reso){
                 #   	file <- f_out
                 #   }
 
-                #################### Extract period time we want
-                
-                # Filter by time, treatment of the period we would like
-                # period <- switch(r,
-                #                 historical = historical_period,
-                #                 future_period)
+                #################### Filter by time, treatment of the period we would like
+                period <- switch(r,
+                                historical = historical_period,
+                                future_period)
+
+                # period = list(start = "1970-01-01T00:00:00", end = "1980-01-01T00:00:00")
+
+                f_seltime <- gsub(".nc", "_seltime.nc", file)
+                f_seltime <- gsub(paste0("output/data_cmip6/", m, "/", r, "/"), paste0("output/cmip6_data_remapped/", m, "/"), f_seltime)
+                com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file, " ", f_seltime)
+                system(com_time)
 
                 #################### Regrid
-                f_regrid <- gsub(".nc", "_regrid.nc", file)
-                f_regrid <- gsub(paste0("output/data_cmip6/", m, "/", r, "/"), paste0("output/cmip6_data_remapped/", m, "/"), f_regrid)
-
-                com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", file, " ", f_regrid)	      
+                f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
+                com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_seltime, " ", f_regrid)	      
                 system(com_regrid)
+                unlink(f_seltime)
 
                 #################### Fill missing values
                 f_miss <- gsub(".nc", "_miss.nc", f_regrid)
@@ -268,3 +272,7 @@ remap_cmip_data <- function(concatenate_data, spat_reso){
     }))
 
 }
+
+tr <- stars::read_ncdf("/home/romain/MyData/Doctorat/Analyses/downshape/output/cmip6_data_remapped/CMCC-ESM2/chl_Omon_CMCC-ESM2_piControl_r1i1p1f1_gn_197001-198912_seltime.nc")
+
+org <- stars::read_ncdf("/home/romain/MyData/Doctorat/Analyses/downshape/output/cmip6_data_remapped/CMCC-ESM2/chl_Omon_CMCC-ESM2_piControl_r1i1p1f1_gn_197001-198912_seltime.nc")
