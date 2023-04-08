@@ -5,7 +5,6 @@
 #' If a parameter into csv table doesn't exist for your product (example : depth) just leave the cell empty.
 #'
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
-#' @param path_output Path. Path where netcdf data will be exported.
 #' @param user Character. User used to connect you on Copernicus marine service website.
 #' @param passwd Character. Password to connect you on Copernicus marine service website.
 #' 
@@ -14,13 +13,12 @@
 #' @export Netcdf files downloaded
 
 copernicus_download_api <- function(path_tab_param,
-                                    path_output = here::here("output"),
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
 
-    #path_tab_param <- targets::tar_read(tab_parameters)
+    #path_tab_param <- here::here("data", "copernicus_parameters.csv")
 
-    dir.create(paste(path_output, "data_copernicus", sep = "/"), showWarnings = FALSE)
+    dir.create(here::here("output", "data_copernicus"), showWarnings = FALSE)
 
     # check encodage csv
     if(ncol(read.csv2(path_tab_param)) < 2){ 
