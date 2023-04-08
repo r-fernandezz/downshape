@@ -117,11 +117,13 @@ cdo_format_command <- function(file_path,
     #  period = list(start = "1970-01-01T00:00:00", end = "1980-01-01T00:00:00")
     # spat_reso = "180x90"
     # path_output = here::here("output", "data_cmip6_remapped", m)
+    # deep_level = list(start = c(0, 50), end = c(50, 100))
 
     # copernicus
     # period = list(start = "2023-02-12T00:00:00", end = "2023-02-15T00:00:00")
     # spat_reso = "180x90"
     # path_output = here::here("output", "data_copernicus_remapped")
+    # deep_level = list(start = c(0, 50), end = c(50, 100))
 
     f_final <- paste0(path_output, "/", gsub(".nc", "_seltime_regrid_miss_maskArea_spatReso_dimName.nc", basename(file_path)))
 
@@ -183,26 +185,26 @@ cdo_format_command <- function(file_path,
 
     if(boleen[1] == TRUE){
         com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[1], ",long",
-                                " -v ", dim[1], ",long")
+                                " -d ", dim[1], ",lon",
+                                " -v ", dim[1], ",lon")
     }
 
     if(boleen[2] == TRUE){
         com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[2], ",latg",
-                                " -v ", dim[2], ",latg") 
+                                " -d ", dim[2], ",lat",
+                                " -v ", dim[2], ",lat") 
     }
 
     if(boleen[3] == TRUE){
         com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[3], ",levg", 
-                                " -v ", dim[3], ",levg") 
+                                " -d ", dim[3], ",lev", 
+                                " -v ", dim[3], ",lev") 
     }
 
     if(boleen[4] == TRUE){
         com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[4], ",timeg", 
-                                " -v ", dim[4], ",timeg") 
+                                " -d ", dim[4], ",time", 
+                                " -v ", dim[4], ",time") 
     }
 
     if(com_dimName != "ncrename" ){
@@ -211,12 +213,42 @@ cdo_format_command <- function(file_path,
                                 " ", f_tempReso,
                                 " ", f_dimName)
         system(com_dimName)
+        unlink(f_tempReso)
     } else {
-        message("### -> Dimension names don't change")
+        message("### -> Dimension names don't change. File rename")
         f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
+        file.rename(f_tempReso, f_dimName)
     }
 
-    unlink(f_tempReso)
+    #################### Extract deep levels
+    # ncdf_file <- stars::read_ncdf(f_dimName)
+    # dim <- names(stars::st_dimensions(ncdf_file))
+
+    # boleen <- dim == c("lev", "lev", "lev", "lev")
+
+    # if(TRUE %in% boleen == TRUE){ # if TRUE, file have a lev layer
+
+    #     for(d in 1:length(deep_level$start)){
+
+    #         start <- deep_level$start[d]
+    #         end <- deep_level$end[d]
+
+    #         message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
+    #         f_deep <- gsub(".nc", paste0("_deep", start, "-", end, "m", ".nc"), f_dimName)
+    #         com_deep <- paste0("cdo topvalue,", start, ",", end, " ", f_dimName, " ", f_deep)
+    #         system(com_deep)
+
+    #     }
+        
+
+    # } else {
+    #     f_deep <- gsub(".nc", "_Nodeep.nc", f_dimName)
+    #     file.rename(f_tempReso, f_dimName)
+
+
+    # }
+
+    # return(f_deep)
 
     return(f_dimName)
 

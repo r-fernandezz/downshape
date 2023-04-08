@@ -54,7 +54,9 @@ cat("\n```")
 
 :heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of future period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
-:heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°)
+:heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).
+
+:heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector.
 
 # :key: Dependencies
 

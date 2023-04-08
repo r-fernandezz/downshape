@@ -15,6 +15,7 @@ list(
     ,tar_target(futur_period, list(start = "2015-01-01T00:00:00", end = "2100-12-01T00:00:00"))
     ,tar_target(current_period, list(start = "2018-01-01T00:00:00", end = "2019-12-31T00:00:00"))
     ,tar_target(spat_reso, "180x90")
+    #,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
 
     # Esgf dataset search & select
     ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
