@@ -17,8 +17,8 @@ copernicus_download_api <- function(path_tab_param,
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
 
     #path_tab_param <- here::here("data", "copernicus_parameters.csv")
-
-    dir.create(here::here("output", "data_copernicus"), showWarnings = FALSE)
+    path_output <- here::here("output", "data_copernicus")
+    dir.create(path_output, showWarnings = FALSE)
 
     # check encodage csv
     if(ncol(read.csv2(path_tab_param)) < 2){ 
@@ -94,7 +94,7 @@ copernicus_download_api <- function(path_tab_param,
         }else("variable parameter doesn't exist")
 
         command <- paste0(command, 
-                            " --out-dir ", paste0(path_output, "/", "data_copernicus"), 
+                            " --out-dir ", path_output, 
                             " --out-name ", tab_param[i, "my_variable_name"], ".nc", 
                             " --user ", user,
                             " --pwd ", passwd)
