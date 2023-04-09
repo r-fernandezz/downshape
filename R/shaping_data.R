@@ -96,7 +96,8 @@ concatenate_data <- function(download_data){
 
 #' cdo_format_command
 #'
-#' @description To formate cmip6 and copernicus data download with CDO swofware. This function create and run CDO commands to shaping data. 
+#' @description To formate cmip6 and copernicus data download with CDO swofware. This function create and run CDO commands to shaping data.
+#' If file final exists, the file will not be formatted again.
 #'
 #' @param file_path Path. File path of variable you want process.
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
@@ -303,7 +304,7 @@ remap_cmip_data <- function(concatenate_data){
                 file_form <- cdo_format_command(file_path = file, 
                                                 type_data = "cmip6", 
                                                 period = r, 
-                                                spat_reso = spat_reso, 
+                                                spat_reso = targets::tar_read("spat_reso"), 
                                                 path_output = path_output)
 
                 return(file_form)
