@@ -131,9 +131,9 @@ cdo_format_command <- function(file_path,
 
     #################### Filter by time, treatment of the period we would like
     period <- switch(period,
-                    current = current_period,
-                    historical = historical_period,
-                    futur_period)
+                    current = targets::tar_read("current_period"),
+                    historical = targets::tar_read("historical_period"),
+                    targets::tar_read("futur_period"))
 
     f_seltime <- gsub(".nc", "_seltime.nc", file_path)
     f_seltime <- paste0(path_output, "/", basename(f_seltime))
@@ -341,17 +341,17 @@ remap_copernicus_data <- function(obs_data) {
 
     list_file <- list.files(here::here("output", "data_copernicus"), full.name = TRUE)
 
-    unlist(parallel::mclapply(list_file, function(f){
+    message("Treatment of files: ", "\n", list_file)
 
-            cdo_format_command( file_path = f, 
-                                type_data = "copernicus", 
-                                period = "current", 
-                                spat_reso = spat_reso, 
-                                path_output = path_output)
+    parallel::mclapply(list_file, function(f){
 
-            }, mc.cores = length(list_file))
-    )
+        cdo_format_command( file_path = f, 
+                            type_data = "copernicus", 
+                            period = "current", 
+                            spat_reso = targets::tar_read("spat_reso"), 
+                            path_output = path_output)
 
-    return(file_form)
+        }, mc.cores = length(list_file))
 
+    return(list.files(path_output, full.names = TRUE))
 }

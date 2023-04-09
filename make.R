@@ -9,4 +9,4 @@ targets::tar_config_set(store = here::here("output", "_targets"))
 
 ######### Run pipeline ------------
 targets::tar_visnetwork(targets_only = TRUE)
-tar_make()
+targets::tar_make()
