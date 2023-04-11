@@ -115,7 +115,7 @@ cdo_format_command <- function(file_path,
                                 spat_reso, 
                                 path_output){
 
-    f_final <- paste0(path_output, "/", gsub(".nc", "_seltime_regrid_miss_maskArea_tempReso_dimName.nc", basename(file_path)))
+    f_final <- paste0(path_output, "/", gsub(".nc", "_seltime_regrid_miss_maskArea_tempReso_dimName_deep.nc", basename(file_path)))
 
     if (file.exists(f_final) == TRUE){
 
@@ -128,6 +128,8 @@ cdo_format_command <- function(file_path,
                         current = targets::tar_read("current_period"),
                         historical = targets::tar_read("historical_period"),
                         targets::tar_read("futur_period"))
+
+        #period = list(start = "1970-01-01T00:00:00", end = "1975-12-30T00:00:00")
 
         f_seltime <- gsub(".nc", "_seltime.nc", file_path)
         f_seltime <- paste0(path_output, "/", basename(f_seltime))
@@ -214,37 +216,58 @@ cdo_format_command <- function(file_path,
             file.rename(f_tempReso, f_dimName)
         }
 
-        #################### Extract deep levels
-        # ncdf_file <- stars::read_ncdf(f_dimName)
-        # dim <- names(stars::st_dimensions(ncdf_file))
+        #################### Extract depth levels
+        ncdf_file <- stars::read_ncdf(f_dimName)
+        dim <- names(stars::st_dimensions(ncdf_file))
 
-        # boleen <- dim == c("lev", "lev", "lev", "lev")
+        boleen <- "lev" %in% dim
 
-        # if(TRUE %in% boleen == TRUE){ # if TRUE, file have a lev layer
+        if(boleen == TRUE){ # if file have a "lev" dimension
 
-        #     for(d in 1:length(deep_level$start)){
+            for(d in 1:length(deep_level$start)){
 
-        #         start <- deep_level$start[d]
-        #         end <- deep_level$end[d]
+                # deep_level <- list(start = c(10, 50), end = c(100, 100))
 
-        #         message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
-        #         f_deep <- gsub(".nc", paste0("_deep", start, "-", end, "m", ".nc"), f_dimName)
-        #         com_deep <- paste0("cdo topvalue,", start, ",", end, " ", f_dimName, " ", f_deep)
-        #         system(com_deep)
+                # Depth filter values
+                start <- deep_level$start[d]
+                end <- deep_level$end[d]
 
-        #     }
-            
+                ##### Mean layers between two borders
+                depth_values <- stars::st_dimensions(ncdf_file)$lev$values
+                depth_values <- depth_values[depth_values < end]
+                depth_values <- depth_values[depth_values > start]
 
-        # } else {
-        #     f_deep <- gsub(".nc", "_Nodeep.nc", f_dimName)
-        #     file.rename(f_tempReso, f_dimName)
+                f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
+                com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
+                system(com_deepTEMPO)
 
+                # Mean depth layer
+                message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
+                split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+                f_deep <- here::here(path_output, paste0(split_name[1], start, "-", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+                f_deep <- gsub(".nc", "_deep.nc", f_deep)
 
-        # }
+                com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
+                system(com_deep)
+                unlink(f_deepTEMPO)
 
-        # return(f_deep)
+                # Mean all depth layers
+                f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
+                com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
+                system(com_deep_tot)
 
-        return(f_dimName)
+            }
+
+            unlink(f_dimName)
+
+        } else {
+            f_deep <- gsub(".nc", "_deep.nc", f_dimName)
+            message(paste0("No depth levels for this variable: ", f_dimName))
+            file.rename(f_dimName, f_deep)
+        }
+
+        return(f_deep)
+
     }
 }
 
@@ -265,6 +288,8 @@ remap_cmip_data <- function(concatenate_data){
     mods <- read.csv2(here::here("output", "selected_datasets.csv"))
     mods <- unique(mods$source_id)
 
+    dir.create(here::here("output", "data_cmip6_remapped"))
+
     message("we have ", length(mods), " models: ", paste(mods, collapse = " | "))
 
     unlist(lapply(mods, function(m){
@@ -274,7 +299,7 @@ remap_cmip_data <- function(concatenate_data){
         # Select files and variable names
         message(paste0("### Treatment of ", m))
         path_output <- here::here("output", "data_cmip6_remapped", m)
-        dir.create(path_output, showWarnings = FALSE)
+        dir.create(path_output)
         path  <- paste0(here::here("output", "data_cmip6"), "/", m)
         files <- list.files(path, recursive = TRUE, pattern = ".nc", full.names = TRUE)
         files <- basename(files)[!grepl("gr", files)] #remove regrid file

@@ -15,7 +15,7 @@ list(
     ,tar_target(futur_period, list(start = "2015-01-01T00:00:00", end = "2100-12-01T00:00:00"))
     ,tar_target(current_period, list(start = "2023-02-14T00:00:00", end = "2023-02-19T00:00:00"))
     ,tar_target(spat_reso, "180x90")
-    #,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
+    ,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
 
     # Esgf dataset search & select
     ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
@@ -24,6 +24,7 @@ list(
 
     # Download and remapped esgf data selected (CMIP6)
     ,tar_target(download_cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
+    #,tar_target(download_cmip_data, list.files(here::here("output", "data_cmip6"), recursive = TRUE, full.names = TRUE))
     ,tar_target(concatenate_data, concatenate_data(download_cmip_data), format = "file")
     ,tar_target(remap_cmip_data, remap_cmip_data(concatenate_data), format = "file")
 
