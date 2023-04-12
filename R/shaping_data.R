@@ -374,3 +374,165 @@ remap_copernicus_data <- function(obs_data) {
 
     return(list.files(path_output, full.names = TRUE))
 }
+
+
+#' cpeed_compo
+#'
+#' @description To calculate speed with two components with CDO. 
+#' In first, temporal file created to merge U and V variables and speed will be calculated on this file and exported into new file.
+#'
+#'
+#' @param path_compo1 Path. Path of first component.
+#' @param path_compo2 Path. Path of second component.
+#' @param name_compo1 Character. Abbreviation of first name variable component. Into target vars_speed (check readme informations).
+#' @param name_compo2 Character. Abbreviation of second name variable component. Into target vars_speed (check readme informations).
+#' @param name_speed Character. Abbreviation of output name variable. Into target vars_speed (check readme informations).
+
+#'
+#' @return Path of processed variable
+#'
+#' @export Processed file (.nc)
+
+speedCompo <- function( path_compo1, 
+                        path_compo2, 
+                        name_compo1, 
+                        name_compo2,
+                        name_speed){
+
+    # Create output file name
+    split_name <- strsplit(basename(path_compo1), "_")[[1]] # create name of output file
+    path_output <- strsplit(path_compo1, "/")[[1]]
+    path_output <- paste(path_output[1:as.numeric(length(path_output)-1)], collapse = "/")
+    f_merge <- paste0(path_output, "/", paste0(name, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+
+    # Merge with CDO
+    f_mergeTEMPO <- gsub(".nc", "_TEMPO.nc", f_merge)
+    com_mergeTEMPO <- paste0("cdo merge ", path_compo1, " ", path_compo2, " ", f_mergeTEMPO)
+    system(com_mergeTEMPO)
+    
+    f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
+    com_merge <- paste0("cdo expr,", "'", name, "=", 
+                        "sqrt(", name_compo1, "*", name_compo1, "+", name_compo2, "*", name_compo2, ")", "' ", 
+                        f_mergeTEMPO, " ", f_merge)
+    system(com_merge)
+
+    if(file.exists(f_merge) == TRUE){
+        unlink(f_mergeTEMPO)
+        unlink(path_compo1)
+        unlink(path_compo2)
+    } else(stop("Calcul with components failed"))
+
+    return(f_merge)
+
+}
+
+
+#' speed_compo_cmip
+#'
+#' @description To apply speedCompo() function at cmip6 data
+#'
+#'
+#' @param file_path Path. File paths of cmip6 variables you want process.
+#' @param vars_speed List. vars_speed targets (check readme informations).
+#'
+#' @return Vector with paths of processed variables
+#'
+#' @export Processed files (.nc)
+#'
+
+speedCompo_cmip <- function(file_path = remap_cmip_data, vars_speed ) {
+
+
+    # Conserve path root of the file
+    path_root <- strsplit(file_path[1], "/")[[1]]
+    path_root <- paste(path_root[1:as.numeric(length(path_root)-1)], collapse = "/")
+
+    return <- c()
+    compo <- c() # if i = 1 empty
+
+    for(i in 1:length(vars_speed$compo1)){
+
+        # Select variable with two coponents
+        grep_var <- grep(basename(file_path), pattern = paste0("^(", vars_speed$compo1[i], ")", "|", "^(", vars_speed$compo2[i], ")"), value = TRUE)
+
+        if(length(grep_var) >= 2){ #if pattern "fs" object correspond to copernicus variable names, length = 0
+
+            run <- unique(sapply(strsplit(grep_var, "_"), "[", 4))
+
+            unlist(lapply(run, function(run){
+
+                #run = "historical"
+
+                grep_run <- grep(basename(grep_var), pattern = run, value = TRUE)
+
+                if(length(grep_run) > 2) stop("More than one file found to calculate speed!" )
+
+                compo <- speedCompo(path_compo1 = paste(path_root, grep_run[1], sep = "/"), 
+                                    path_compo2 = paste(path_root, grep_run[2], sep = "/"), 
+                                    name_compo1 = vars_speed$compo1[i], 
+                                    name_compo2 = vars_speed$compo2[i],
+                                    name_speed = vars_speed$name[i]
+                                    )
+
+            }))
+
+        }
+
+        return <- c(return, compo)
+
+    }
+
+    return(return)
+
+}
+
+
+#' speed_compo_copernicus
+#'
+#' @description To apply speedCompo() function at copernicus data
+#'
+#'
+#' @param file_path Path. File paths of copernicus variables you want process.
+#' @param vars_speed List. vars_speed targets (check readme informations).
+#'
+#' @return Vector with paths of processed variables
+#'
+#' @export Processed files (.nc)
+#'
+
+speedCompo_copernicus <- function(file_path = remap_copernicus_data, vars_speed) {
+    
+    # file_path = list.files(here::here("output", "data_copernicus_remapped"), full.name = TRUE)
+
+    # Conserve path of the file
+    path_root <- strsplit(file_path[1], "/")[[1]]
+    path_root <- paste(path_root[1:as.numeric(length(path_root)-1)], collapse = "/")
+
+    return <- c()
+    compo <- c() # if i = 1 empty
+
+    for(i in 1:length(vars_speed$compo1)){
+
+        # Select variable with two coponents
+        grep_var <- grep(basename(file_path), pattern = paste0("^(", vars_speed$compo1[i], ")", "|", "^(", vars_speed$compo2[i], ")"), value = TRUE)
+
+
+        if(length(grep_var) > 2) stop("Error: more than one file found to calculate speed!" )
+
+        if(length(grep_var) == 2){ # if pattern "fs" object correspond to cmip6 variable names, length = 0
+
+            compo <- speedCompo(path_compo1 = paste(path_root, grep_var[1], sep = "/"), 
+                                path_compo2 = paste(path_root, grep_var[2], sep = "/"), 
+                                name_compo1 = vars_speed$compo1[i], 
+                                name_compo2 = vars_speed$compo2[i],
+                                name_speed = vars_speed$name[i]
+                                )
+
+        }
+
+        return <- c(return, compo)
+
+    }
+
+    return(return)
+}

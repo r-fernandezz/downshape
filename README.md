@@ -23,19 +23,24 @@ website.
 graph LR
   subgraph Graph
     direction LR
-    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::outdated
+    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::started
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::started
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
     x96804873c73726bd(["concatenate_data"]):::outdated --> x160e3ae24bfccc51(["remap_cmip_data"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> x8bfa010e2da6177f(["remap_copernicus_data"]):::errored
-    xba5d8678b6176d68(["download_cmip_data"]):::outdated --> x96804873c73726bd(["concatenate_data"]):::outdated
+    x160e3ae24bfccc51(["remap_cmip_data"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
+    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> x8bfa010e2da6177f(["remap_copernicus_data"]):::uptodate
+    x8bfa010e2da6177f(["remap_copernicus_data"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
+    xba5d8678b6176d68(["download_cmip_data"]):::started --> x96804873c73726bd(["concatenate_data"]):::outdated
     x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
+    x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> x57dd1d5e854c11b6(["historical_period"]):::uptodate
     xe73cbbcc20086ecd(["spat_reso"]):::uptodate --> xe73cbbcc20086ecd(["spat_reso"]):::uptodate
@@ -91,6 +96,11 @@ command format: “180x90” correspond to 2°x2°, “360x180” correspond to
 file created. To split variable to several files by deep level. First
 (or n) element of “start” vector correspond to first (or n) element of
 “end” vector.
+
+:heavy_check_mark: **\[vars_speed\]** : List first, second component and
+variable name. To calcul variable speed with two components and export
+the file with new abbreviation variable. First (or n) element of
+“compo1” vector correspond to first (or n) element of “compo2” vector.
 
 # :key: Dependencies
 

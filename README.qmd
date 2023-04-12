@@ -58,6 +58,8 @@ cat("\n```")
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector.
 
+:heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components and export the file with new abbreviation variable. First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector.
+
 # :key: Dependencies
 
 To download Copernicus data it's necessary to install [python3](https://www.python.org/downloads/) and motuclient (Ubuntu command: *python3 -m pip install motuclient==1.8.4 --no-cache-dir*).

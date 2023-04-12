@@ -16,6 +16,7 @@ list(
     ,tar_target(current_period, list(start = "2023-02-14T00:00:00", end = "2023-02-19T00:00:00"))
     ,tar_target(spat_reso, "180x90")
     ,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
+    ,tar_target(vars_speed, list(compo1 = c("uo"), compo2 = c("vo"), name = "WIND"))
 
     # Esgf dataset search & select
     ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
@@ -27,9 +28,12 @@ list(
     #,tar_target(download_cmip_data, list.files(here::here("output", "data_cmip6"), recursive = TRUE, full.names = TRUE))
     ,tar_target(concatenate_data, concatenate_data(download_cmip_data), format = "file")
     ,tar_target(remap_cmip_data, remap_cmip_data(concatenate_data), format = "file")
+    ,tar_target(speedCompo_cmip, speedCompo_cmip(remap_cmip_data, vars_speed), format = "file")
 
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters), format = "file")
     ,tar_target(remap_copernicus_data, remap_copernicus_data(obs_data))
+    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remap_copernicus_data, vars_speed), format = "file")
+
 )
