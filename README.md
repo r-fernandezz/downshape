@@ -23,21 +23,21 @@ website.
 graph LR
   subgraph Graph
     direction LR
-    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::started
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::started
+    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::errored
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::errored
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
-    x96804873c73726bd(["concatenate_data"]):::outdated --> x160e3ae24bfccc51(["remap_cmip_data"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xfe343bf7def0fc98(["remap_copernicus"]):::outdated
+    x96804873c73726bd(["concatenate_data"]):::outdated --> x89805fe5a461e372(["remap_cmip"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x160e3ae24bfccc51(["remap_cmip_data"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    x89805fe5a461e372(["remap_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> x8bfa010e2da6177f(["remap_copernicus_data"]):::uptodate
-    x8bfa010e2da6177f(["remap_copernicus_data"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    xba5d8678b6176d68(["download_cmip_data"]):::started --> x96804873c73726bd(["concatenate_data"]):::outdated
+    xfe343bf7def0fc98(["remap_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xba5d8678b6176d68(["download_cmip_data"]):::errored --> x96804873c73726bd(["concatenate_data"]):::outdated
     x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
@@ -133,17 +133,17 @@ renv::status() to check if everything is ready.
         - :page_facing_up: Vars1.nc *–\[download_cmip_data()\]–*
         - :page_facing_up: Vars2.nc *–\[download_cmip_data()\]–*
         - :page_facing_up: VarsX.nc … *–\[download_cmip_data()\]–*
-  - :open_file_folder: data_cmip6_remapped *–\[remap_cmip_data()\]–*
-    - :open_file_folder: Model_name_download *–\[remap_cmip_data()\]–*
-      - :page_facing_up: Vars1.nc *–\[remap_cmip_data()\]–*
-      - :page_facing_up: Vars2.nc *–\[remap_cmip_data()\]–*
-      - :page_facing_up: VarsX.nc *–\[remap_cmip_data()\]–*
+  - :open_file_folder: data_cmip6_remapped *–\[remapCDO_cmip()\]–*
+    - :open_file_folder: Model_name_download *–\[remapCDO_cmip()\]–*
+      - :page_facing_up: Vars1.nc *–\[remapCDO_cmip()\]–*
+      - :page_facing_up: Vars2.nc *–\[remapCDO_cmip()\]–*
+      - :page_facing_up: VarsX.nc *–\[remapCDO_cmip()\]–*
   - :open_file_folder: data_copernicus *–\[copernicus_download_api()\]–*
     - :page_facing_up: Vars1.nc *–\[copernicus_download_api()\]–*
     - :page_facing_up: Vars2.nc *–\[copernicus_download_api()\]–*
     - :page_facing_up: VarsX.nc … *–\[copernicus_download_api()\]–*
   - :open_file_folder: data_copernicus_remapped
-    *–\[remap_copernicus_data()\]–*
-    - :page_facing_up: Vars1.nc *–\[remap_copernicus_data()\]–*
-    - :page_facing_up: Vars2.nc *–\[remap_copernicus_data()\]–*
-    - :page_facing_up: VarsX.nc *–\[remap_copernicus_data()\]–*
+    *–\[remapCDO_copernicus()\]–*
+    - :page_facing_up: Vars1.nc *–\[remapCDO_copernicus()\]–*
+    - :page_facing_up: Vars2.nc *–\[remapCDO_copernicus()\]–*
+    - :page_facing_up: VarsX.nc *–\[remapCDO_copernicus()\]–*

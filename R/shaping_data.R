@@ -109,7 +109,7 @@ concatenate_data <- function(download_data){
 #' @export File (.nc) of the variable processed
 
 
-cdo_format_command <- function(file_path, 
+remapCDO <- function(file_path, 
                                 type_data = "cmip6", 
                                 period, 
                                 spat_reso, 
@@ -274,7 +274,7 @@ cdo_format_command <- function(file_path,
 
 #' remap_data_cmip
 #'
-#' @description Apply cdo_format_command function to all cmip6 variables
+#' @description Apply remapCDO function to all cmip6 variables
 #'
 #' @param concatenate_data Path. Path of the file you want formatted with CDO.
 #'
@@ -283,7 +283,7 @@ cdo_format_command <- function(file_path,
 #' @export Processed files (.nc)
 #' 
 
-remap_cmip_data <- function(concatenate_data){
+remapCDO_cmip <- function(concatenate_data){
 
     mods <- read.csv2(here::here("output", "selected_datasets.csv"))
     mods <- unique(mods$source_id)
@@ -326,7 +326,7 @@ remap_cmip_data <- function(concatenate_data){
                 
                 file <- paste0(here::here("output", "data_cmip6"), "/", m, "/", r, "/", grep(v, basename(files), value = TRUE))
 
-                file_form <- cdo_format_command(file_path = file, 
+                file_form <- remapCDO(file_path = file, 
                                                 type_data = "cmip6", 
                                                 period = r, 
                                                 spat_reso = targets::tar_read("spat_reso"), 
@@ -344,7 +344,7 @@ remap_cmip_data <- function(concatenate_data){
 
 #' remap_copernicus_data
 #'
-#' @description Apply cdo_format_command function to all copernicus variables
+#' @description Apply remapCDO function to all copernicus variables
 #'
 #'
 #' @param obs_data Path list. List of variable path download by copernicus_download_api function.
@@ -353,7 +353,7 @@ remap_cmip_data <- function(concatenate_data){
 #'
 #' @export Processed files (.nc)
 
-remap_copernicus_data <- function(obs_data) {
+remapCDO_copernicus <- function(obs_data) {
     
     path_output <- here::here("output", "data_copernicus_remapped")
     dir.create(path_output, showWarnings = FALSE)
@@ -364,7 +364,7 @@ remap_copernicus_data <- function(obs_data) {
 
     parallel::mclapply(list_file, function(f){
 
-        cdo_format_command( file_path = f, 
+        remapCDO( file_path = f, 
                             type_data = "copernicus", 
                             period = "current", 
                             spat_reso = targets::tar_read("spat_reso"), 

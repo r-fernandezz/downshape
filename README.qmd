@@ -80,18 +80,18 @@ This R research compendium using renv package to fixe package version. Run renv:
                 - :page_facing_up: Vars1.nc *--[download_cmip_data()]--*
                 - :page_facing_up: Vars2.nc *--[download_cmip_data()]--*
                 - :page_facing_up: VarsX.nc ... *--[download_cmip_data()]--*
-    - :open_file_folder: data_cmip6_remapped *--[remap_cmip_data()]--* 
-      - :open_file_folder: Model_name_download *--[remap_cmip_data()]--* 
-        - :page_facing_up: Vars1.nc *--[remap_cmip_data()]--* 
-        - :page_facing_up: Vars2.nc *--[remap_cmip_data()]--* 
-        - :page_facing_up: VarsX.nc *--[remap_cmip_data()]--* 
+    - :open_file_folder: data_cmip6_remapped *--[remapCDO_cmip()]--* 
+      - :open_file_folder: Model_name_download *--[remapCDO_cmip()]--* 
+        - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
+        - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
+        - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
     - :open_file_folder: data_copernicus *--[copernicus_download_api()]--*
         - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
         - :page_facing_up: Vars2.nc *--[copernicus_download_api()]--*
         - :page_facing_up: VarsX.nc ... *--[copernicus_download_api()]--*
-    - :open_file_folder: data_copernicus_remapped *--[remap_copernicus_data()]--* 
-        - :page_facing_up: Vars1.nc *--[remap_copernicus_data()]--* 
-        - :page_facing_up: Vars2.nc *--[remap_copernicus_data()]--* 
-        - :page_facing_up: VarsX.nc *--[remap_copernicus_data()]--* 
+    - :open_file_folder: data_copernicus_remapped *--[remapCDO_copernicus()]--* 
+        - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
+        - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
+        - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--* 
 
 
