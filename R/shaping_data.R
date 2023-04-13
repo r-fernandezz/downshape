@@ -129,12 +129,20 @@ remapCDO <- function(file_path,
                         historical = targets::tar_read("historical_period"),
                         targets::tar_read("futur_period"))
 
-        #period = list(start = "1970-01-01T00:00:00", end = "1975-12-30T00:00:00")
-
         f_seltime <- gsub(".nc", "_seltime.nc", file_path)
         f_seltime <- paste0(path_output, "/", basename(f_seltime))
         com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
         system(com_time)
+
+        if(type_data = "cmip6"){ #remove date in file name
+
+            split <- strsplit(f_seltime, "_")[[1]]
+            place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
+            split <- split[-place]
+            new_name <- paste(split, collapse = "_")
+            file.rename(f_seltime, new_name)
+
+        }
 
         #################### Regrid
         f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
@@ -364,11 +372,11 @@ remapCDO_copernicus <- function(obs_data) {
 
     parallel::mclapply(list_file, function(f){
 
-        remapCDO( file_path = f, 
-                            type_data = "copernicus", 
-                            period = "current", 
-                            spat_reso = targets::tar_read("spat_reso"), 
-                            path_output = path_output)
+        remapCDO(   file_path = f, 
+                    type_data = "copernicus", 
+                    period = "current", 
+                    spat_reso = targets::tar_read("spat_reso"), 
+                    path_output = path_output)
 
         }, mc.cores = length(list_file))
 
