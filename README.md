@@ -23,21 +23,19 @@ website.
 graph LR
   subgraph Graph
     direction LR
-    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::errored
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xba5d8678b6176d68(["download_cmip_data"]):::errored
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xfe343bf7def0fc98(["remap_copernicus"]):::outdated
-    x96804873c73726bd(["concatenate_data"]):::outdated --> x89805fe5a461e372(["remap_cmip"]):::outdated
+    x4fe875b2492d0106(["concatenate_cmip"]):::uptodate --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::uptodate
+    xd8e5f2013a341013(["cmip_data"]):::uptodate --> x4fe875b2492d0106(["concatenate_cmip"]):::uptodate
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x89805fe5a461e372(["remap_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xf4b49e2ba07661b1(["remapCDO_cmip"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::errored
+    xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::errored
     xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
-    xfe343bf7def0fc98(["remap_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xba5d8678b6176d68(["download_cmip_data"]):::errored --> x96804873c73726bd(["concatenate_data"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
     x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
@@ -101,6 +99,9 @@ file created. To split variable to several files by deep level. First
 variable name. To calcul variable speed with two components and export
 the file with new abbreviation variable. First (or n) element of
 “compo1” vector correspond to first (or n) element of “compo2” vector.
+All component names must be different as short names of variables. This
+target will be modified by speedCompo_cmip function to integrate depth
+variables created during process (chl50-100, uo0-100, etc…)
 
 # :key: Dependencies
 

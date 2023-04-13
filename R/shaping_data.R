@@ -86,7 +86,7 @@ concatenate_cmip <- function(download_data){
                     }))
                 }))
     
-    # Remove files don't run with CDO (NA.nc). If "sources" and "experiment" d'ont have same "variable"
+    # Remove files don't run with CDO (NA.nc). If "sources" and "experiment" don't have same "variable"
     select <- grep("NA.nc", basename(res_files))
     res_files <- res_files[-select]
 
@@ -115,183 +115,189 @@ remapCDO <- function(file_path,
                                 spat_reso, 
                                 path_output){
 
-    f_final <- paste0(path_output, "/", gsub(".nc", "_seltime_regrid_miss_maskArea_tempReso_dimName_deep.nc", basename(file_path)))
+    # Remove file stoped during process
+    pattern <- paste0(path_output, "/", basename(file_path))
+    pattern <- strsplit(pattern, "_")[[1]]
+    pattern <- paste0(pattern[1:as.numeric(length(pattern)-1)], collapse = "_")
+    process <- grep(pattern, list.files(path_output, full.name = TRUE), value = TRUE)
+    if(length(process) >=1) remove(process)
 
-    if (file.exists(f_final) == TRUE){
+    #################### Filter by time, treatment of the period we would like
+    period <- switch(period,
+                    current = targets::tar_read("current_period"),
+                    historical = targets::tar_read("historical_period"),
+                    targets::tar_read("futur_period"))
 
-        return(f_final)
+    f_seltime <- gsub(".nc", "_seltime.nc", file_path)
+    f_seltime <- paste0(path_output, "/", basename(f_seltime))
+    com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
+    message("### Running CDO command to seltime :  \n", "--->", com_time)
+    system(com_time)
 
-    } else{
+    if(type_data == "cmip6"){ #change date in file name
 
-        #################### Filter by time, treatment of the period we would like
-        period <- switch(period,
-                        current = targets::tar_read("current_period"),
-                        historical = targets::tar_read("historical_period"),
-                        targets::tar_read("futur_period"))
-
-        f_seltime <- gsub(".nc", "_seltime.nc", file_path)
-        f_seltime <- paste0(path_output, "/", basename(f_seltime))
-        com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
-        message("### Running CDO command to seltime :  \n", "--->", com_time)
-        system(com_time)
-
-        if(type_data == "cmip6"){ #remove date in file name
-
-            split <- strsplit(f_seltime, "_")[[1]]
-            place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
-            split <- split[-place]
-            new_name <- paste(split, collapse = "_")
-            file.rename(f_seltime, new_name)
-
-        }
-
-        #################### Regrid
-        f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
-        com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_seltime, " ", f_regrid)
-        message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
-        system(com_regrid)
-        Sys.sleep(5)
-        unlink(f_seltime)
-
-        #################### Fill missing values
-        f_miss <- gsub(".nc", "_miss.nc", f_regrid)
-        com_miss <- paste0("cdo fillmiss ", f_regrid, " ", f_miss)
-        message("### Running CDO command to fill missinf values :  \n", "--->", com_miss)
-        system(com_miss)
-        Sys.sleep(5)
-        unlink(f_regrid)
-
-        #################### Create, regrid, replicated and apply mask only to conserve study area
-        mask_PA <- here::here("data", "mask_PA_variable.shp")
-        mask_PA_out <- here::here("output", "mask_PA_variable.nc")
-        system(paste0("gdal_rasterize -of netCDF -burn 1 -tr 0.01 0.01 ", "-a_srs EPSG:4326 ", mask_PA, " ", mask_PA_out)) # convert shp to nc
-
-        ## Regrid mask
-        f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
-        com_maskRegrid <- paste0("cdo -remapbil,r", spat_reso, " ", mask_PA_out, " ", f_maskRegrid)
-        system(com_maskRegrid)
-        Sys.sleep(5)
-        unlink(mask_PA_out)
-
-        ## Apply mask at several time series
-        f_maskArea <- gsub(".nc", "_maskArea.nc", f_miss)
-        com_maskArea <- paste0("cdo ifthen ", f_maskRegrid, " ", f_miss, " ", f_maskArea)
-        message("### Running CDO command to apply mask :  \n", "--->", com_maskArea)
-        system(com_maskArea)
-        Sys.sleep(5)
-        unlink(f_miss)
-
-        #################### Change temporal resolution
-        f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-        com_tempReso <- paste0("cdo monmean ", f_maskArea, " ", f_tempReso)
-        message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
-        system(com_tempReso)
-        Sys.sleep(5)
-        unlink(f_maskArea)
-
-        #################### Change dimension names
-        ncdf_file <- stars::read_ncdf(f_tempReso)
-        dim <- names(stars::st_dimensions(ncdf_file))
-
-        boleen <- dim != c("lon", "lat", "lev", "time")
-        if(exists("com_dimName") == TRUE) rm(com_dimName) #remove command if exist
-        com_dimName <- paste0("ncrename") #first command part
-
-        if(boleen[1] == TRUE){
-            com_dimName <- paste0(  com_dimName,
-                                    " -d ", dim[1], ",lon",
-                                    " -v ", dim[1], ",lon")
-        }
-
-        if(boleen[2] == TRUE){
-            com_dimName <- paste0(  com_dimName,
-                                    " -d ", dim[2], ",lat",
-                                    " -v ", dim[2], ",lat") 
-        }
-
-        if(boleen[3] == TRUE){
-            com_dimName <- paste0(  com_dimName,
-                                    " -d ", dim[3], ",lev", 
-                                    " -v ", dim[3], ",lev") 
-        }
-
-        if(boleen[4] == TRUE){
-            com_dimName <- paste0(  com_dimName,
-                                    " -d ", dim[4], ",time", 
-                                    " -v ", dim[4], ",time") 
-        }
-
-        if(com_dimName != "ncrename" ){
-            f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
-            com_dimName <- paste0(  com_dimName,
-                                    " ", f_tempReso,
-                                    " ", f_dimName)
-            message("### Running CDO command to change dimension names :  \n", "--->", com_dimName)
-            system(com_dimName)
-            Sys.sleep(5)
-            unlink(f_tempReso)
-        } else {
-            message("### -> Dimension names don't change. File rename")
-            f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
-            file.rename(f_tempReso, f_dimName)
-        }
-
-        #################### Extract depth levels
-        ncdf_file <- stars::read_ncdf(f_dimName)
-        dim <- names(stars::st_dimensions(ncdf_file))
-
-        boleen <- "lev" %in% dim
-
-        if(boleen == TRUE){ # if file have a "lev" dimension
-
-            for(d in 1:length(deep_level$start)){
-
-                # deep_level <- list(start = c(10, 50), end = c(100, 100))
-
-                # Depth filter values
-                start <- deep_level$start[d]
-                end <- deep_level$end[d]
-
-                ##### Mean layers between two borders
-                depth_values <- stars::st_dimensions(ncdf_file)$lev$values
-                depth_values <- depth_values[depth_values < end]
-                depth_values <- depth_values[depth_values > start]
-
-                f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
-                com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
-                system(com_deepTEMPO)
-
-                # Mean depth layer
-                message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
-                split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
-                f_deep <- here::here(path_output, paste0(split_name[1], start, "-", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
-                f_deep <- gsub(".nc", "_deep.nc", f_deep)
-
-                com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
-                message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
-                system(com_deep)
-                Sys.sleep(5)
-                unlink(f_deepTEMPO)
-
-                # Mean all depth layers
-                f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
-                com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
-                message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
-                system(com_deep_tot)
-
-            }
-            Sys.sleep(5)
-            unlink(f_dimName)
-
-        } else {
-            f_deep <- gsub(".nc", "_deep.nc", f_dimName)
-            message(paste0("No depth levels for this variable: ", f_dimName))
-            file.rename(f_dimName, f_deep)
-        }
-
-        return(f_deep)
+        split <- strsplit(f_seltime, "_")[[1]]
+        place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
+        date <- lapply(period, function(x){
+                    st <- sapply(strsplit(x, "T"), "[[", 1 )
+                    st <- strsplit(st, "-")[[1]]
+                    st <- paste0(st, collapse = "")
+                })
+        split[place] <- paste(date$start, date$end, sep = "-")
+        new_name <- paste(split, collapse = "_")
+        file.rename(f_seltime, new_name)
+        f_seltime <- new_name
 
     }
+
+    #################### Regrid
+    f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
+    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_seltime, " ", f_regrid)
+    message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
+    system(com_regrid)
+    Sys.sleep(5)
+    unlink(f_seltime)
+
+    #################### Fill missing values
+    f_miss <- gsub(".nc", "_miss.nc", f_regrid)
+    com_miss <- paste0("cdo fillmiss ", f_regrid, " ", f_miss)
+    message("### Running CDO command to fill missinf values :  \n", "--->", com_miss)
+    system(com_miss)
+    Sys.sleep(5)
+    unlink(f_regrid)
+
+    #################### Create, regrid, replicated and apply mask only to conserve study area
+    mask_PA <- here::here("data", "mask_PA_variable.shp")
+    mask_PA_out <- here::here("output", "mask_PA_variable.nc")
+    system(paste0("gdal_rasterize -of netCDF -burn 1 -tr 0.01 0.01 ", "-a_srs EPSG:4326 ", mask_PA, " ", mask_PA_out)) # convert shp to nc
+
+    ## Regrid mask
+    f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
+    com_maskRegrid <- paste0("cdo -remapbil,r", spat_reso, " ", mask_PA_out, " ", f_maskRegrid)
+    system(com_maskRegrid)
+    Sys.sleep(5)
+    unlink(mask_PA_out)
+
+    ## Apply mask at several time series
+    f_maskArea <- gsub(".nc", "_maskArea.nc", f_miss)
+    com_maskArea <- paste0("cdo ifthen ", f_maskRegrid, " ", f_miss, " ", f_maskArea)
+    message("### Running CDO command to apply mask :  \n", "--->", com_maskArea)
+    system(com_maskArea)
+    Sys.sleep(5)
+    unlink(f_miss)
+
+    #################### Change temporal resolution
+    f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
+    com_tempReso <- paste0("cdo monmean ", f_maskArea, " ", f_tempReso)
+    message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+    system(com_tempReso)
+    Sys.sleep(5)
+    unlink(f_maskArea)
+
+    #################### Change dimension names
+    ncdf_file <- stars::read_ncdf(f_tempReso)
+    dim <- names(stars::st_dimensions(ncdf_file))
+
+    boleen <- dim != c("lon", "lat", "lev", "time")
+    if(exists("com_dimName") == TRUE) rm(com_dimName) #remove command if exist
+    com_dimName <- paste0("ncrename") #first command part
+
+    if(boleen[1] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[1], ",lon",
+                                " -v ", dim[1], ",lon")
+    }
+
+    if(boleen[2] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[2], ",lat",
+                                " -v ", dim[2], ",lat") 
+    }
+
+    if(boleen[3] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[3], ",lev", 
+                                " -v ", dim[3], ",lev") 
+    }
+
+    if(boleen[4] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[4], ",time", 
+                                " -v ", dim[4], ",time") 
+    }
+
+    if(com_dimName != "ncrename" ){
+        f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
+        com_dimName <- paste0(  com_dimName,
+                                " ", f_tempReso,
+                                " ", f_dimName)
+        message("### Running CDO command to change dimension names :  \n", "--->", com_dimName)
+        system(com_dimName)
+        Sys.sleep(5)
+        unlink(f_tempReso)
+
+    } else {
+        message("### -> Dimension names don't change. File rename")
+        f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
+        file.rename(f_tempReso, f_dimName)
+        Sys.sleep(5)
+    }
+
+    #################### Extract depth levels
+    ncdf_file <- stars::read_ncdf(f_dimName)
+    dim <- names(stars::st_dimensions(ncdf_file))
+
+    boleen <- "lev" %in% dim
+
+    if(boleen == TRUE){ # if file have a "lev" dimension
+
+        deep_level <- targets::tar_read(deep_level)
+
+        for(d in 1:length(deep_level$start)){
+
+            # Depth filter values
+            start <- deep_level$start[d]
+            end <- deep_level$end[d]
+
+            ##### Mean layers between two borders
+            depth_values <- stars::st_dimensions(ncdf_file)$lev$values
+            depth_values <- depth_values[depth_values < end]
+            depth_values <- depth_values[depth_values > start]
+
+            f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
+            com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
+            system(com_deepTEMPO)
+
+            # Mean depth layer
+            message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
+            split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+            f_deep <- here::here(path_output, paste0(split_name[1], start, "-", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+            f_deep <- gsub(".nc", "_deep.nc", f_deep)
+
+            com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
+            message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
+            system(com_deep)
+            Sys.sleep(5)
+            unlink(f_deepTEMPO)
+
+            # Mean all depth layers
+            f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
+            com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
+            message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
+            system(com_deep_tot)
+
+        }
+        Sys.sleep(5)
+        unlink(f_dimName)
+        return(c(f_deep, f_deep_tot))
+
+    } else {
+        f_deep <- gsub(".nc", "_deep.nc", f_dimName)
+        message(paste0("No depth levels for this variable: ", f_dimName))
+        file.rename(f_dimName, f_deep)
+        return(f_deep)
+    }
+
 }
 
 
@@ -310,14 +316,16 @@ remapCDO_cmip <- function(concatenate_data){
 
     mods <- list.files(here::here("output", "data_cmip6")) # tructure file give all models downloaded
 
+    # Remove folder and creat a folder empty
+    if(file.exists(here::here("output", "data_cmip6_remapped"))) fs::dir_delete(here::here("output", "data_cmip6_remapped"))
     dir.create(here::here("output", "data_cmip6_remapped"))
 
-    message("we have ", length(mods), " models: ", paste(mods, collapse = " | "))
+    message("We have ", length(mods), " models: ", paste(mods, collapse = " | "))
 
     unlist(lapply(mods, function(m){
-        
+
         #m = "CMCC-ESM2"
-        
+
         # Select files and variable names
         message(paste0("### Treatment of ", m))
         path_output <- here::here("output", "data_cmip6_remapped", m)
@@ -329,36 +337,38 @@ remapCDO_cmip <- function(concatenate_data){
         vars <- unique(sapply(splits, '[', 1))
 
         # Extract experiment name
-        runs <- sapply(vars, function(x){
+        runs <- unique(unlist(sapply(vars, function(x){
             fs <- grep(x, basename(files), value = TRUE)
-            unique(unlist(setNames(lapply(splits[fs], '[', 4), NULL)))
-        })
-
-        # Create vector of experiment names from table with only one or several columns
-        if(is.null(ncol(runs)) == TRUE){
-            runs <- as.vector(runs)
-        }else(runs <- runs[ ,1])
+            fs <- setNames(lapply(splits[fs], '[', 4), NULL)
+        })))
 
         # Apply CDO function at all files
         unlist(parallel::mclapply(runs, function(r) {
             #r = "piControl" ; r = "historical"
             unlist(parallel::mclapply(vars, function(v){
             #v  = "chl"
-                message("Processing for: ", m, " / ", r, " / ", v)
-                
+
+                # Remove path files don't exist. If "sources" () and "experiment" don't have same "variable"
                 file <- paste0(here::here("output", "data_cmip6"), "/", m, "/", r, "/", grep(v, basename(files), value = TRUE))
+                file <- paste0(here::here("output", "data_cmip6"), "/", m, "/", r, "/", grep(r, basename(file), value = TRUE))
+                
+                if(length(grep(".nc", file)) != 0){
+                    
+                    message("Processing for: ", m, " / ", r, " / ", v)
 
-                file_form <- remapCDO(file_path = file, 
-                                                type_data = "cmip6", 
-                                                period = r, 
-                                                spat_reso = targets::tar_read("spat_reso"), 
-                                                path_output = path_output)
+                    file_form <- remapCDO(  file_path = file, 
+                                            type_data = "cmip6", 
+                                            period = r, 
+                                            spat_reso = targets::tar_read("spat_reso"), 
+                                            path_output = path_output)
 
-                return(file_form)
+                    return(file_form)
 
-            }, mc.cores = length(vars)))
+                }
 
-        }, mc.cores = 2))
+            }, mc.cores = 1)) # bug with mc.cores > 1
+
+        }, mc.cores = 1)) # bug with mc.cores > 1
 
     }))
 
@@ -425,7 +435,7 @@ speedCompo <- function( path_compo1,
     split_name <- strsplit(basename(path_compo1), "_")[[1]] # create name of output file
     path_output <- strsplit(path_compo1, "/")[[1]]
     path_output <- paste(path_output[1:as.numeric(length(path_output)-1)], collapse = "/")
-    f_merge <- paste0(path_output, "/", paste0(name, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+    f_merge <- paste0(path_output, "/", paste0(name_speed, "_", paste(split_name[2:length(split_name)], collapse = "_")))
 
     # Merge with CDO
     f_mergeTEMPO <- gsub(".nc", "_TEMPO.nc", f_merge)
@@ -433,15 +443,15 @@ speedCompo <- function( path_compo1,
     system(com_mergeTEMPO)
     
     f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
-    com_merge <- paste0("cdo expr,", "'", name, "=", 
+    com_merge <- paste0("cdo expr,", "'", name_speed, "=", 
                         "sqrt(", name_compo1, "*", name_compo1, "+", name_compo2, "*", name_compo2, ")", "' ", 
                         f_mergeTEMPO, " ", f_merge)
     system(com_merge)
 
     if(file.exists(f_merge) == TRUE){
         unlink(f_mergeTEMPO)
-        unlink(path_compo1)
-        unlink(path_compo2)
+        # unlink(path_compo1) #if remove, tar_visnetwork invalid previous steps
+        # unlink(path_compo2) #if remove, tar_visnetwork invalid previous steps
     } else(stop("Calcul with components failed"))
 
     return(f_merge)
@@ -462,49 +472,63 @@ speedCompo <- function( path_compo1,
 #' @export Processed files (.nc)
 #'
 
-speedCompo_cmip <- function(file_path = remap_cmip_data, vars_speed ) {
+speedCompo_cmip <- function(file_path = remapCDO_cmip, vars_speed) {
 
+    model <- list.files(here::here("output", "data_cmip6_remapped"))
 
-    # Conserve path root of the file
-    path_root <- strsplit(file_path[1], "/")[[1]]
-    path_root <- paste(path_root[1:as.numeric(length(path_root)-1)], collapse = "/")
+    for(i in 1:length(model)){
 
-    return <- c()
-    compo <- c() # if i = 1 empty
+        file_path2 <- grep(model, file_path, value = TRUE)
+        print(file_path2)
+        # Integrate depth variables (U0-50, chl50-100, etc...) in vars_speed targets
+        vsplit <- sapply(strsplit(basename(file_path2), "_"), "[[", 1)
+        vsplit_compo1 <- unique(grep(paste0(vars_speed$compo1, collapse = "|"), vsplit, value = TRUE))
+        vsplit_compo2 <- unique(grep(paste0(vars_speed$compo2, collapse = "|"), vsplit, value = TRUE))
+        boleen <- sort(vsplit_compo1) == sort(vars_speed$compo1)
+        if(FALSE %in% boleen){
+            vars_speed$compo1 <- vsplit_compo1
+            vars_speed$compo2 <- vsplit_compo2
+            vars_speed$name <- paste0(gsub("[0-9]{1,10}-[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
+        }
 
-    for(i in 1:length(vars_speed$compo1)){
+        # Conserve path root of the file
+        path_root <- unique(dirname(file_path2))
 
-        # Select variable with two coponents
-        grep_var <- grep(basename(file_path), pattern = paste0("^(", vars_speed$compo1[i], ")", "|", "^(", vars_speed$compo2[i], ")"), value = TRUE)
+        for(i in 1:length(vars_speed$compo1)){
 
-        if(length(grep_var) >= 2){ #if pattern "fs" object correspond to copernicus variable names, length = 0
+            # Select variable with two coponents
+            grep_var <- grep(basename(file_path2), pattern = paste0("^(", vars_speed$compo1[i], "_", ")", "|", "^(", vars_speed$compo2[i], "_", ")"), value = TRUE)
 
-            run <- unique(sapply(strsplit(grep_var, "_"), "[", 4))
+            if(length(grep_var) >= 2){ #if pattern "grep_var" object correspond to copernicus variable names, length = 0
 
-            unlist(lapply(run, function(run){
+                run <- unique(sapply(strsplit(grep_var, "_"), "[", 4))
 
-                #run = "historical"
+                unlist(lapply(run, function(run){
 
-                grep_run <- grep(basename(grep_var), pattern = run, value = TRUE)
+                    #run = "historical"
 
-                if(length(grep_run) > 2) stop("More than one file found to calculate speed!" )
+                    grep_run <- grep(basename(grep_var), pattern = run, value = TRUE)
 
-                compo <- speedCompo(path_compo1 = paste(path_root, grep_run[1], sep = "/"), 
-                                    path_compo2 = paste(path_root, grep_run[2], sep = "/"), 
-                                    name_compo1 = vars_speed$compo1[i], 
-                                    name_compo2 = vars_speed$compo2[i],
-                                    name_speed = vars_speed$name[i]
-                                    )
+                    if(length(grep_run) > 2) stop("More than one file found to calculate speed!" )
 
-            }))
+                    message("#### Launch speedCompo function")
+
+                    compo <- speedCompo(path_compo1 = paste(path_root, grep_run[1], sep = "/"), 
+                                        path_compo2 = paste(path_root, grep_run[2], sep = "/"), 
+                                        name_compo1 = vars_speed$compo1[i], 
+                                        name_compo2 = vars_speed$compo2[i],
+                                        name_speed = vars_speed$name[i]
+                                        )
+
+                }))
+
+            }
 
         }
 
-        return <- c(return, compo)
-
     }
 
-    return(return)
+    return(list.files(here::here("output", "data_cmip6_remapped"), recursive = TRUE, full.name = TRUE))
 
 }
 
