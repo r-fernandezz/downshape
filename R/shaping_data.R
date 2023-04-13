@@ -1,4 +1,4 @@
-#' concatenate_cmip6_data
+#' concatenate
 #'
 #' @description Merge cmip6 datasets by source x experiment x var for all datasets. Sorted by date and time. 
 #' Used into concatenate_experiment() function.
@@ -12,11 +12,9 @@
 #' @export file merged (.nc)
 #'
 
-concatenate_cmip6_data <- function(source, experiment, var) {
+concatenate <- function(source, experiment, var) {
 
-    #source = "CMCC-ESM2" ; experiment = "piControl" ; var= "chl"
-
-    exp_files_full <- sort(list.files(path = file.path("output", "data_cmip6", source, experiment),
+    exp_files_full <- sort(list.files(path = here::here("output", "data_cmip6", source, experiment),
                                     pattern = paste0(var, "_"),
                                     full.names = TRUE))
     
@@ -25,21 +23,21 @@ concatenate_cmip6_data <- function(source, experiment, var) {
     #if only one file then do nothing
     if (length(exp_files) == 1){
         message("### WARNING: Only one file, impossible to merge files")
-        return(paste0("output/data_cmip6/", source, "/", experiment, "/",exp_files))
+        return(paste0(here::here("output", "data_cmip6"), "/", source, "/", experiment, "/", exp_files))
     } 
 
+    # Output file name
     h1 <- exp_files[1]
     h2 <- exp_files[length(exp_files)]
-    f_out <- paste0("output/data_cmip6/", source, "/", experiment, "/", substr(h1, 1, nchar(h1) - 9),
+    f_out <- paste0(here::here("output", "data_cmip6"), "/", source, "/", experiment, "/", substr(h1, 1, nchar(h1) - 9),
                     substr(h2, nchar(h2) - 8, nchar(h2)-3),
                     ".nc")
 
-    f_in <- paste0("output/data_cmip6/", source, "/", experiment, "/", substr(h1, 1, nchar(h1) - 16),"*nc")
-
+    f_in <- paste(exp_files_full, collapse = " ")
     com <- paste0("cdo mergetime ", f_in, " ", f_out)
     message("### Running CDO command to merge:  \n", "--->", com)
     system(com)
-    Sys.sleep(10)
+    Sys.sleep(5)
     unlink(exp_files_full)
 
     return(f_out)
@@ -47,9 +45,9 @@ concatenate_cmip6_data <- function(source, experiment, var) {
 }
 
 
-#' concatenate_data
+#' concatenate_cmip
 #'
-#' @description Apply concatenate_experiment() function at all datasets.
+#' @description Apply concatenate() function at all cmip6 datasets.
 #'
 #' @param download_data Downloaded data we want to merge.
 #'
@@ -57,11 +55,9 @@ concatenate_cmip6_data <- function(source, experiment, var) {
 #'
 #' @export Same of concatenate_experiment() function
 
-concatenate_data <- function(download_data){
+concatenate_cmip <- function(download_data){
 
-    #download_cmip_data <- targets::tar_load("download_cmip_data")
-    #download_cmip_data <- list.files(here::here("output", "data_cmip6"), recursive = TRUE, full.names = TRUE)
-
+    # download_data <- targets::tar_read("download_cmip_data")
     message("# Concatenating data files for each source * experiment * variable")
 
     data_sets <- strsplit(download_data, "cmip6/")
@@ -71,7 +67,7 @@ concatenate_data <- function(download_data){
 
         d <- data.frame(t(unlist(x)))
         names(d) <- c("source_id", "experiment_id", "file")
-        d$variable_id <- strsplit(d$file, "_|[.]")[[1]][3]
+        d$variable_id <- strsplit(d$file, "_|[.]")[[1]][1]
         return(d)
 
     }))
@@ -82,19 +78,23 @@ concatenate_data <- function(download_data){
     message("---> ", length(sources)," source(s): ", paste(sources, collapse = " | "))
 
     res_files <- unlist(lapply(sources, function(s){
-        unlist(lapply(experiments, function(e){
-            unlist(lapply(variables, function(v){
-                message(s, "|", e, "|", v)
-                concatenate_cmip6_data(source = s, experiment = e, var = v)
-            }))
-        }))
-    }))
+                    unlist(lapply(experiments, function(e){
+                        unlist(lapply(variables, function(v){
+                            message(s, "|", e, "|", v)
+                            concatenate(source = s, experiment = e, var = v)
+                        }))
+                    }))
+                }))
+    
+    # Remove files don't run with CDO (NA.nc). If "sources" and "experiment" d'ont have same "variable"
+    select <- grep("NA.nc", basename(res_files))
+    res_files <- res_files[-select]
 
     return(res_files)
 
 }
 
-#' cdo_format_command
+#' remapCDO
 #'
 #' @description To formate cmip6 and copernicus data download with CDO swofware. This function create and run CDO commands to shaping data.
 #' If file final exists, the file will not be formatted again.
@@ -132,9 +132,10 @@ remapCDO <- function(file_path,
         f_seltime <- gsub(".nc", "_seltime.nc", file_path)
         f_seltime <- paste0(path_output, "/", basename(f_seltime))
         com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
+        message("### Running CDO command to seltime :  \n", "--->", com_time)
         system(com_time)
 
-        if(type_data = "cmip6"){ #remove date in file name
+        if(type_data == "cmip6"){ #remove date in file name
 
             split <- strsplit(f_seltime, "_")[[1]]
             place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
@@ -146,14 +147,18 @@ remapCDO <- function(file_path,
 
         #################### Regrid
         f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
-        com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_seltime, " ", f_regrid)	      
+        com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_seltime, " ", f_regrid)
+        message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
         system(com_regrid)
+        Sys.sleep(5)
         unlink(f_seltime)
 
         #################### Fill missing values
         f_miss <- gsub(".nc", "_miss.nc", f_regrid)
         com_miss <- paste0("cdo fillmiss ", f_regrid, " ", f_miss)
+        message("### Running CDO command to fill missinf values :  \n", "--->", com_miss)
         system(com_miss)
+        Sys.sleep(5)
         unlink(f_regrid)
 
         #################### Create, regrid, replicated and apply mask only to conserve study area
@@ -165,18 +170,23 @@ remapCDO <- function(file_path,
         f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
         com_maskRegrid <- paste0("cdo -remapbil,r", spat_reso, " ", mask_PA_out, " ", f_maskRegrid)
         system(com_maskRegrid)
+        Sys.sleep(5)
         unlink(mask_PA_out)
 
         ## Apply mask at several time series
         f_maskArea <- gsub(".nc", "_maskArea.nc", f_miss)
         com_maskArea <- paste0("cdo ifthen ", f_maskRegrid, " ", f_miss, " ", f_maskArea)
+        message("### Running CDO command to apply mask :  \n", "--->", com_maskArea)
         system(com_maskArea)
+        Sys.sleep(5)
         unlink(f_miss)
 
         #################### Change temporal resolution
         f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
         com_tempReso <- paste0("cdo monmean ", f_maskArea, " ", f_tempReso)
+        message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
         system(com_tempReso)
+        Sys.sleep(5)
         unlink(f_maskArea)
 
         #################### Change dimension names
@@ -216,7 +226,9 @@ remapCDO <- function(file_path,
             com_dimName <- paste0(  com_dimName,
                                     " ", f_tempReso,
                                     " ", f_dimName)
+            message("### Running CDO command to change dimension names :  \n", "--->", com_dimName)
             system(com_dimName)
+            Sys.sleep(5)
             unlink(f_tempReso)
         } else {
             message("### -> Dimension names don't change. File rename")
@@ -256,16 +268,19 @@ remapCDO <- function(file_path,
                 f_deep <- gsub(".nc", "_deep.nc", f_deep)
 
                 com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
+                message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
                 system(com_deep)
+                Sys.sleep(5)
                 unlink(f_deepTEMPO)
 
                 # Mean all depth layers
                 f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
                 com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
+                message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
                 system(com_deep_tot)
 
             }
-
+            Sys.sleep(5)
             unlink(f_dimName)
 
         } else {
@@ -280,7 +295,7 @@ remapCDO <- function(file_path,
 }
 
 
-#' remap_data_cmip
+#' remapCDO_cmip
 #'
 #' @description Apply remapCDO function to all cmip6 variables
 #'
@@ -293,8 +308,7 @@ remapCDO <- function(file_path,
 
 remapCDO_cmip <- function(concatenate_data){
 
-    mods <- read.csv2(here::here("output", "selected_datasets.csv"))
-    mods <- unique(mods$source_id)
+    mods <- list.files(here::here("output", "data_cmip6")) # tructure file give all models downloaded
 
     dir.create(here::here("output", "data_cmip6_remapped"))
 
@@ -350,7 +364,7 @@ remapCDO_cmip <- function(concatenate_data){
 
 }
 
-#' remap_copernicus_data
+#' remapCDO_copernicus
 #'
 #' @description Apply remapCDO function to all copernicus variables
 #'
@@ -384,7 +398,7 @@ remapCDO_copernicus <- function(obs_data) {
 }
 
 
-#' cpeed_compo
+#' speedCompo
 #'
 #' @description To calculate speed with two components with CDO. 
 #' In first, temporal file created to merge U and V variables and speed will be calculated on this file and exported into new file.
@@ -435,7 +449,7 @@ speedCompo <- function( path_compo1,
 }
 
 
-#' speed_compo_cmip
+#' speedCompo_cmip
 #'
 #' @description To apply speedCompo() function at cmip6 data
 #'
@@ -495,7 +509,7 @@ speedCompo_cmip <- function(file_path = remap_cmip_data, vars_speed ) {
 }
 
 
-#' speed_compo_copernicus
+#' speedCompo_copernicus
 #'
 #' @description To apply speedCompo() function at copernicus data
 #'

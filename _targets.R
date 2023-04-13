@@ -24,16 +24,16 @@ list(
     ,tar_target(select_dataset, select_dataset(available_dataset_df), format = "file")
 
     # Download and remapped esgf data selected (CMIP6)
-    ,tar_target(download_cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
-    #,tar_target(download_cmip_data, list.files(here::here("output", "data_cmip6"), recursive = TRUE, full.names = TRUE))
-    ,tar_target(concatenate_data, concatenate_data(download_cmip_data), format = "file")
-    ,tar_target(remap_cmip, remap_cmip(concatenate_data), format = "file")
-    ,tar_target(speedCompo_cmip, speedCompo_cmip(remap_cmip, vars_speed), format = "file")
+    #,tar_target(cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
+    ,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
+    ,tar_target(concatenate_cmip, concatenate_cmip(cmip_data), format = "file")
+    ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
+    ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed), format = "file")
 
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters), format = "file")
-    ,tar_target(remap_copernicus, remap_copernicus(obs_data))
-    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remap_copernicus, vars_speed), format = "file")
+    ,tar_target(remapCDO_copernicus, remapCDO_copernicus(obs_data))
+    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed), format = "file")
 
 )
