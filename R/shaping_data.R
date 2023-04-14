@@ -251,7 +251,15 @@ remapCDO <- function(file_path,
 
     if(boleen == TRUE){ # if file have a "lev" dimension
 
+        # Mean all depth layers
+        f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
+        com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
+        message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
+        system(com_deep_tot)
+
+        # Loop initialisation
         deep_level <- targets::tar_read(deep_level)
+        returnTOT <- c() #stock path return
 
         for(d in 1:length(deep_level$start)){
 
@@ -280,16 +288,12 @@ remapCDO <- function(file_path,
             Sys.sleep(5)
             unlink(f_deepTEMPO)
 
-            # Mean all depth layers
-            f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
-            com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
-            message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
-            system(com_deep_tot)
+            returnTOT <- c(returnTOT, f_deep)
 
         }
         Sys.sleep(5)
         unlink(f_dimName)
-        return(c(f_deep, f_deep_tot))
+        return(c(f_deep_tot, returnTOT))
 
     } else {
         f_deep <- gsub(".nc", "_deep.nc", f_dimName)
@@ -419,7 +423,7 @@ remapCDO_copernicus <- function(obs_data) {
 #' @param name_compo1 Character. Abbreviation of first name variable component. Into target vars_speed (check readme informations).
 #' @param name_compo2 Character. Abbreviation of second name variable component. Into target vars_speed (check readme informations).
 #' @param name_speed Character. Abbreviation of output name variable. Into target vars_speed (check readme informations).
-
+#' @param remove Logical. If TRUE remove files (uo, vo) used to create speed file. If TRUE tar_visnetwork invalid previous steps.
 #'
 #' @return Path of processed variable
 #'
@@ -429,12 +433,12 @@ speedCompo <- function( path_compo1,
                         path_compo2, 
                         name_compo1, 
                         name_compo2,
-                        name_speed){
+                        name_speed,
+                        remove){
 
     # Create output file name
     split_name <- strsplit(basename(path_compo1), "_")[[1]] # create name of output file
-    path_output <- strsplit(path_compo1, "/")[[1]]
-    path_output <- paste(path_output[1:as.numeric(length(path_output)-1)], collapse = "/")
+    path_output <- dirname(path_compo1)
     f_merge <- paste0(path_output, "/", paste0(name_speed, "_", paste(split_name[2:length(split_name)], collapse = "_")))
 
     # Merge with CDO
@@ -442,16 +446,26 @@ speedCompo <- function( path_compo1,
     com_mergeTEMPO <- paste0("cdo merge ", path_compo1, " ", path_compo2, " ", f_mergeTEMPO)
     system(com_mergeTEMPO)
     
+    # remove depth name (ex: chl50-100 -> chl) to apply cdo command on true variable name
+    new_name <- lapply(list(name_compo1 = name_compo1, 
+                            name_compo2 = name_compo2, 
+                            name_speed = name_speed ), 
+                        function(x) gsub("[0-9]{0,6}-[0-9]{0,6}", "", x))
+
     f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
-    com_merge <- paste0("cdo expr,", "'", name_speed, "=", 
-                        "sqrt(", name_compo1, "*", name_compo1, "+", name_compo2, "*", name_compo2, ")", "' ", 
+    com_merge <- paste0("cdo expr,", "'", new_name$name_speed, "=", 
+                        "sqrt(", new_name$name_compo1, "*", new_name$name_compo1, "+", new_name$name_compo2, "*", new_name$name_compo2, ")", "' ", 
                         f_mergeTEMPO, " ", f_merge)
     system(com_merge)
 
     if(file.exists(f_merge) == TRUE){
         unlink(f_mergeTEMPO)
-        # unlink(path_compo1) #if remove, tar_visnetwork invalid previous steps
-        # unlink(path_compo2) #if remove, tar_visnetwork invalid previous steps
+
+        if(remove == TRUE){ #if remove, tar_visnetwork invalid previous steps
+            unlink(path_compo1) 
+            unlink(path_compo2) 
+        }
+
     } else(stop("Calcul with components failed"))
 
     return(f_merge)
@@ -466,20 +480,26 @@ speedCompo <- function( path_compo1,
 #'
 #' @param file_path Path. File paths of cmip6 variables you want process.
 #' @param vars_speed List. vars_speed targets (check readme informations).
+#' @param remove Logical. Argument of speedCompo function. If TRUE remove files used to create speed file (uo, vo). If TRUE tar_visnetwork invalid previous steps.
 #'
 #' @return Vector with paths of processed variables
 #'
 #' @export Processed files (.nc)
 #'
 
-speedCompo_cmip <- function(file_path = remapCDO_cmip, vars_speed) {
+speedCompo_cmip <- function(file_path = remapCDO_cmip, 
+                            vars_speed, 
+                            remove = FALSE) {
+
+    # file_path <- list.files(here::here("output", "data_cmip6_remapped"), recursive = TRUE, full.name = TRUE)
+    # vars_speed <- targets::tar_read("vars_speed")
 
     model <- list.files(here::here("output", "data_cmip6_remapped"))
 
     for(i in 1:length(model)){
 
         file_path2 <- grep(model, file_path, value = TRUE)
-        print(file_path2)
+
         # Integrate depth variables (U0-50, chl50-100, etc...) in vars_speed targets
         vsplit <- sapply(strsplit(basename(file_path2), "_"), "[[", 1)
         vsplit_compo1 <- unique(grep(paste0(vars_speed$compo1, collapse = "|"), vsplit, value = TRUE))
@@ -508,16 +528,17 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip, vars_speed) {
                     #run = "historical"
 
                     grep_run <- grep(basename(grep_var), pattern = run, value = TRUE)
+                    
+                    message(paste0("#### Launch speedCompo function for : \n"), paste0(grep_run, collapse = "\n"))
 
                     if(length(grep_run) > 2) stop("More than one file found to calculate speed!" )
-
-                    message("#### Launch speedCompo function")
 
                     compo <- speedCompo(path_compo1 = paste(path_root, grep_run[1], sep = "/"), 
                                         path_compo2 = paste(path_root, grep_run[2], sep = "/"), 
                                         name_compo1 = vars_speed$compo1[i], 
                                         name_compo2 = vars_speed$compo2[i],
-                                        name_speed = vars_speed$name[i]
+                                        name_speed = vars_speed$name[i],
+                                        remove = remove
                                         )
 
                 }))
@@ -528,7 +549,13 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip, vars_speed) {
 
     }
 
-    return(list.files(here::here("output", "data_cmip6_remapped"), recursive = TRUE, full.name = TRUE))
+    # Return all file of after this step - all file after previous step = only file create during this step
+    all <- list.files(here::here("output", "data_cmip6_remapped"), recursive = TRUE, full.name = TRUE)
+    previous <- file_path
+    place <- grep(paste0(previous, collapse = "|"), all)
+    return <- all[-place]
+
+    return(return)
 
 }
 
@@ -540,13 +567,16 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip, vars_speed) {
 #'
 #' @param file_path Path. File paths of copernicus variables you want process.
 #' @param vars_speed List. vars_speed targets (check readme informations).
-#'
+#' @param remove Logical. Argument of speedCompo function. If TRUE remove files used to create speed file (uo, vo). If TRUE tar_visnetwork invalid previous steps.
+
 #' @return Vector with paths of processed variables
 #'
 #' @export Processed files (.nc)
 #'
 
-speedCompo_copernicus <- function(file_path = remap_copernicus_data, vars_speed) {
+speedCompo_copernicus <- function(file_path = remap_copernicus_data, 
+                                    vars_speed,
+                                    remove = FALSE) {
     
     # file_path = list.files(here::here("output", "data_copernicus_remapped"), full.name = TRUE)
 
@@ -571,7 +601,8 @@ speedCompo_copernicus <- function(file_path = remap_copernicus_data, vars_speed)
                                 path_compo2 = paste(path_root, grep_var[2], sep = "/"), 
                                 name_compo1 = vars_speed$compo1[i], 
                                 name_compo2 = vars_speed$compo2[i],
-                                name_speed = vars_speed$name[i]
+                                name_speed = vars_speed$name[i],
+                                remove = remove
                                 )
 
         }

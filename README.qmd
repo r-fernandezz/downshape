@@ -58,7 +58,7 @@ cat("\n```")
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector.
 
-:heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components and export the file with new abbreviation variable. First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. All component names must be different as short names of variables. This target will be modified by speedCompo_cmip function to integrate depth variables created during process (chl50-100, uo0-100, etc...)
+:heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components and export the file with new abbreviation variable. First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two variables have same component name, bug in the code. This target will be modified by speedCompo_cmip function to integrate depth variables created during process (chl50-100, uo0-100, etc...)
 
 # :key: Dependencies
 

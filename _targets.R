@@ -28,12 +28,12 @@ list(
     ,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
     ,tar_target(concatenate_cmip, concatenate_cmip(cmip_data), format = "file")
     ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
-    ,tar_target(speedCompo_cmip2, speedCompo_cmip(remapCDO_cmip, vars_speed), format = "file")
+    ,tar_target(speedCompo_cmip2, speedCompo_cmip(remapCDO_cmip, vars_speed, remove = FALSE), format = "file")
 
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(obs_data))
-    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed), format = "file")
+    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
 
 )
