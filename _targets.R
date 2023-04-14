@@ -24,8 +24,8 @@ list(
     ,tar_target(select_dataset, select_dataset(available_dataset_df), format = "file")
 
     # Download and remapped esgf data selected (CMIP6)
-    #,tar_target(cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
-    ,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
+    ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
+    #,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
     ,tar_target(concatenate_cmip, concatenate_cmip(cmip_data), format = "file")
     ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
     ,tar_target(speedCompo_cmip2, speedCompo_cmip(remapCDO_cmip, vars_speed, remove = FALSE), format = "file")
