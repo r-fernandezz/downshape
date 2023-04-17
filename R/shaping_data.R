@@ -271,43 +271,47 @@ remapCDO <- function(   file_path,
         message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
         system(com_deep_tot)
 
-        # Loop initialisation
-        deep_level <- targets::tar_read(deep_level)
-        returnTOT <- c() #stock path return
+        if(length(targets::tar_read(deep_level)$start) != 0){ #if deep_level target isn't empty
 
-        for(d in 1:length(deep_level$start)){
+            # Loop initialisation
+            deep_level <- targets::tar_read(deep_level)
+            returnTOT <- c() #stock path return
 
-            # Depth filter values
-            start <- deep_level$start[d]
-            end <- deep_level$end[d]
+            for(d in 1:length(deep_level$start)){
 
-            ##### Mean layers between two borders
-            depth_values <- stars::st_dimensions(ncdf_file)$lev$values
-            depth_values <- depth_values[depth_values < end]
-            depth_values <- depth_values[depth_values > start]
+                # Depth filter values
+                start <- deep_level$start[d]
+                end <- deep_level$end[d]
 
-            f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
-            com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
-            system(com_deepTEMPO)
+                ##### Mean layers between two borders
+                depth_values <- stars::st_dimensions(ncdf_file)$lev$values
+                depth_values <- depth_values[depth_values < end]
+                depth_values <- depth_values[depth_values > start]
 
-            # Mean depth layer
-            message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
-            split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
-            f_deep <- here::here(path_output, paste0(split_name[1], start, "-", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
-            f_deep <- gsub(".nc", "_deep.nc", f_deep)
+                f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
+                com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
+                system(com_deepTEMPO)
 
-            com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
-            message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
-            system(com_deep)
+                # Mean depth layer
+                message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
+                split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+                f_deep <- here::here(path_output, paste0(split_name[1], start, "-", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+                f_deep <- gsub(".nc", "_deep.nc", f_deep)
+
+                com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
+                message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
+                system(com_deep)
+                Sys.sleep(5)
+                unlink(f_deepTEMPO)
+
+                returnTOT <- c(returnTOT, f_deep)
+
+            }
             Sys.sleep(5)
-            unlink(f_deepTEMPO)
+            unlink(f_dimName)
+            return(c(f_deep_tot, returnTOT))
 
-            returnTOT <- c(returnTOT, f_deep)
-
-        }
-        Sys.sleep(5)
-        unlink(f_dimName)
-        return(c(f_deep_tot, returnTOT))
+        }else(return(f_deep_tot))
 
     } else {
         f_deep <- gsub(".nc", "_deep.nc", f_dimName)

@@ -33,13 +33,13 @@ graph LR
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
-    x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
+    xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
+    x084994fb0e480676(["current_period"]):::outdated --> x084994fb0e480676(["current_period"]):::outdated
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> x57dd1d5e854c11b6(["historical_period"]):::uptodate
@@ -94,14 +94,18 @@ on esgf website menu).
 downloaded (check on esgf website menu).
 
 :heavy_check_mark: **\[time_span\]** : To select min and max time of
-variables downloaded (format example:“1982-01-01T00:00:00Z”).
+cmip6 variables downloaded (format example:“1982-01-01T00:00:00Z”).
 
 :heavy_check_mark: **\[historical_period\]** : List start and end time.
-To define min and max time of historical period (cdo format:
+To define min and max time of cmip6 data historical period (cdo format:
 “YYYY-MM-DDThh:mm:ss”).
 
 :heavy_check_mark: **\[future_period\]** : List start and end time. To
-define min and max time of future period (cdo format:
+define min and max time of cmip6 data future period (cdo format:
+“YYYY-MM-DDThh:mm:ss”).
+
+:heavy_check_mark: **\[current_period\]** : List start and end time. To
+define min and max time of copernicus data current period (cdo format:
 “YYYY-MM-DDThh:mm:ss”).
 
 :heavy_check_mark: **\[spat_reso\]** : To remap variables with CDO
@@ -112,7 +116,7 @@ command format: “180x90” correspond to 2°x2°, “360x180” correspond to
 :heavy_check_mark: **\[deep_level\]** : List start and end deep level by
 file created. To split variable to several files by deep level. First
 (or n) element of “start” vector correspond to first (or n) element of
-“end” vector.
+“end” vector. vectors of the list can be empty.
 
 :heavy_check_mark: **\[vars_speed\]** : List first, second component and
 variable name. To calcul variable speed with two components and export

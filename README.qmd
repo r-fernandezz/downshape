@@ -66,15 +66,17 @@ cat("\n```")
 
 :heavy_check_mark: **[freq]** : To select frequence of variables downloaded (check on esgf website menu).
 
-:heavy_check_mark: **[time_span]** : To select min and max time of variables downloaded (format example:"1982-01-01T00:00:00Z").
+:heavy_check_mark: **[time_span]** : To select min and max time of cmip6 variables downloaded (format example:"1982-01-01T00:00:00Z").
 
-:heavy_check_mark: **[historical_period]** : List start and end time. To define min and max time of historical period (cdo format: "YYYY-MM-DDThh:mm:ss").
+:heavy_check_mark: **[historical_period]** : List start and end time. To define min and max time of cmip6 data historical period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
-:heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of future period (cdo format: "YYYY-MM-DDThh:mm:ss").
+:heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss").
+
+:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
 :heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).
 
-:heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector.
+:heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector. vectors of the list can be empty.
 
 :heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components and export the file with new abbreviation variable. First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be pasted)
 

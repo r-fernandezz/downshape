@@ -1,4 +1,9 @@
 my_variable_name,motu,service_id,product_id,longitude_min,longitude_max,latitude_min,latitude_max,date_min,date_max,depth_min,depth_max,variable,DOI
-DUV,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS,cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 23:59:59,0.494024991989136,0.49402499198913574,uo,
-DUV,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS,cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 23:59:59,0.494024991989136,0.49402499198913574,vo,
-WAVE,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_WAV_001_027-TDS,cmems_mod_glo_wav_anfc_0.083deg_PT3H-i,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 00:00:00,,,VHM0,10.48670/moi-00017
+CURRENT_E,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012,dataset-armor-3d-rep-weekly,10,155,-55,31,,,0,100,uvo,https://doi.org/10.48670/moi-00052
+CURRENT_N,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012,dataset-armor-3d-rep-weekly,10,155,-55,31,,,0,100,vgo,https://doi.org/10.48670/moi-00052
+WIND_E,https://nrt.cmems-du.eu/motu-web/Motu,WIND_GLO_PHY_L4_MY_012_006,cmems_obs-wind_glo_phy_my_l4_0.125deg_PT1H,10,155,-55,31,,,,,eastward_wind,https://doi.org/10.48670/moi-00185
+WIND_N,https://nrt.cmems-du.eu/motu-web/Motu,WIND_GLO_PHY_L4_MY_012_006,cmems_obs-wind_glo_phy_my_l4_0.125deg_PT1H,10,155,-55,31,,,,,northward_wind,https://doi.org/10.48670/moi-00185
+SSS,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012,dataset-armor-3d-rep-weekly,10,155,-55,31,,,0,100,so,https://doi.org/10.48670/moi-00052
+SST,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012,dataset-armor-3d-rep-weekly,10,155,-55,31,,,0,100,to,https://doi.org/10.48670/moi-00052
+SSH,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012,dataset-armor-3d-rep-weekly,10,155,-55,31,,,0,100,zo,https://doi.org/10.48670/moi-00052
+CHLA,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_BIO_BGC_3D_REP_015_010,cmems_obs_glo_bgc3d_rep_weekly,10,155,-55,31,,,0,100,chl,https://doi.org/10.48670/moi-00046
