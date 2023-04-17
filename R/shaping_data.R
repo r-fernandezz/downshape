@@ -103,17 +103,20 @@ concatenate_cmip <- function(download_data){
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
 #' @param period Character. "current" or "historical". Correspond to current_period historical_period target (check readme informations). Else it's not "historical_period" or "current_period", automatically function extract born of futur period.
 #' @param spat_reso Character. spat_reso targets (check readme informations).
+#' @param pat_output path. Folder where you want export variable processed.
+#' @param monthWeek Logical. "month" or "week". Default "month". If you want mean data by week or month.
 #' 
 #' @return File path of the variable processed
 #'
 #' @export File (.nc) of the variable processed
 
 
-remapCDO <- function(file_path, 
-                                type_data = "cmip6", 
-                                period, 
-                                spat_reso, 
-                                path_output){
+remapCDO <- function(   file_path, 
+                        type_data = "cmip6", 
+                        period, 
+                        spat_reso, 
+                        path_output,
+                        monthWeek = "month"){
 
     # Remove file stoped during process
     pattern <- paste0(path_output, "/", basename(file_path))
@@ -187,12 +190,23 @@ remapCDO <- function(file_path,
     unlink(f_miss)
 
     #################### Change temporal resolution
+    if(monthWeek == "month"){
+        f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
+        com_tempReso <- paste0("cdo monmean ", f_maskArea, " ", f_tempReso)
+        message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+        system(com_tempReso)
+        Sys.sleep(5)
+        unlink(f_maskArea)
+    }
+
+    if(monthWeek == "week"){
     f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-    com_tempReso <- paste0("cdo monmean ", f_maskArea, " ", f_tempReso)
+    com_tempReso <- paste0("cdo timselmean,7 ", f_maskArea, " ", f_tempReso)
     message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
     system(com_tempReso)
     Sys.sleep(5)
     unlink(f_maskArea)
+    }
 
     #################### Change dimension names
     ncdf_file <- stars::read_ncdf(f_tempReso)
@@ -393,27 +407,55 @@ remapCDO_copernicus <- function(obs_data) {
     
     path_output <- here::here("output", "data_copernicus_remapped")
     
-    # Remove folder and creat a folder empty
+    ####### Remove folder and creat a folder empty
     if(file.exists(path_output)) fs::dir_delete(path_output)
-    dir.create(path_output)
-
     dir.create(path_output, showWarnings = FALSE)
 
     list_file <- list.files(here::here("output", "data_copernicus"), full.name = TRUE)
+    
+    ####### Monthly mean
+    message("Mean by month")
 
-    cat("Treatment of files: ", list_file, sep = "\n")
+    # Remove folder and creat a folder empty
+    path_output_m <- paste0(path_output, "/", "month")
+    if(file.exists(path_output_m)) fs::dir_delete(path_output_m)
+    dir.create(path_output_m, showWarnings = FALSE)
 
     parallel::mclapply(list_file, function(f){
+        
+        message("Treatment of files :", list_file)
 
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
                     period = "current", 
                     spat_reso = targets::tar_read("spat_reso"), 
-                    path_output = path_output)
+                    path_output = path_output_m)
 
         }, mc.cores = length(list_file))
 
-    return(list.files(path_output, full.names = TRUE))
+    ####### Weekly mean
+    message("Mean by week")
+
+    # Remove folder and creat a folder empty
+    path_output_w <- paste0(path_output, "/", "week")
+    if(file.exists(path_output_w)) fs::dir_delete(path_output_w)
+    dir.create(path_output_w, showWarnings = FALSE)
+
+    parallel::mclapply(list_file, function(f){
+        
+        message("Treatment of files :", list_file)
+
+        remapCDO(   file_path = f, 
+                    type_data = "copernicus", 
+                    period = "current", 
+                    spat_reso = targets::tar_read("spat_reso"), 
+                    path_output = path_output_w,
+                    monthWeek = "week")
+
+        }, mc.cores = length(list_file))
+
+    return(list.files(path_output, recursive = TRUE, full.names = TRUE))
+
 }
 
 
