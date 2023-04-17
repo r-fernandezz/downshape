@@ -6,7 +6,7 @@ targets::tar_source()
 
 list(
 
-    ##### EDIT ME !! Project parameters
+    ################################# EDIT ME !! Project parameters #################################
     tar_target(experiments, c("piControl","historical", "ssp126", "ssp245", "ssp370", "ssp534-over", "ssp585"))
     ,tar_target(vars, c("so", "zos", "uo", "vo", "thetao", "chl", "uas", "vas", "sfcWind"))
     ,tar_target(freq, "mon")
@@ -17,6 +17,8 @@ list(
     ,tar_target(spat_reso, "180x90")
     ,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
     ,tar_target(vars_speed, list(compo1 = c("uo"), compo2 = c("vo"), name = "WIND"))
+
+    ################################# CMIP data process #################################
 
     # Esgf dataset search & select
     ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
@@ -29,11 +31,13 @@ list(
     ,tar_target(concatenate_cmip, concatenate_cmip(cmip_data), format = "file")
     ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
     ,tar_target(speedCompo_cmip2, speedCompo_cmip(remapCDO_cmip, vars_speed, remove = FALSE), format = "file")
+    
+    ################################# Copernicus data process #################################
 
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters), format = "file")
-    ,tar_target(remapCDO_copernicus, remapCDO_copernicus(obs_data))
+    ,tar_target(remapCDO_copernicus, remapCDO_copernicus(obs_data), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
 
 )

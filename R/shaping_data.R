@@ -392,6 +392,11 @@ remapCDO_cmip <- function(concatenate_data){
 remapCDO_copernicus <- function(obs_data) {
     
     path_output <- here::here("output", "data_copernicus_remapped")
+    
+    # Remove folder and creat a folder empty
+    if(file.exists(path_output)) fs::dir_delete(path_output)
+    dir.create(path_output)
+
     dir.create(path_output, showWarnings = FALSE)
 
     list_file <- list.files(here::here("output", "data_copernicus"), full.name = TRUE)

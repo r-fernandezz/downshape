@@ -26,7 +26,7 @@ graph LR
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
     xd8e5f2013a341013(["cmip_data"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
-    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
@@ -34,10 +34,10 @@ graph LR
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
-    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
+    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
     xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::errored
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::errored
     x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
@@ -57,9 +57,26 @@ graph LR
 
 ## Data folder
 
-:heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
-Parameters of data we want dto download. Check table structuration on
-github.
+| Columns database |                                                                                                      Description                                                                                                      |
+|:----------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| my_variable_name |                                                                                       Your variable name (outside api command)                                                                                        |
+|       motu       |                                                                                        Check API request on Copernicus website                                                                                        |
+|    service_id    |                                                                                        Check API request on Copernicus website                                                                                        |
+|    product_id    |                                                                                        Check API request on Copernicus website                                                                                        |
+|  longitude_min   |                                                                                               Extend of map downloaded                                                                                                |
+|  longitude_max   |                                                                                               Extend of map downloaded                                                                                                |
+|   latitude_min   |                                                                                               Extend of map downloaded                                                                                                |
+|   latitude_max   |                                                                                               Extend of map downloaded                                                                                                |
+|     date_min     |                                                                       Date. Format *Year-Month-Day* hours:minutes:seconds (2017-11-25 12:20:00)                                                                       |
+|     date_max     |                                                                       Date. Format *Year-Month-Day* hours:minutes:seconds (2017-11-25 12:20:00)                                                                       |
+|    depth_min     | Numeric. Depth in meters. If you want to download one depth layer, same value for “depth_min” and “depth_max”. If it’s a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
+|    depth_max     | Numeric. Depth in meters. If you want to download one depth layer, same value for “depth_min” and “depth_max”. If it’s a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
+|     variable     |                                                      Short name of variable downloaded. If several varaible by product create one line by variable in the table                                                       |
+|       DOI        |                                                                                               Check Copernicus website                                                                                                |
+
+heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
+Parameters of data we want dto download. Check table structuration
+bellow.
 
 :heavy_check_mark: **\[Mask_PA_variable.shp\]** : Shapefile. Mask of
 study area to crop environmental rasters with CDO. This shapefile will
@@ -102,10 +119,12 @@ variable name. To calcul variable speed with two components and export
 the file with new abbreviation variable. First (or n) element of
 “compo1” vector correspond to first (or n) element of “compo2” vector.
 If one short names of variable is same to cmip6 and copernicus data,
-write one time. WARNING !! : If two variables have same component name,
-bug in the code. This target will be modified by speedCompo_cmip
-function to integrate depth variables created during process (chl50-100,
-uo0-100, etc…)
+write one time. WARNING !! : If two different variables have same
+component name, bug in the code. This target will be modified by
+speedCompo_cmip function to integrate depth variables created during
+process (chl50-100, uo0-100, etc…). For example, final name of the
+variable named “wind” in this target and calculated with “uo” and “vo”
+components will be “uovo” (two component names will be pasted)
 
 # :key: Dependencies
 

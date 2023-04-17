@@ -1,3 +1,4 @@
 my_variable_name,motu,service_id,product_id,longitude_min,longitude_max,latitude_min,latitude_max,date_min,date_max,depth_min,depth_max,variable,DOI
-DUV,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS,cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 23:59:59,0.494024991989136,0.49402499198913574,uo/vo,
+DUV,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS,cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 23:59:59,0.494024991989136,0.49402499198913574,uo,
+DUV,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS,cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 23:59:59,0.494024991989136,0.49402499198913574,vo,
 WAVE,https://nrt.cmems-du.eu/motu-web/Motu,GLOBAL_ANALYSISFORECAST_WAV_001_027-TDS,cmems_mod_glo_wav_anfc_0.083deg_PT3H-i,10,155,-55,31,2023-02-12 00:00:00,2023-02-20 00:00:00,,,VHM0,10.48670/moi-00017
