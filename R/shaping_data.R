@@ -621,42 +621,61 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip,
 #' @export Processed files (.nc)
 #'
 
-speedCompo_copernicus <- function(file_path = remap_copernicus_data, 
+speedCompo_copernicus <- function(file_path = remapCDO_copernicus, 
                                     vars_speed,
                                     remove = FALSE) {
     
-    # file_path = list.files(here::here("output", "data_copernicus_remapped"), full.name = TRUE)
+    # Extract path for monthly and weekly data 
+    path_root <- unique(dirname(file_path))
+    temp_folder <- strsplit(path_root, "/")
+    temp_folder <- sapply(temp_folder, "[[", length(temp_folder[[1]]))
 
-    # Conserve path of the file
-    path_root <- strsplit(file_path[1], "/")[[1]]
-    path_root <- paste(path_root[1:as.numeric(length(path_root)-1)], collapse = "/")
-
-    return <- c()
-    compo <- c() # if i = 1 empty
-
-    for(i in 1:length(vars_speed$compo1)){
-
-        # Select variable with two coponents
-        grep_var <- grep(basename(file_path), pattern = paste0("^(", vars_speed$compo1[i], ")", "|", "^(", vars_speed$compo2[i], ")"), value = TRUE)
-
-
-        if(length(grep_var) > 2) stop("Error: more than one file found to calculate speed!" )
-
-        if(length(grep_var) == 2){ # if pattern "fs" object correspond to cmip6 variable names, length = 0
-
-            compo <- speedCompo(path_compo1 = paste(path_root, grep_var[1], sep = "/"), 
-                                path_compo2 = paste(path_root, grep_var[2], sep = "/"), 
-                                name_compo1 = vars_speed$compo1[i], 
-                                name_compo2 = vars_speed$compo2[i],
-                                name_speed = vars_speed$name[i],
-                                remove = remove
-                                )
-
-        }
-
-        return <- c(return, compo)
-
+    # Integrate depth variables (U0-50, chl50-100, etc...) in vars_speed targets
+    vsplit <- sapply(strsplit(basename(file_path), "_"), "[[", 1)
+    vsplit_compo1 <- unique(grep(paste0(vars_speed$compo1, collapse = "|"), vsplit, value = TRUE))
+    vsplit_compo2 <- unique(grep(paste0(vars_speed$compo2, collapse = "|"), vsplit, value = TRUE))
+    boleen <- sort(vsplit_compo1) == sort(vars_speed$compo1)
+    if(FALSE %in% boleen){
+        vars_speed$compo1 <- vsplit_compo1
+        vars_speed$compo2 <- vsplit_compo2
+        vars_speed$name <- paste0(gsub("[0-9]{1,10}-[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
     }
 
+    # Speed calcul
+    for(f in 1:length(temp_folder)){ #filter by monthly and weekly data
+
+        for(i in 1:length(vars_speed$compo1)){
+
+            grep_var <- grep(file_path, pattern = temp_folder[f], value = TRUE)
+
+            # Select variable with two coponents
+            grep_var <- grep(basename(grep_var), pattern = paste0("^(", vars_speed$compo1[i], "_)", "|", "^(", vars_speed$compo2[i], "_)"), value = TRUE)
+            if(length(grep_var) > 2) stop("Error: more than one file found to calculate speed!" )
+
+            if(length(grep_var) == 2){ # if pattern "fs" object correspond to cmip6 variable names, length = 0
+                    
+                    message("Calcul speed with variables", " (",temp_folder[f], ") : \n", paste0(grep_var, collapse = "\n"))
+
+                    compo <- speedCompo(path_compo1 = paste(path_root[f], grep_var[1], sep = "/"), 
+                                                        path_compo2 = paste(path_root[f], grep_var[2], sep = "/"), 
+                                                        name_compo1 = vars_speed$compo1[i], 
+                                                        name_compo2 = vars_speed$compo2[i],
+                                                        name_speed = vars_speed$name[i],
+                                                        remove = remove
+                                                        )
+
+            }
+
+        }
+    }
+
+    # Return all file of after this step - all file after previous step = only file create during this step
+    all <- list.files(here::here("output", "data_copernicus_remapped"), recursive = TRUE, full.name = TRUE)
+    previous <- file_path
+    place <- grep(paste0(previous, collapse = "|"), all)
+    return <- all[-place]
+
     return(return)
+
+
 }
