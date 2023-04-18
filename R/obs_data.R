@@ -1,8 +1,8 @@
 #' Copernicus_download_api
 #'
 #' @description To download data on Copernicus marine service website with MOTU API and csv table. 
-#' Complete column of csv table with MOTU API requeste output on Copernicus website (one row by product downloading).
-#' If a parameter into csv table doesn't exist for your product (example : depth) just leave the cell empty.
+#' Complete csv table column (copernicus_parameters.csv) with MOTU API requeste output on Copernicus website.
+#' This function check the file names of variables downloaded into the path to skip it if they exist.
 #'
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
 #' @param user Character. User used to connect you on Copernicus marine service website.

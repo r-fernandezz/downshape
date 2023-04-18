@@ -35,9 +35,10 @@ graph LR
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::started --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
     xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::started --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
     x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
@@ -75,11 +76,13 @@ graph LR
 |       DOI        |                                                                                               Check Copernicus website                                                                                                |
 
 heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
-Parameters of data we want dto download. Check table structuration
-bellow. If variable have big size, Copernicus api can’t to download and
-it’s necessary to divided variable in several small time periods (use
-“divide”, “subvar” and “septime” argument of copernicus_download_api()
-function)
+Parameters of data we want to download (one row by variable downloaded).
+Check table structuration asked bellow. If variable have big size,
+Copernicus api can’t to download and it’s necessary to divided variable
+in several small time periods (use “divide”, “subvar” and “septime”
+argument of copernicus_download_api() function). If a parameter into
+this table doesn’t exist for your product (example : depth) just leave
+the cell empty.
 
 :heavy_check_mark: **\[Mask_PA_variable.shp\]** : Shapefile. Mask of
 study area to crop environmental rasters with CDO. This shapefile will

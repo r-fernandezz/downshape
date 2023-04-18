@@ -37,7 +37,8 @@ cat("\n```")
 # :heavy_check_mark: Input Informations
 
 ## Data folder
-:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want dto download. Check table structuration bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function)
+
+:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download (one row by variable downloaded). Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty.
 
 | Columns database | Description |
 | :----: |   :-------------: |
