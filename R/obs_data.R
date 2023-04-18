@@ -165,9 +165,11 @@ copernicus_download_api <- function(path_tab_param,
                 stop(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " not downloaded! "))
             }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " downloaded successfully")))
 
-        }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " already downloaded!")))
+        }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], 
+                            " (", tab_param[i, "variable"], ") ", 
+                            "for the date ", strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1],
+                            " already downloaded!")))
 
-        
     }
 
     return(list.files(here::here("output", "data_copernicus"), full.name = TRUE))
