@@ -37,7 +37,7 @@ cat("\n```")
 # :heavy_check_mark: Input Informations
 
 ## Data folder
-:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want dto download. Check table structuration bellow.
+:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want dto download. Check table structuration bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function)
 
 | Columns database | Description |
 | :----: |   :-------------: |
@@ -107,6 +107,7 @@ This R research compendium using renv package to fixe package version. Run renv:
         - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
         - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
     - :open_file_folder: data_copernicus *--[copernicus_download_api()]--*
+        - :page_facing_up: copernicus_parameters_modified.csv *--[copernicus_download_api()]--*
         - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
         - :page_facing_up: Vars2.nc *--[copernicus_download_api()]--*
         - :page_facing_up: VarsX.nc ... *--[copernicus_download_api()]--*

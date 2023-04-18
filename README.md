@@ -23,23 +23,23 @@ website.
 graph LR
   subgraph Graph
     direction LR
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
     xd8e5f2013a341013(["cmip_data"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
     x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
-    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
+    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
-    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
+    xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::started --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
     xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    x084994fb0e480676(["current_period"]):::outdated --> x084994fb0e480676(["current_period"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
+    x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> x57dd1d5e854c11b6(["historical_period"]):::uptodate
@@ -76,7 +76,10 @@ graph LR
 
 heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
 Parameters of data we want dto download. Check table structuration
-bellow.
+bellow. If variable have big size, Copernicus api can’t to download and
+it’s necessary to divided variable in several small time periods (use
+“divide”, “subvar” and “septime” argument of copernicus_download_api()
+function)
 
 :heavy_check_mark: **\[Mask_PA_variable.shp\]** : Shapefile. Mask of
 study area to crop environmental rasters with CDO. This shapefile will
@@ -169,6 +172,8 @@ renv::status() to check if everything is ready.
       - :page_facing_up: VarsX.nc *–\[remapCDO_cmip()\]–*
       - :page_facing_up: Vars_speed.nc *–\[speedCompo_cmip()\]–*
   - :open_file_folder: data_copernicus *–\[copernicus_download_api()\]–*
+    - :page_facing_up: copernicus_parameters_modified.csv
+      *–\[copernicus_download_api()\]–*
     - :page_facing_up: Vars1.nc *–\[copernicus_download_api()\]–*
     - :page_facing_up: Vars2.nc *–\[copernicus_download_api()\]–*
     - :page_facing_up: VarsX.nc … *–\[copernicus_download_api()\]–*

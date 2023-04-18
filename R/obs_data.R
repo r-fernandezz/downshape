@@ -7,6 +7,9 @@
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
 #' @param user Character. User used to connect you on Copernicus marine service website.
 #' @param passwd Character. Password to connect you on Copernicus marine service website.
+#' @param divid Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
+#' @param subvar Vector. Name variable vector into table to choose time variable must to be divided by "septime" argument.
+#' @param septime vector. Divide time (day) of variable sected in "subvar".
 #' 
 #' @return Netcdf files
 #'
@@ -14,7 +17,10 @@
 
 copernicus_download_api <- function(path_tab_param,
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
-                                    passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
+                                    passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1],
+                                    divide = TRUE,
+                                    subvar = c("WIND_E", "WIND_N"),
+                                    septime = c(7, 7)) {
 
     #path_tab_param <- here::here("data", "copernicus_parameters.csv")
 
@@ -34,8 +40,50 @@ copernicus_download_api <- function(path_tab_param,
     stop("Error: motuclient isn't installed")
     }
 
+    # Divided time of varible with big size
+    if(divide == TRUE){
 
-    # creat python command and download by table row
+        tab_modif <- NULL
+
+        for(i in 1:nrow(tab_param)){
+
+            boleen <- tab_param[i, "my_variable_name"] %in% subvar
+
+            if(boleen == TRUE){
+    
+                date_deb <- tab_param[i, "date_min"]
+                date_fin <- tab_param[i, "date_max"]
+
+                vec <- seq(as.Date(date_deb), as.Date(date_fin), by = septime[i])
+                tab_tempo <- tab_param[i, !(names(tab_param) %in% c("date_min", "date_max"))]
+                tab_tempo_var <- data.frame(tab_tempo, date_min = paste(vec[1], "00:00:00"), date_max = paste(vec[2], "23:59:59"))
+
+                for(v in 2:as.numeric(length(vec)-1)){
+
+                    tab_tempo$date_min <- paste(vec[v]+1, "00:00:00")
+                    tab_tempo$date_max <- paste(vec[v+1], "23:59:59")
+
+                    tab_tempo_var <- rbind(tab_tempo_var, tab_tempo)
+
+                }
+
+            }
+
+            if(boleen == FALSE){
+
+                tab_tempo_var <- tab_param[i, ]
+
+            }
+
+            tab_modif <- rbind(tab_modif, tab_tempo_var)
+
+        }
+
+        write.csv2(tab_modif, file = here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"), row.names = FALSE)
+        tab_param <- tab_modif
+    }
+
+    # Creat python command and download by table row
     for(i in 1:nrow(tab_param)){
 
         if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], ".nc"))){
@@ -100,7 +148,7 @@ copernicus_download_api <- function(path_tab_param,
 
             command <- paste0(command, 
                                 " --out-dir ", path_output, 
-                                " --out-name ", tab_param[i, "variable"], "_", tab_param[i, "service_id"], ".nc", 
+                                " --out-name ", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc", 
                                 " --user ", user,
                                 " --pwd ", passwd)
 
