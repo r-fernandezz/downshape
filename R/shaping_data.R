@@ -6,30 +6,42 @@
 #' @param source Model downloaded
 #' @param experiment Experiment downloaded
 #' @param var Variable downloaded
+#' @param type_data Character. Type of data you want process, "cmip6" or "copernicus". Default "cmip6".
 #'
 #' @return path to the output file merged
 #'
 #' @export file merged (.nc)
 #'
 
-concatenate <- function(source, experiment, var) {
+concatenate <- function(source = NULL, 
+                        experiment = NULL, 
+                        var, 
+                        type_data = "cmpi6") {
 
-    exp_files_full <- sort(list.files(path = here::here("output", "data_cmip6", source, experiment),
+    if(type_data == "cmip6"){
+        path_switch <- here::here("output", "data_cmip6", source, experiment)
+    }
+
+    if(type_data == "copernicus"){
+        path_switch <- here::here("output", "data_copernicus")
+    }
+
+    exp_files_full <- sort(list.files(path = path_switch,
                                     pattern = paste0(var, "_"),
                                     full.names = TRUE))
-    
+
     exp_files <- basename(exp_files_full)
     
     #if only one file then do nothing
     if (length(exp_files) == 1){
         message("### WARNING: Only one file, impossible to merge files")
-        return(paste0(here::here("output", "data_cmip6"), "/", source, "/", experiment, "/", exp_files))
+        return(paste0(path_switch, "/", exp_files))
     } 
 
     # Output file name
     h1 <- exp_files[1]
     h2 <- exp_files[length(exp_files)]
-    f_out <- paste0(here::here("output", "data_cmip6"), "/", source, "/", experiment, "/", substr(h1, 1, nchar(h1) - 9),
+    f_out <- paste0(path_switch, "/", substr(h1, 1, nchar(h1) - 9),
                     substr(h2, nchar(h2) - 8, nchar(h2)-3),
                     ".nc")
 
@@ -51,9 +63,9 @@ concatenate <- function(source, experiment, var) {
 #'
 #' @param download_data Downloaded data we want to merge.
 #'
-#' @return Same of concatenate_experiment() function
+#' @return Same of concatenate() function
 #'
-#' @export Same of concatenate_experiment() function
+#' @export Same of concatenate() function
 
 concatenate_cmip <- function(download_data){
 
@@ -93,6 +105,33 @@ concatenate_cmip <- function(download_data){
     return(res_files)
 
 }
+
+
+#' concatenated_copernicus
+#'
+#' @description Apply concatenate() function at all copernicus datasets.
+#'
+#' @param obs_data Path list. List of variable path download by copernicus_download_api function
+#'
+#' @return Same of concatenate() function
+#'
+#' @export Same of concatenate() function
+#' 
+
+concatenate_copernicus <- function(obs_data){
+
+    tab <- read.csv2(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))
+    
+    unlist(lapply(unique(tab$variable), function(x){
+
+        vars <- concatenate(var = x, type_data = "copernicus")
+
+    }))
+    
+    return(vars)
+    
+}
+
 
 #' remapCDO
 #'
@@ -401,13 +440,13 @@ remapCDO_cmip <- function(concatenate_data){
 #' @description Apply remapCDO function to all copernicus variables
 #'
 #'
-#' @param obs_data Path list. List of variable path download by copernicus_download_api function.
+#' @param concatenate_copernicus Path list. List of variable path download by copernicus_download_api function and concatenated.
 #'
 #' @return Vector with paths of processed variables
 #'
 #' @export Processed files (.nc)
 
-remapCDO_copernicus <- function(obs_data) {
+remapCDO_copernicus <- function(concatenate_copernicus) {
     
     path_output <- here::here("output", "data_copernicus_remapped")
     
