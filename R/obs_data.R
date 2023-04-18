@@ -86,7 +86,9 @@ copernicus_download_api <- function(path_tab_param,
     # Creat python command and download by table row
     for(i in 1:nrow(tab_param)){
 
-        if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], ".nc"))){
+        if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
+                        strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
+                        strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc"))){
             
             message(paste0("Traitement of ", tab_param[i, "my_variable_name"], " variable"))
 
@@ -148,7 +150,9 @@ copernicus_download_api <- function(path_tab_param,
 
             command <- paste0(command, 
                                 " --out-dir ", path_output, 
-                                " --out-name ", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc", 
+                                " --out-name ", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
+                                                strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
+                                                strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc", 
                                 " --user ", user,
                                 " --pwd ", passwd)
 
