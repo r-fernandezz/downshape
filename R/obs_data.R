@@ -161,8 +161,12 @@ copernicus_download_api <- function(path_tab_param,
             system(command, inter = TRUE)
 
             # Check if file is downloaded
-            if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], ".nc"))){
+            if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
+                        strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
+                        strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc"))){
+
                 stop(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " not downloaded! "))
+
             }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " downloaded successfully")))
 
         }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], 
