@@ -5,7 +5,7 @@
 #' This function check the file names of variables downloaded into the path to skip it if they exist.
 #'
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
-#' @param skip Logical. If you want skip (TRUE) or not (FALSE) this function into the pipeline.
+#' @param skip Logical. Default FALSE. If you want skip (TRUE) or not (FALSE) this function into the pipeline to conserve target valid into target_visnetwork visual.
 #' @param user Character. User used to connect you on Copernicus marine service website.
 #' @param passwd Character. Password to connect you on Copernicus marine service website.
 #' @param divid Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
@@ -17,7 +17,7 @@
 #' @export Netcdf files downloaded
 
 copernicus_download_api <- function(path_tab_param,
-                                    skip,
+                                    skip = FALSE,
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1],
                                     divide = TRUE,
