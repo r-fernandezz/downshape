@@ -36,9 +36,13 @@ renameVar <- function(data, type_data, skip = FALSE){
                     system(com_rename)
 
                     unlink(file_path)
-                    file.rename(f_out, file_path)
+                    file_rename <- strsplit(basename(file_path), "_")[[1]]
+                    file_rename[1] <- renameVar$newname[i]
+                    file_rename <- paste0(file_rename, collapse = "_")
+                    file.rename(f_out, file_rename)
 
                 }
+
             }else(stop("Not any variables with 'oldname' give into 'rename' target are found"))
 
         }else(message("Not any variables renamed"))

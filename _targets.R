@@ -17,8 +17,8 @@ list(
     ,tar_target(current_period, list(start = "2018-01-01T00:00:00", end = "2021-04-30T23:59:59"))
     ,tar_target(spat_reso, "180x90")
     ,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
-    ,tar_target(renameVar, list(oldname = c("eastward_wind", "northward_wind"), newname = c("eastward", "northward")))
-    ,tar_target(vars_speed, list(compo1 = c("ugo", "eastward"), compo2 = c("vgo", "northward"), name = c("CURRENT", "WIND")))
+    ,tar_target(renameVar, list(oldname = c("eastward_wind", "northward_wind"), newname = c("Eastward", "Northward")))
+    ,tar_target(vars_speed, list(compo1 = c("ugo", "Eastward"), compo2 = c("vgo", "Northward"), name = c("CURRENT", "WIND")))
 
     ################################# CMIP data process #################################
 
