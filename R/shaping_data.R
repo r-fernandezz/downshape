@@ -122,9 +122,11 @@ concatenate_copernicus <- function(obs_data){
 
     tab <- read.csv2(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))
     
-    unlist(lapply(unique(tab$variable), function(x){
+    vars <- unlist(lapply(unique(tab$variable), function(x){
 
-        vars <- concatenate(var = x, type_data = "copernicus")
+        message("Concatenate variable : ", x)
+
+        concatenate(var = x, type_data = "copernicus")
 
     }))
     
