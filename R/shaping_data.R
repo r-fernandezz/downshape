@@ -1,3 +1,55 @@
+#' renameVar
+#'
+#' @description Rename variable with rename target vector. 
+#'
+#' @param data Target. Data download by copernicus_download_api() and download_cmip_data() function.
+#' @param type_data Character, "cmip6" or "copernicus". Data type used, to find valid path.
+#' @param skip Logical. Default FALSE. If you want skip (TRUE) or not (FALSE) this function into the pipeline to conserve target valid into target_visnetwork visual.
+#'
+#' @return NULL
+#'
+#' @export Overwrite old file (.nc)
+
+renameVar <- function(data, type_data, skip = FALSE){
+
+    if(skip == FALSE){
+
+        if(length(targets::tar_read("renameVar")) >= 1){
+
+            path <- switch(type_data,
+                            copernicus = here::here("output", "data_copernicus"),
+                            cmip6 = here::here("output", "data_cmip6"))
+
+            files <- list.files(path, recursive = TRUE, full.names = TRUE)
+
+            grep <- grep(paste0(renameVar$oldname, collapse = "|"), files, value = TRUE)
+
+            if(length(grep) >= 1){
+
+                for(i in 1:length(renameVar$oldname)){
+
+                    file_path <- grep(renameVar$oldname[i], grep, value = TRUE)
+                    f_out <- gsub(".nc", "_TEMPO.nc", file_path)
+
+                    com_rename <- paste0("cdo chname,", renameVar$oldname[i], ",", renameVar$newname[i], " ", file_path, " ", f_out)
+                    message("### Running CDO command to rename variable :  \n", "--->", com_rename)
+                    system(com_rename)
+
+                    unlink(file_path)
+                    file.rename(f_out, file_path)
+
+                }
+            }else(stop("Not any variables with 'oldname' give into 'rename' target are found"))
+
+        }else(message("Not any variables renamed"))
+
+        return(list.files(path, recursive = TRUE, full.names = TRUE))
+
+    }else(message("Skip manually 'renameVar' target (renameVar function)"))
+
+}
+
+
 #' concatenate
 #'
 #' @description Merge cmip6 datasets by source x experiment x var for all datasets. Sorted by date and time. 
@@ -485,7 +537,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
 
     parallel::mclapply(list_file, function(f){
         
-        message("Treatment of files :", list_file)
+        message("Treatment of files :", f)
 
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
@@ -534,7 +586,7 @@ speedCompo <- function( path_compo1,
     f_mergeTEMPO <- gsub(".nc", "_TEMPO.nc", f_merge)
     com_mergeTEMPO <- paste0("cdo merge ", path_compo1, " ", path_compo2, " ", f_mergeTEMPO)
     system(com_mergeTEMPO)
-    
+
     # remove depth name (ex: chl50-100 -> chl) to apply cdo command on true variable name
     new_name <- lapply(list(name_compo1 = name_compo1, 
                             name_compo2 = name_compo2, 
@@ -545,6 +597,7 @@ speedCompo <- function( path_compo1,
     com_merge <- paste0("cdo expr,", "'", new_name$name_speed, "=", 
                         "sqrt(", new_name$name_compo1, "*", new_name$name_compo1, "+", new_name$name_compo2, "*", new_name$name_compo2, ")", "' ", 
                         f_mergeTEMPO, " ", f_merge)
+    message("### Running CDO command to calcule speed :  \n", "--->", com_merge)
     system(com_merge)
 
     if(file.exists(f_merge) == TRUE){
@@ -666,7 +719,7 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip,
 speedCompo_copernicus <- function(file_path = remapCDO_copernicus, 
                                     vars_speed,
                                     remove = FALSE) {
-    
+
     # Extract path for monthly and weekly data 
     path_root <- unique(dirname(file_path))
     temp_folder <- strsplit(path_root, "/")
@@ -699,11 +752,11 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
                     message("Calcul speed with variables", " (",temp_folder[f], ") : \n", paste0(grep_var, collapse = "\n"))
 
                     compo <- speedCompo(path_compo1 = paste(path_root[f], grep_var[1], sep = "/"), 
-                                                        path_compo2 = paste(path_root[f], grep_var[2], sep = "/"), 
-                                                        name_compo1 = vars_speed$compo1[i], 
-                                                        name_compo2 = vars_speed$compo2[i],
-                                                        name_speed = vars_speed$name[i],
-                                                        remove = remove
+                                        path_compo2 = paste(path_root[f], grep_var[2], sep = "/"), 
+                                        name_compo1 = vars_speed$compo1[i], 
+                                        name_compo2 = vars_speed$compo2[i],
+                                        name_speed = vars_speed$name[i],
+                                        remove = remove
                                                         )
 
             }

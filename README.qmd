@@ -38,7 +38,7 @@ cat("\n```")
 
 ## Data folder
 
-:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download (one row by variable downloaded). Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty.
+:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download with one row by variable downloaded. Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty. Columns "date_min" and "date_max" must be larger than (or equal) *current_period* target (into *_targets.R file*). If variable name (column "variable") have a name with "_", "-", ?, rename with **rename** target to one word without specials characters (otherwise CDO command doesn't work). 
 
 | Columns database | Description |
 | :----: |   :-------------: |
@@ -54,7 +54,7 @@ cat("\n```")
 | date_max             | Date.  Format *Year-Month-Day* hours:minutes:seconds (2017-11-25 12:20:00) |
 | depth_min         | Numeric. Depth in meters. If you want to download one depth layer, same value for "depth_min" and "depth_max". If it's a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
 | depth_max           | Numeric. Depth in meters. If you want to download one depth layer, same value for "depth_min" and "depth_max". If it's a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
-| variable          | Short name of variable downloaded. If several varaible by product create one line by variable in the table |
+| variable          | Short name of variable downloaded. If several variable by product create one line by variable in the table |
 | DOI          | Check Copernicus website |          
 
 
@@ -73,13 +73,15 @@ cat("\n```")
 
 :heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
-:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss").
+:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss"). This period must overlap periods downloaded into **copernicus_parameters.csv**.
 
 :heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector. vectors of the list can be empty.
 
-:heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components and export the file with new abbreviation variable. First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be pasted)
+:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable downloaded. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data.
+
+:heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components (name vector are juste used into code but it's not names of output files). First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be always pasted to give final name of speed file). In this vector, given variable names after the rename step with renameVar() function and **renameVar** target.
 
 # :key: Dependencies
 
