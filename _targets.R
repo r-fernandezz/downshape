@@ -37,7 +37,7 @@ list(
 
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
-    ,tar_target(obs_data, copernicus_download_api(tab_parameters), format = "file")
+    ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = TRUE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(obs_data), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
