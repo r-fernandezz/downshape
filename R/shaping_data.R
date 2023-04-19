@@ -178,21 +178,18 @@ remapCDO <- function(   file_path,
     message("### Running CDO command to seltime :  \n", "--->", com_time)
     system(com_time)
 
-    if(type_data == "cmip6"){ #change date in file name
-
-        split <- strsplit(f_seltime, "_")[[1]]
-        place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
-        date <- lapply(period, function(x){
-                    st <- sapply(strsplit(x, "T"), "[[", 1 )
-                    st <- strsplit(st, "-")[[1]]
-                    st <- paste0(st, collapse = "")
-                })
-        split[place] <- paste(date$start, date$end, sep = "-")
-        new_name <- paste(split, collapse = "_")
-        file.rename(f_seltime, new_name)
-        f_seltime <- new_name
-
-    }
+    # Change date in file name
+    split <- strsplit(f_seltime, "_")[[1]]
+    place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
+    date <- lapply(period, function(x){
+                st <- sapply(strsplit(x, "T"), "[[", 1 )
+                st <- strsplit(st, "-")[[1]]
+                st <- paste0(st, collapse = "")
+            })
+    split[place] <- paste(date$start, date$end, sep = "-")
+    new_name <- paste(split, collapse = "_")
+    file.rename(f_seltime, new_name)
+    f_seltime <- new_name
 
     #################### Regrid
     f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
