@@ -31,14 +31,14 @@ cat("\n```")
 # :point_right: Step by step 
 
 - :one: Import files necessary into data folder
-- :two: Edit targets of "_targets.R" file.
+- :two: Edit targets of "_targets.R" file (and check if all "skip" argument into targets are "FALSE")
 - :three: Run pipeline launching *make.R* script
 
 # :heavy_check_mark: Input Informations
 
 ## Data folder
 
-:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download with one row by variable downloaded. Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty. Columns "date_min" and "date_max" must be larger than (or equal) *current_period* target (into *_targets.R file*). If variable name (column "variable") have a name with "_", "-", ?, rename with **rename** target to one word without specials characters (otherwise CDO command doesn't work). 
+:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download with one row by variable downloaded. Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty. Columns "date_min" and "date_max" must be larger than (or equal) *current_period* target (into *_targets.R file*). 
 
 | Columns database | Description |
 | :----: |   :-------------: |
@@ -79,7 +79,7 @@ cat("\n```")
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector. vectors of the list can be empty.
 
-:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable downloaded. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data.
+:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable downloaded. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data JUST AFTER DOWNLOAD STEP. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "????" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", ??, rename with **rename** target to one word without specials characters otherwise CDO command doesn't work.
 
 :heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components (name vector are juste used into code but it's not names of output files). First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be always pasted to give final name of speed file). In this vector, given variable names after the rename step with renameVar() function and **renameVar** target.
 

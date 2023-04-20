@@ -5,12 +5,13 @@
 #' @param data Target. Data download by copernicus_download_api() and download_cmip_data() function.
 #' @param type_data Character, "cmip6" or "copernicus". Data type used, to find valid path.
 #' @param skip Logical. Default FALSE. If you want skip (TRUE) or not (FALSE) this function into the pipeline to conserve target valid into target_visnetwork visual.
-#'
+#' @param renameVar List. Old name and correspondance to new name you want into output file name.
+#' 
 #' @return NULL
 #'
 #' @export Overwrite old file (.nc)
 
-renameVar <- function(data, type_data, skip = FALSE){
+renameVar <- function(data, type_data, skip = FALSE, renameVar = targets::tar_read("renameVar")){
 
     if(skip == FALSE){
 
@@ -22,28 +23,31 @@ renameVar <- function(data, type_data, skip = FALSE){
 
             files <- list.files(path, recursive = TRUE, full.names = TRUE)
 
-            grep <- grep(paste0(renameVar$oldname, collapse = "|"), files, value = TRUE)
+            for(i in 1:length(renameVar$oldname)){
 
-            if(length(grep) >= 1){
+                file_path <- grep(paste0(renameVar$oldname[i], "_"), files, value = TRUE)
 
-                for(i in 1:length(renameVar$oldname)){
+                if(length(file_path) >= 1){
 
-                    file_path <- grep(renameVar$oldname[i], grep, value = TRUE)
-                    f_out <- gsub(".nc", "_TEMPO.nc", file_path)
+                    for(f in 1:length(file_path)){
 
-                    com_rename <- paste0("cdo chname,", renameVar$oldname[i], ",", renameVar$newname[i], " ", file_path, " ", f_out)
-                    message("### Running CDO command to rename variable :  \n", "--->", com_rename)
-                    system(com_rename)
+                        f_out <- gsub(".nc", "_TEMPO.nc", file_path[f])
 
-                    unlink(file_path)
-                    file_rename <- strsplit(basename(file_path), "_")[[1]]
-                    file_rename[1] <- renameVar$newname[i]
-                    file_rename <- paste0(file_rename, collapse = "_")
-                    file.rename(f_out, file_rename)
+                        com_rename <- paste0("cdo chname,", renameVar$oldname[i], ",", renameVar$newname[i], " ", file_path[f], " ", f_out)
+                        message("### Running CDO command to rename variable :  \n", "--->", com_rename)
+                        system(com_rename)
 
-                }
+                        unlink(file_path[f])
+                        file_rename <- strsplit(basename(file_path[f]), "_")[[1]]
+                        file_rename[1] <- renameVar$newname[i]
+                        file_rename <- paste(dirname(file_path[f]), paste0(file_rename, collapse = "_"), sep = "/")
+                        file.rename(f_out, file_rename)
 
-            }else(stop("Not any variables with 'oldname' give into 'rename' target are found"))
+                    }
+                }else(stop(paste0("Not any variables with the oldname", " '", renameVar$oldname[i], "' ", "give into 'renameVar' target is found")))
+            }
+
+            
 
         }else(message("Not any variables renamed"))
 
@@ -52,6 +56,10 @@ renameVar <- function(data, type_data, skip = FALSE){
     }else{
 
         message("Skip manually 'renameVar' target (renameVar function)")
+
+        path <- switch(type_data,
+                copernicus = here::here("output", "data_copernicus"),
+                cmip6 = here::here("output", "data_cmip6"))
         return(list.files(path, recursive = TRUE, full.names = TRUE))
 
     }
@@ -183,11 +191,13 @@ concatenate_copernicus <- function(obs_data){
 
     tab <- read.csv2(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))
     
-    vars <- unlist(lapply(unique(tab$variable), function(x){
+    v <- unique(sapply(strsplit(list.files(here::here("output", "data_copernicus"), pattern = ".nc$"), "_"), "[[", 1))
 
-        message("Concatenate variable : ", x)
+    vars <- unlist(lapply(v, function(v){
 
-        concatenate(var = x, type_data = "copernicus")
+        message("Concatenate variable : ", v)
+
+        concatenate(var = v, type_data = "copernicus")
 
     }))
     
