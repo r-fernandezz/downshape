@@ -181,6 +181,10 @@ copernicus_download_api <- function(path_tab_param,
         }
 
         return(list.files(here::here("output", "data_copernicus"), full.name = TRUE))
-    }else(message("Skip manually 'obs_data' target (copernicus_download_api function)"))
+
+    }else{
+        message("Skip manually 'obs_data' target (copernicus_download_api function)")
+        return(list.files(here::here("output", "data_copernicus"), full.name = TRUE))
+        }
 
 }

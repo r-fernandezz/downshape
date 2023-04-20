@@ -49,7 +49,12 @@ renameVar <- function(data, type_data, skip = FALSE){
 
         return(list.files(path, recursive = TRUE, full.names = TRUE))
 
-    }else(message("Skip manually 'renameVar' target (renameVar function)"))
+    }else{
+
+        message("Skip manually 'renameVar' target (renameVar function)")
+        return(list.files(path, recursive = TRUE, full.names = TRUE))
+
+    }
 
 }
 
