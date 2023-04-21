@@ -14,6 +14,8 @@ list(
     ,tar_target(historical_period, list(start = "1850-01-01T00:00:00", end = "2014-12-01T00:00:00"))
     ,tar_target(futur_period, list(start = "2015-01-01T00:00:00", end = "2100-12-01T00:00:00"))
 
+    ,tar_target(http_vars, list(http = c("https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/30s/30s_bed_elev_netcdf/ETOPO_2022_v1_30s_N90W180_bed.nc"),
+                                name = c("BATHY")))
     ,tar_target(current_period, list(start = "2018-01-01T00:00:00", end = "2021-04-30T23:59:59"))
     ,tar_target(spat_reso, "180x90")
     ,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
@@ -40,7 +42,8 @@ list(
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = TRUE), format = "file")
-    ,tar_target(renameVar_copernicus, renameVar(data = obs_data, type_data = "copernicus", skip = TRUE), format = "file")
+    ,tar_target(http_data, http_vars(http_vars, path_output = here::here("output", "data_copernicus")))
+    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data), type_data = "copernicus", skip = TRUE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")

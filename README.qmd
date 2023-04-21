@@ -73,6 +73,8 @@ cat("\n```")
 
 :heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
+:heavy_check_mark: **[http_vars]** : List. List of download path (NetCDF file) and variable names. First (or n) element of "http" vector correspond to first (or n) element of "name" vector. "Name" vector will be the name used to rename file name of variable. To download variables outsite copernicus website. Leave empty if not used.
+
 :heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss"). This period must overlap periods downloaded into **copernicus_parameters.csv**.
 
 :heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).

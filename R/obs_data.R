@@ -188,3 +188,46 @@ copernicus_download_api <- function(path_tab_param,
         }
 
 }
+
+#' http_download
+#'
+#' @description Download data outsite copernicus our esgf website.
+#'
+#' @param http_vars Target. "http_vars" target, check README documentation.
+#' @param path_output Path. Output path where variable will be recorded.
+#'
+#' @return NULL
+#'
+#' @export NetCDF files (.nc)
+
+http_download <- function(  http_vars = targets::tar_read("http_vars"), 
+                            path_output) {
+
+    if(length(targets::tar_read("http_vars")) >= 1){
+
+        dir.create(path_output, showWarnings = FALSE)
+
+        return_tot <- NULL
+
+        for(i in 1:length(http_vars$http)){
+
+            target_url <- http_vars$http[i]
+            target_file <- paste0(path_output, "/", http_vars$name, "_", basename(target_file))
+
+            if (file.exists(target_file)){
+                return_tot <- c(return_tot, target_file)
+            } else{
+                download.file(target_url, target_file, method = "curl")
+                return_tot <- c(return_tot, target_file)
+            }
+
+        }
+
+        return(return_tot)
+
+    }else{
+        message("Not any outsite downloading")
+        return(c())
+        }
+
+}

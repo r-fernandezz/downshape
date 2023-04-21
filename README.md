@@ -23,12 +23,14 @@ website.
 graph LR
   subgraph Graph
     direction LR
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
     xd2508c5b4a2cb302(["renameVar_cmip6"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate --> x9289bfb53112cf3b(["concatenate_copernicus"]):::uptodate
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate
+    x71e926299248ce3f(["http_vars"]):::outdated --> x35b468daf9281b76(["http_data"]):::outdated
+    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
+    x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
@@ -37,8 +39,8 @@ graph LR
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
     xd8e5f2013a341013(["cmip_data"]):::outdated --> xd2508c5b4a2cb302(["renameVar_cmip6"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xd2508c5b4a2cb302(["renameVar_cmip6"]):::outdated
@@ -116,6 +118,12 @@ To define min and max time of cmip6 data historical period (cdo format:
 :heavy_check_mark: **\[future_period\]** : List start and end time. To
 define min and max time of cmip6 data future period (cdo format:
 “YYYY-MM-DDThh:mm:ss”).
+
+:heavy_check_mark: **\[http_vars\]** : List. List of download path
+(NetCDF file) and variable names. First (or n) element of “http” vector
+correspond to first (or n) element of “name” vector. “Name” vector will
+be the name used to rename file name of variable. To download variables
+outsite copernicus website. Leave empty if not used.
 
 :heavy_check_mark: **\[current_period\]** : List start and end time. To
 define min and max time of copernicus data current period (cdo format:
