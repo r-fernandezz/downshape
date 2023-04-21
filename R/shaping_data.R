@@ -130,13 +130,13 @@ concatenate <- function(source = NULL,
 #'
 #' @description Apply concatenate() function at all cmip6 datasets.
 #'
-#' @param download_data Downloaded data we want to merge.
+#' @param renameVar_cmip Target. Data we want to merge.
 #'
 #' @return Same of concatenate() function
 #'
 #' @export Same of concatenate() function
 
-concatenate_cmip <- function(download_data){
+concatenate_cmip <- function(renameVar_cmip){
 
     # download_data <- targets::tar_read("download_cmip_data")
     message("# Concatenating data files for each source * experiment * variable")
@@ -436,14 +436,14 @@ remapCDO <- function(   file_path,
 #'
 #' @description Apply remapCDO function to all cmip6 variables
 #'
-#' @param concatenate_data Path. Path of the file you want formatted with CDO.
+#' @param concatenate_cmip Path. Path of the cmip file you want formatted with CDO.
 #'
 #' @return Vector with paths of processed variables
 #'
 #' @export Processed files (.nc)
 #' 
 
-remapCDO_cmip <- function(concatenate_data){
+remapCDO_cmip <- function(concatenate_cmip){
 
     mods <- list.files(here::here("output", "data_cmip6")) # tructure file give all models downloaded
 
@@ -510,7 +510,7 @@ remapCDO_cmip <- function(concatenate_data){
 #' @description Apply remapCDO function to all copernicus variables
 #'
 #'
-#' @param concatenate_copernicus Path list. List of variable path download by copernicus_download_api function and concatenated.
+#' @param concatenate_copernicus Path list. Path of the copernicus file you want formatted with CDO.
 #'
 #' @return Vector with paths of processed variables
 #'
