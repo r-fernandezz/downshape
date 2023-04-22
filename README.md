@@ -24,33 +24,36 @@ graph LR
   subgraph Graph
     direction LR
     x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
-    xd2508c5b4a2cb302(["renameVar_cmip6"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
+    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    x71e926299248ce3f(["http_vars"]):::outdated --> x35b468daf9281b76(["http_data"]):::outdated
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
     xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
     x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::started --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
-    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> x0a3d6e672db943e2(["speedCompo_cmip2"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
     xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    xd8e5f2013a341013(["cmip_data"]):::outdated --> xd2508c5b4a2cb302(["renameVar_cmip6"]):::outdated
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xd2508c5b4a2cb302(["renameVar_cmip6"]):::outdated
     x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
+    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
+    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> x57dd1d5e854c11b6(["historical_period"]):::uptodate
     xe73cbbcc20086ecd(["spat_reso"]):::uptodate --> xe73cbbcc20086ecd(["spat_reso"]):::uptodate
+    x55a14a7f5821bbec(["resotempo"]):::outdated --> x55a14a7f5821bbec(["resotempo"]):::outdated
   end
 ```
 
@@ -119,6 +122,13 @@ To define min and max time of cmip6 data historical period (cdo format:
 define min and max time of cmip6 data future period (cdo format:
 “YYYY-MM-DDThh:mm:ss”).
 
+:heavy_check_mark: **\[resotempo\]** : Allow to know temporal resolution
+of all variable to mean uniquely by week into remapCDO() function
+(“week” one layer by week, “month” one by month, “hour1” one by one
+hour, “hour6” one by 6 hours). Give variable name after variables are
+concatenated (and without names of depth variable create automatically
+by the pipeline).
+
 :heavy_check_mark: **\[http_vars\]** : List. List of download path
 (NetCDF file) and variable names. First (or n) element of “http” vector
 correspond to first (or n) element of “name” vector. “Name” vector will
@@ -143,10 +153,10 @@ file created. To split variable to several files by deep level. First
 :heavy_check_mark: **\[renameVar\]** : List with old name and new name.
 First (or n) element of “oldname” vector correspond to first (or n)
 element of “newname” vector. Allow to rename into NETCDF file the
-variable downloaded. This vectors gathers all old and new variable names
-used to rename cmip6 and copernicus data JUST AFTER DOWNLOAD STEP. In
-others words, it allows to change name of “variable” column into
-**parameters_copernicus.csv** and “????” column into
+variable juste after downloading step. This vectors gathers all old and
+new variable names used to rename cmip6 and copernicus data JUST AFTER
+DOWNLOAD STEP. In others words, it allows to change name of “variable”
+column into **parameters_copernicus.csv** and “????” column into
 **selected_datasets.csv** for cmip6 data. If variable name have a name
 with “\_“,”-“, ??, rename with **rename** target to one word without
 specials characters otherwise CDO command doesn’t work.

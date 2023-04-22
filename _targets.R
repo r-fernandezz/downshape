@@ -14,13 +14,15 @@ list(
     ,tar_target(historical_period, list(start = "1850-01-01T00:00:00", end = "2014-12-01T00:00:00"))
     ,tar_target(futur_period, list(start = "2015-01-01T00:00:00", end = "2100-12-01T00:00:00"))
 
-    ,tar_target(http_vars, list(http = c("https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/30s/30s_bed_elev_netcdf/ETOPO_2022_v1_30s_N90W180_bed.nc"),
-                                name = c("BATHY")))
-    ,tar_target(current_period, list(start = "2018-01-01T00:00:00", end = "2021-04-30T23:59:59"))
+    , tar_target(resotempo, list(vars = c("so", "to", "ugouvo", "zo", "WIND" ), 
+                                reso = c("week", "week", "week", "week", "hour6"))) 
+    ,tar_target(http_vars, list(http = c(),
+                                name = c()))
+    ,tar_target(current_period, list(start = "2018-01-01T00:00:00", end = "2019-12-31T23:59:59"))
     ,tar_target(spat_reso, "180x90")
     ,tar_target(deep_level, list(start = c(0, 50), end = c(50, 100)))
-    ,tar_target(renameVar, list(oldname = c("eastward_wind", "northward_wind", "so", "to", "ugo", "vgo", "zo", "chl"), newname = c("WINDe", "WINDn", "SSS", "SST", "CURRENTug", "CURRENTvg", "SSH", "CHLA")))
-    ,tar_target(vars_speed, list(compo1 = c("CURRENTug", "WINDe"), compo2 = c("CURRENTvg", "WINDn"), name = c("CURRENT", "WIND")))
+    ,tar_target(renameVar, list(oldname = c("so", "to", "ugo", "vgo", "zo", "chl"), newname = c("SSS", "SST", "CURRENTug", "CURRENTvg", "SSH", "CHLA")))
+    ,tar_target(vars_speed, list(compo1 = c("CURRENTug"), compo2 = c("CURRENTvg"), name = c("CURRENT", "WIND")))
 
     ################################# CMIP data process #################################
 
@@ -41,9 +43,9 @@ list(
 
     # Download and remmaped copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
-    ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = TRUE), format = "file")
-    ,tar_target(http_data, http_vars(http_vars, path_output = here::here("output", "data_copernicus")))
-    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data), type_data = "copernicus", skip = TRUE), format = "file")
+    ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = FALSE), format = "file")
+    ,tar_target(http_data, http_download(http_vars, path_output = here::here("output", "data_copernicus")))
+    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data), type_data = "copernicus", skip = FALSE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")

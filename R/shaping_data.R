@@ -309,12 +309,47 @@ remapCDO <- function(   file_path,
     }
 
     if(monthWeek == "week"){
-    f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-    com_tempReso <- paste0("cdo timselmean,7 ", f_maskArea, " ", f_tempReso)
-    message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
-    system(com_tempReso)
-    Sys.sleep(5)
-    unlink(f_maskArea)
+
+        # f_maskArea <- "/home/romain/Documents/data_copernicus_beforeRename/zo_MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS_20180101-20191231.nc"
+        # resotempo = list(vars = c("so", "to", "ugouvo", "zo", "WIND" ), reso = c("week", "week", "week", "week", "hour6"))
+
+        resotempo <- targets::tar_read("resotempo")
+        v <- strsplit(basename(f_maskArea), "_")[[1]][1]
+        reso <- resotempo$reso[grep(v, resotempo$vars)]
+
+        if(reso == "day"){}
+            f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
+            com_tempReso <- paste0("cdo timselmean,7 ", f_maskArea, " ", f_tempReso)
+            message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+            system(com_tempReso)
+            Sys.sleep(5)
+            unlink(f_maskArea)
+
+        if(reso == "hour1"){
+            f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
+            com_tempReso <- paste0("cdo timselmean,168 ", f_maskArea, " ", f_tempReso)
+            message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+            system(com_tempReso)
+            Sys.sleep(5)
+            unlink(f_maskArea)
+        }
+
+        if(reso == "hour6"){
+            f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
+            com_tempReso <- paste0("cdo timselmean,28 ", f_maskArea, " ", f_tempReso)
+            message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+            system(com_tempReso)
+            Sys.sleep(5)
+            unlink(f_maskArea)
+        }
+
+        if(reso == "week"){
+            f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
+            file.rename(from = f_maskArea, to = f_tempReso)
+            unlink(f_maskArea)
+        }
+
+        if(reso == "month"){stop("Time mean by week impossible beacause of file have a time unit in week")}
     }
 
     #################### Change dimension names
