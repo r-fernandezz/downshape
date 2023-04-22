@@ -310,9 +310,6 @@ remapCDO <- function(   file_path,
 
     if(monthWeek == "week"){
 
-        # f_maskArea <- "/home/romain/Documents/data_copernicus_beforeRename/zo_MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS_20180101-20191231.nc"
-        # resotempo = list(vars = c("so", "to", "ugouvo", "zo", "WIND" ), reso = c("week", "week", "week", "week", "hour6"))
-
         resotempo <- targets::tar_read("resotempo")
         v <- strsplit(basename(f_maskArea), "_")[[1]][1]
         reso <- resotempo$reso[grep(v, resotempo$vars)]
