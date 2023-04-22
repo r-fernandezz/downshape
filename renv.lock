@@ -1207,6 +1207,16 @@
         "yaml"
       ]
     },
+    "terra": {
+      "Package": "terra",
+      "Version": "1.7-23",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "19502c7522254190a8a93e6dffa59ed7",
+      "Requirements": [
+        "Rcpp"
+      ]
+    },
     "testthat": {
       "Package": "testthat",
       "Version": "3.1.6",
