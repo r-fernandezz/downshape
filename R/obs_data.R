@@ -203,7 +203,7 @@ copernicus_download_api <- function(path_tab_param,
 http_download <- function(  http_vars = targets::tar_read("http_vars"), 
                             path_output) {
 
-    if(length(targets::tar_read("http_vars")) >= 1){
+    if(length(http_vars$http) >= 1){
 
         dir.create(path_output, showWarnings = FALSE)
 
