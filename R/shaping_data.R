@@ -243,24 +243,38 @@ remapCDO <- function(   file_path,
                     historical = targets::tar_read("historical_period"),
                     targets::tar_read("futur_period"))
 
-    f_seltime <- gsub(".nc", "_seltime.nc", file_path)
-    f_seltime <- paste0(path_output, "/", basename(f_seltime))
-    com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
-    message("### Running CDO command to seltime :  \n", "--->", com_time)
-    system(com_time)
+    resotempo <- targets::tar_read("resotempo")
+    v <- strsplit(basename(file_path), "_")[[1]][1]
+    reso <- resotempo$reso[grep(v, resotempo$vars)]
 
-    # Change date in file name
-    split <- strsplit(f_seltime, "_")[[1]]
-    place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
-    date <- lapply(period, function(x){
-                st <- sapply(strsplit(x, "T"), "[[", 1 )
-                st <- strsplit(st, "-")[[1]]
-                st <- paste0(st, collapse = "")
-            })
-    split[place] <- paste(date$start, date$end, sep = "-")
-    new_name <- paste(split, collapse = "_")
-    file.rename(f_seltime, new_name)
-    f_seltime <- new_name
+    if(reso == "FIXE"){
+
+        f_seltime <- gsub(".nc", "_seltime.nc", file_path)
+        f_seltime <- paste0(path_output, "/", basename(f_seltime))
+        file.copy(from = file_path, to = f_seltime)
+
+    }else{
+
+        f_seltime <- gsub(".nc", "_DateFIXE_seltime.nc", file_path)
+        f_seltime <- paste0(path_output, "/", basename(f_seltime))
+        com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
+        message("### Running CDO command to seltime :  \n", "--->", com_time)
+        system(com_time)
+
+        # Change date in file name
+        split <- strsplit(f_seltime, "_")[[1]]
+        place <- grep("[0-9]{6}-[0-9]{6}", split) #select date
+        date <- lapply(period, function(x){
+                    st <- sapply(strsplit(x, "T"), "[[", 1 )
+                    st <- strsplit(st, "-")[[1]]
+                    st <- paste0(st, collapse = "")
+                })
+        split[place] <- paste(date$start, date$end, sep = "-")
+        new_name <- paste(split, collapse = "_")
+        file.rename(f_seltime, new_name)
+        f_seltime <- new_name
+
+    }
 
     #################### Regrid
     f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
@@ -314,13 +328,14 @@ remapCDO <- function(   file_path,
         v <- strsplit(basename(f_maskArea), "_")[[1]][1]
         reso <- resotempo$reso[grep(v, resotempo$vars)]
 
-        if(reso == "day"){}
+        if(reso == "day"){
             f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
             com_tempReso <- paste0("cdo timselmean,7 ", f_maskArea, " ", f_tempReso)
             message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
             system(com_tempReso)
             Sys.sleep(5)
             unlink(f_maskArea)
+        }
 
         if(reso == "hour1"){
             f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
@@ -340,7 +355,7 @@ remapCDO <- function(   file_path,
             unlink(f_maskArea)
         }
 
-        if(reso == "week"){
+        if(reso %in% c("week", "FIXE")){
             f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
             file.rename(from = f_maskArea, to = f_tempReso)
             unlink(f_maskArea)

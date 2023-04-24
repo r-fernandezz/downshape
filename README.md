@@ -28,16 +28,16 @@ graph LR
     xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
     x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
     xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
-    x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::started --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    x35b468daf9281b76(["http_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
     xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
@@ -52,8 +52,8 @@ graph LR
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> x57dd1d5e854c11b6(["historical_period"]):::uptodate
+    x55a14a7f5821bbec(["resotempo"]):::uptodate --> x55a14a7f5821bbec(["resotempo"]):::uptodate
     xe73cbbcc20086ecd(["spat_reso"]):::uptodate --> xe73cbbcc20086ecd(["spat_reso"]):::uptodate
-    x55a14a7f5821bbec(["resotempo"]):::outdated --> x55a14a7f5821bbec(["resotempo"]):::outdated
   end
 ```
 
@@ -122,12 +122,13 @@ To define min and max time of cmip6 data historical period (cdo format:
 define min and max time of cmip6 data future period (cdo format:
 “YYYY-MM-DDThh:mm:ss”).
 
-:heavy_check_mark: **\[resotempo\]** : Allow to know temporal resolution
-of all variable to mean uniquely by week into remapCDO() function
-(“week” one layer by week, “month” one by month, “hour1” one by one
-hour, “hour6” one by 6 hours). Give variable name after variables are
-concatenated (and without names of depth variable create automatically
-by the pipeline).
+:heavy_check_mark: **\[resotempo\]** : Give temporal resolution of all
+variable (copernicus or cmip or both) you want to mean by week with
+remapCDO(…, monthWeek = “week”). This target use into “reso” list “week”
+one layer by week, “month” one by month, “hour1” one by one hour,
+“hour6” one by 6 hours, “FIXE” one layer for all NetCDF file. Into
+“vars” list given variable name after rename target. Give variable name
+without names of depth variable create automatically by the pipeline.
 
 :heavy_check_mark: **\[http_vars\]** : List. List of download path
 (NetCDF file) and variable names. First (or n) element of “http” vector
@@ -175,6 +176,14 @@ calculated with “uo” and “vo” components will be “uovo” (two compone
 names will be always pasted to give final name of speed file). In this
 vector, given variable names after the rename step with renameVar()
 function and **renameVar** target.
+
+## Other pipeline usage and input data
+
+**If you want skip download_copernicus() function** : You can put
+variables (.nc) into folder “output/data_copernicus”. Variable want to
+be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. “NameVar” (or
+“Name_Var”) want to be the same of name inside NetCDF file (check it
+otherwise renameCDO() function bug).
 
 # :key: Dependencies
 

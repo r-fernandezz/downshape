@@ -73,7 +73,7 @@ cat("\n```")
 
 :heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
-:heavy_check_mark: **[resotempo]** : Allow to know temporal resolution of all variable to mean uniquely by week into remapCDO() function   ("week" one layer by week, "month" one by month, "hour1" one by one hour, "hour6" one by 6 hours). Give variable name after variables are concatenated (and without names of depth variable create automatically by the pipeline).
+:heavy_check_mark: **[resotempo]** : Give temporal resolution of all variable (copernicus or cmip or both) you want to mean by week with remapCDO(..., monthWeek = "week"). This target use into "reso" list "week" one layer by week, "month" one by month, "hour1" one by one hour, "hour6" one by 6 hours, "FIXE" one layer for all NetCDF file. Into "vars" list given variable name after rename target. Give variable name without names of depth variable create automatically by the pipeline.
 
 :heavy_check_mark: **[http_vars]** : List. List of download path (NetCDF file) and variable names. First (or n) element of "http" vector correspond to first (or n) element of "name" vector. "Name" vector will be the name used to rename file name of variable. To download variables outsite copernicus website. Leave empty if not used.
 
@@ -86,6 +86,10 @@ cat("\n```")
 :heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data JUST AFTER DOWNLOAD STEP. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "????" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", ??, rename with **rename** target to one word without specials characters otherwise CDO command doesn't work.
 
 :heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components (name vector are juste used into code but it's not names of output files). First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be always pasted to give final name of speed file). In this vector, given variable names after the rename step with renameVar() function and **renameVar** target.
+
+## Other pipeline usage and input data
+
+**If you want skip download_copernicus() function** : You can put variables (.nc) into folder "output/data_copernicus". Variable want to be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. "NameVar" (or "Name_Var") want to be the same of name inside NetCDF file (check it otherwise renameCDO() function bug).
 
 # :key: Dependencies
 
