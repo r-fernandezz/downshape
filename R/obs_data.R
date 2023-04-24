@@ -201,7 +201,10 @@ copernicus_download_api <- function(path_tab_param,
 #' @export NetCDF files (.nc)
 
 http_download <- function(  http_vars = targets::tar_read("http_vars"), 
-                            path_output) {
+                            path_output,
+                            skip = FALSE) {
+
+    if(skip == FALSE){
 
     if(length(http_vars$http) >= 1){
 
