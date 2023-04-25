@@ -249,13 +249,13 @@ remapCDO <- function(   file_path,
 
     if(reso == "FIXE"){
 
-        f_seltime <- gsub(".nc", "_seltime.nc", file_path)
+        f_seltime <- gsub(".nc", "_DateFIXE_seltime.nc", file_path)
         f_seltime <- paste0(path_output, "/", basename(f_seltime))
         file.copy(from = file_path, to = f_seltime)
 
     }else{
 
-        f_seltime <- gsub(".nc", "_DateFIXE_seltime.nc", file_path)
+        f_seltime <- gsub(".nc", "_seltime.nc", file_path)
         f_seltime <- paste0(path_output, "/", basename(f_seltime))
         com_time <- paste0("cdo seldate,", period$start, ",", period$end, " ", file_path, " ", f_seltime)
         message("### Running CDO command to seltime :  \n", "--->", com_time)
