@@ -16,7 +16,7 @@ list(
 
     , tar_target(resotempo, list(vars = c("SSS", "SST", "CURRENTug", "CURRENTvg", "SSH", "CHLA", "WIND", "BATHY"), 
                                 reso = c("week", "week", "week", "week", "week", "week", "hour6", "FIXE"))) 
-    ,tar_target(http_vars, list(http = c("https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc"),
+    ,tar_target(http_vars, list(http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                 name = c("BATHY")))
     ,tar_target(current_period, list(start = "2018-01-03T00:00:00", end = "2019-10-30T23:59:59"))
     ,tar_target(spat_reso, "180x90")
@@ -26,18 +26,18 @@ list(
 
     ################################# CMIP data process #################################
 
-    # # Esgf dataset search & select
-    # ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
-    # ,tar_target(available_dataset_df, cmip_parse_search(available_dataset_json))
-    # ,tar_target(select_dataset, select_dataset(available_dataset_df), format = "file")
+    # Esgf dataset search & select
+    ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span))
+    ,tar_target(available_dataset_df, cmip_parse_search(available_dataset_json))
+    ,tar_target(select_dataset, select_dataset(available_dataset_df), format = "file")
 
-    # # Download and remapped esgf data selected (CMIP6)
-    # ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
-    # #,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
-    # , tar_target(renameVar_cmip, renameVar(data = cmip_data, type_data = "cmip6", skip = TRUE), format = "file")
-    # ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
-    # ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
-    # ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed, remove = FALSE), format = "file")
+    # Download and remapped esgf data selected (CMIP6)
+    ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span), format = "file")
+    #,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
+    , tar_target(renameVar_cmip, renameVar(data = cmip_data, type_data = "cmip6", skip = TRUE), format = "file")
+    ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
+    ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
+    ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed, remove = FALSE), format = "file")
     
     ################################# Copernicus data process #################################
 
