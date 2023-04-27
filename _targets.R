@@ -49,7 +49,7 @@ list(
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
-    ,tar_target(grad_copernicus, grad_copernicus(connectPip))
+    ,tar_target(grad_copernicus, grad_copernicus(connectPip), format = "file")
 
     ################################# To connect downshape and modeloTrack pipeline #################################
     ,tar_target(connectPip, connectPip(speedCompo_copernicus, speedCompo_cmip))

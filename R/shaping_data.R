@@ -849,22 +849,22 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
 #' @param Variable Type. Explication.
 #' @param Variable Type. Explication.
 #'
-#' @return Name Variable
+#' @return Name file of variable
 #'
-#' @export 
+#' @export Gradients variable (.grd)
 #' 
 
 grad_copernicus <- function(connectPip) {
 
     reso <- list.files(here::here("output", "data_copernicus_remapped"))
 
-    for(r in 1:legth(reso)){
+    for(r in 1:length(reso)){
 
         list_path_use <- list.files(paste0(here::here("output", "data_copernicus_remapped"), "/", reso[r], "/GRD"), pattern = ".grd$", full.names = TRUE)
 
         for (i in 1:length(list_path_use)){ # For all variables
 
-            message(paste("Treatment of variable :", basename(list_path_use[i]), sep = " "))
+            message(paste("Treatment of variable (", i, "/", length(list_path_use), ") :", basename(list_path_use[i]), sep = " "))
 
             raster <- raster::brick(list_path_use[i]) # import du raster de travail
 
@@ -872,12 +872,13 @@ grad_copernicus <- function(connectPip) {
             vect_names <- c()
 
             for (ii in 1:as.numeric(raster@file@nbands)){ # For all bandes of a variable
-                message(paste("Filtre Gaussien", "3","by", "3", "and slope window", "8", "by", "8", "applied on bande :", ii, "/", raster@file@nbands, sep = " "))
+
+                #message(paste("Filtre Gaussien", "3","by", "3", "and slope window", "8", "by", "8", "applied on bande :", ii, "/", raster@file@nbands, sep = " "))
 
                 name_bande <- raster@data@names[ii] # To select work bande
                 raster_bande <- raster::subset(raster, subset = name_bande, drop = TRUE) 
 
-                raster_bande <- spatialEco::raster.gaussian.smooth(x = raster_bande, sigma = 2, n = 3, type = mean) # To apply gaussian filter
+                raster_bande <- raster.gaussian.smooth(x = raster_bande, sigma = 2, n = 3, type = mean) # To apply gaussian filter
 
                 raster_bande <- raster::terrain(raster_bande, opt = "slope", unit = "degrees", neighbors = 8) # To apply slop being calcul gradient
 
@@ -892,6 +893,7 @@ grad_copernicus <- function(connectPip) {
             names(raster_stack) <- vect_names
 
             # To creat output folder and file name
+            dir_path <- unique(dirname(list_path_use))
             pathout <- paste0(dir_path, "/Gradient")
             if(!file.exists(pathout)) dir.create(pathout)
 
@@ -910,4 +912,7 @@ grad_copernicus <- function(connectPip) {
         }
 
     }
+
+    return(list.files(paste0(here::here("output", "data_copernicus_remapped"), "/", reso, "/GRD"), full.names = TRUE))
+
 }
