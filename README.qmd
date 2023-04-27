@@ -83,7 +83,7 @@ cat("\n```")
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector. vectors of the list can be empty.
 
-:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data JUST AFTER DOWNLOAD STEP. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "????" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", ??, rename with **rename** target to one word without specials characters otherwise CDO command doesn't work.
+:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data JUST AFTER DOWNLOAD STEP. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "????" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", " ", rename with **rename** target to one word without specials characters otherwise CDO command doesn't work.
 
 :heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul variable speed with two components (name vector are juste used into code but it's not names of output files). First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. If one short names of variable is same to cmip6 and copernicus data, write one time. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be always pasted to give final name of speed file). In this vector, given variable names after the rename step with renameVar() function and **renameVar** target.
 
@@ -102,58 +102,58 @@ This R research compendium using renv package to fixe package version. Run renv:
 # :pushpin: Output Folders Structuration Creation
 
 - :open_file_folder:  output *--[make.r]--*
-    - :page_facing_up: dataset_found_before_filter.csv *--[select_dataset()]--*
-    - :page_facing_up: selected_datasets.csv *--[select_dataset()]--*
-    - :open_file_folder: data_cmip6 *--[download_cmip_data()]--*
-        - :open_file_folder: Model_name_download *--[download_cmip_data()]--*
-            - :open_file_folder: Experiment_name_download *--[download_cmip_data()]--*
-                - :page_facing_up: ModelName_ExperimentName_VarsName.sh *--[download_cmip_data()]--*
-                - :page_facing_up: Vars1.nc *--[download_cmip_data()]--*
-                - :page_facing_up: Vars2.nc *--[download_cmip_data()]--*
-                - :page_facing_up: VarsX.nc ... *--[download_cmip_data()]--*
-    - :open_file_folder: data_cmip6_remapped *--[remapCDO_cmip()]--* 
-      - :open_file_folder: Model_name_download *--[remapCDO_cmip()]--* 
-          - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
-          - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
-          - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
-          - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
-          - GRD *--[connectPip()]--*
-    - :open_file_folder: data_copernicus *--[copernicus_download_api()]--*
-        - :page_facing_up: copernicus_parameters_modified.csv *--[copernicus_download_api()]--*
-        - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
-        - :page_facing_up: Vars2.nc *--[copernicus_download_api()]--*
-        - :page_facing_up: VarsX.nc ... *--[copernicus_download_api()]--*
-    - :open_file_folder: data_copernicus_remapped *--[remapCDO_copernicus()]--*
-      - :open_file_folder: month
-            - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
-            - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
-            - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
-            - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
-            - :open_file_folder: GRD *--[connectPip()]--*
-              - :page_facing_up: Vars1.nc
-              - :page_facing_up: Vars2.nc
-              - :page_facing_up: VarsX.nc
-              - :page_facing_up: Vars_speed.nc
-              - :open_file_folder: Gradient *--[grad_copernicus()]--* 
-                - :page_facing_up: GVars1.nc 
-                - :page_facing_up: GVars2.nc  
-                - :page_facing_up: GVarsX.nc 
-                - :page_facing_up: GVars_speed.nc
-      - :open_file_folder: week
-            - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
-            - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
-            - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
-            - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
-            - :open_file_folder: GRD *--[connectPip()]--*
-              - :page_facing_up: Vars1.nc
-              - :page_facing_up: Vars2.nc
-              - :page_facing_up: VarsX.nc
-              - :page_facing_up: Vars_speed.nc
-              - :open_file_folder: Gradient *--[grad_copernicus()]--* 
-                - :page_facing_up: GVars1.nc 
-                - :page_facing_up: GVars2.nc  
-                - :page_facing_up: GVarsX.nc 
-                - :page_facing_up: GVars_speed.nc
+  - :page_facing_up: dataset_found_before_filter.csv *--[select_dataset()]--*
+  - :page_facing_up: selected_datasets.csv *--[select_dataset()]--*
+  - :open_file_folder: data_cmip6 *--[download_cmip_data()]--*
+    - :open_file_folder: Model_name_download *--[download_cmip_data()]--*
+      - :open_file_folder: Experiment_name_download *--[download_cmip_data()]--*
+        - :page_facing_up: ModelName_ExperimentName_VarsName.sh *--[download_cmip_data()]--*
+        - :page_facing_up: Vars1.nc *--[download_cmip_data()]--*
+        - :page_facing_up: Vars2.nc *--[download_cmip_data()]--*
+        - :page_facing_up: VarsX.nc ... *--[download_cmip_data()]--*
+  - :open_file_folder: data_cmip6_remapped *--[remapCDO_cmip()]--* 
+    - :open_file_folder: Model_name_download *--[remapCDO_cmip()]--* 
+      - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
+      - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
+      - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
+      - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
+      - GRD *--[connectPip()]--*
+  - :open_file_folder: data_copernicus *--[copernicus_download_api()]--*
+    - :page_facing_up: copernicus_parameters_modified.csv *--[copernicus_download_api()]--*
+    - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
+    - :page_facing_up: Vars2.nc *--[copernicus_download_api()]--*
+    - :page_facing_up: VarsX.nc ... *--[copernicus_download_api()]--*
+  - :open_file_folder: data_copernicus_remapped *--[remapCDO_copernicus()]--*
+    - :open_file_folder: month
+      - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
+      - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
+      - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
+      - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
+      - :open_file_folder: GRD *--[connectPip()]--*
+        - :page_facing_up: Vars1.nc
+        - :page_facing_up: Vars2.nc
+        - :page_facing_up: VarsX.nc
+        - :page_facing_up: Vars_speed.nc
+        - :open_file_folder: Gradient *--[grad_copernicus()]--* 
+          - :page_facing_up: GVars1.nc 
+          - :page_facing_up: GVars2.nc  
+          - :page_facing_up: GVarsX.nc 
+          - :page_facing_up: GVars_speed.nc
+    - :open_file_folder: week
+      - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
+      - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
+      - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
+      - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
+      - :open_file_folder: GRD *--[connectPip()]--*
+        - :page_facing_up: Vars1.nc
+        - :page_facing_up: Vars2.nc
+        - :page_facing_up: VarsX.nc
+        - :page_facing_up: Vars_speed.nc
+        - :open_file_folder: Gradient *--[grad_copernicus()]--* 
+          - :page_facing_up: GVars1.nc 
+          - :page_facing_up: GVars2.nc  
+          - :page_facing_up: GVarsX.nc 
+          - :page_facing_up: GVars_speed.nc
 
 
 

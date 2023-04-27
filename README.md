@@ -23,27 +23,38 @@ website.
 graph LR
   subgraph Graph
     direction LR
-    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
-    xcdaf411f7aa1a87d(["connectPip"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
+    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
     x35b468daf9281b76(["http_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
+    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
+    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
+    xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
     x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
+    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
+    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
+    xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
+    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    xcdaf411f7aa1a87d(["connectPip"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
+    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::started --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::started
+    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
-    xac02e5e58926353b(["experiments"]):::uptodate --> xac02e5e58926353b(["experiments"]):::uptodate
-    x906e78a8df9f52cb(["freq"]):::uptodate --> x906e78a8df9f52cb(["freq"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> x57dd1d5e854c11b6(["historical_period"]):::uptodate
     x55a14a7f5821bbec(["resotempo"]):::uptodate --> x55a14a7f5821bbec(["resotempo"]):::uptodate
     xe73cbbcc20086ecd(["spat_reso"]):::uptodate --> xe73cbbcc20086ecd(["spat_reso"]):::uptodate
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x2c0118dd07b06ac8(["time_span"]):::uptodate
-    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x8f15ec77b8dbd81a(["vars"]):::uptodate
   end
 ```
 
@@ -149,7 +160,7 @@ new variable names used to rename cmip6 and copernicus data JUST AFTER
 DOWNLOAD STEP. In others words, it allows to change name of “variable”
 column into **parameters_copernicus.csv** and “????” column into
 **selected_datasets.csv** for cmip6 data. If variable name have a name
-with “\_“,”-“, ??, rename with **rename** target to one word without
+with “\_“,”-“,” “, rename with **rename** target to one word without
 specials characters otherwise CDO command doesn’t work.
 
 :heavy_check_mark: **\[vars_speed\]** : List first, second component and
@@ -221,25 +232,33 @@ renv::status() to check if everything is ready.
     - :page_facing_up: VarsX.nc … *–\[copernicus_download_api()\]–*
   - :open_file_folder: data_copernicus_remapped
     *–\[remapCDO_copernicus()\]–*
-    - :open_file_folder: month - :page_facing_up: Vars1.nc
-      *–\[remapCDO_copernicus()\]–* - :page_facing_up: Vars2.nc
-      *–\[remapCDO_copernicus()\]–* - :page_facing_up: VarsX.nc
-      *–\[remapCDO_copernicus()\]–* - :page_facing_up: Vars_speed.nc
-      *–\[speedCompo_copernicus()\]–* - :open_file_folder: GRD
-      *–\[connectPip()\]–* - :page_facing_up: Vars1.nc -
-      :page_facing_up: Vars2.nc - :page_facing_up: VarsX.nc -
-      :page_facing_up: Vars_speed.nc - :open_file_folder: Gradient
-      *–\[grad_copernicus()\]–* - :page_facing_up: GVars1.nc -
-      :page_facing_up: GVars2.nc  
-      - :page_facing_up: GVarsX.nc - :page_facing_up: GVars_speed.nc
-    - :open_file_folder: week - :page_facing_up: Vars1.nc
-      *–\[remapCDO_copernicus()\]–* - :page_facing_up: Vars2.nc
-      *–\[remapCDO_copernicus()\]–* - :page_facing_up: VarsX.nc
-      *–\[remapCDO_copernicus()\]–* - :page_facing_up: Vars_speed.nc
-      *–\[speedCompo_copernicus()\]–* - :open_file_folder: GRD
-      *–\[connectPip()\]–* - :page_facing_up: Vars1.nc -
-      :page_facing_up: Vars2.nc - :page_facing_up: VarsX.nc -
-      :page_facing_up: Vars_speed.nc - :open_file_folder: Gradient
-      *–\[grad_copernicus()\]–* - :page_facing_up: GVars1.nc -
-      :page_facing_up: GVars2.nc  
-      - :page_facing_up: GVarsX.nc - :page_facing_up: GVars_speed.nc
+    - :open_file_folder: month
+      - :page_facing_up: Vars1.nc *–\[remapCDO_copernicus()\]–*
+      - :page_facing_up: Vars2.nc *–\[remapCDO_copernicus()\]–*
+      - :page_facing_up: VarsX.nc *–\[remapCDO_copernicus()\]–*
+      - :page_facing_up: Vars_speed.nc *–\[speedCompo_copernicus()\]–*
+      - :open_file_folder: GRD *–\[connectPip()\]–*
+        - :page_facing_up: Vars1.nc
+        - :page_facing_up: Vars2.nc
+        - :page_facing_up: VarsX.nc
+        - :page_facing_up: Vars_speed.nc
+        - :open_file_folder: Gradient *–\[grad_copernicus()\]–*
+          - :page_facing_up: GVars1.nc
+          - :page_facing_up: GVars2.nc  
+          - :page_facing_up: GVarsX.nc
+          - :page_facing_up: GVars_speed.nc
+    - :open_file_folder: week
+      - :page_facing_up: Vars1.nc *–\[remapCDO_copernicus()\]–*
+      - :page_facing_up: Vars2.nc *–\[remapCDO_copernicus()\]–*
+      - :page_facing_up: VarsX.nc *–\[remapCDO_copernicus()\]–*
+      - :page_facing_up: Vars_speed.nc *–\[speedCompo_copernicus()\]–*
+      - :open_file_folder: GRD *–\[connectPip()\]–*
+        - :page_facing_up: Vars1.nc
+        - :page_facing_up: Vars2.nc
+        - :page_facing_up: VarsX.nc
+        - :page_facing_up: Vars_speed.nc
+        - :open_file_folder: Gradient *–\[grad_copernicus()\]–*
+          - :page_facing_up: GVars1.nc
+          - :page_facing_up: GVars2.nc  
+          - :page_facing_up: GVarsX.nc
+          - :page_facing_up: GVars_speed.nc
