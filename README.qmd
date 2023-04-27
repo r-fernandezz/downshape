@@ -113,26 +113,47 @@ This R research compendium using renv package to fixe package version. Run renv:
                 - :page_facing_up: VarsX.nc ... *--[download_cmip_data()]--*
     - :open_file_folder: data_cmip6_remapped *--[remapCDO_cmip()]--* 
       - :open_file_folder: Model_name_download *--[remapCDO_cmip()]--* 
-        - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
-        - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
-        - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
-        - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
+          - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
+          - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
+          - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
+          - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
+          - GRD *--[connectPip()]--*
     - :open_file_folder: data_copernicus *--[copernicus_download_api()]--*
         - :page_facing_up: copernicus_parameters_modified.csv *--[copernicus_download_api()]--*
         - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
         - :page_facing_up: Vars2.nc *--[copernicus_download_api()]--*
         - :page_facing_up: VarsX.nc ... *--[copernicus_download_api()]--*
     - :open_file_folder: data_copernicus_remapped *--[remapCDO_copernicus()]--*
-      - month
-          - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
-          - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
-          - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
-          - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
-      - week
-          - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
-          - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
-          - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
-          - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
+      - :open_file_folder: month
+            - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
+            - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
+            - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
+            - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
+            - :open_file_folder: GRD *--[connectPip()]--*
+              - :page_facing_up: Vars1.nc
+              - :page_facing_up: Vars2.nc
+              - :page_facing_up: VarsX.nc
+              - :page_facing_up: Vars_speed.nc
+              - :open_file_folder: Gradient *--[grad_copernicus()]--* 
+                - :page_facing_up: GVars1.nc 
+                - :page_facing_up: GVars2.nc  
+                - :page_facing_up: GVarsX.nc 
+                - :page_facing_up: GVars_speed.nc
+      - :open_file_folder: week
+            - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
+            - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
+            - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
+            - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
+            - :open_file_folder: GRD *--[connectPip()]--*
+              - :page_facing_up: Vars1.nc
+              - :page_facing_up: Vars2.nc
+              - :page_facing_up: VarsX.nc
+              - :page_facing_up: Vars_speed.nc
+              - :open_file_folder: Gradient *--[grad_copernicus()]--* 
+                - :page_facing_up: GVars1.nc 
+                - :page_facing_up: GVars2.nc  
+                - :page_facing_up: GVarsX.nc 
+                - :page_facing_up: GVars_speed.nc
 
 
 

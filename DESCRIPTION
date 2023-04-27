@@ -25,6 +25,8 @@ Imports:
   lubridate,
   ncmeta,
   parallel,
+  raster,
+  spatialEco,
   stars,
   stringr,
   targets,
