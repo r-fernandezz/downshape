@@ -1,6 +1,6 @@
 #' connectPip
 #'
-#' @description All steps to integrate variables into modeloTrack pipeline
+#' @description All steps to integrate variables into modeloTrack pipeline. Convertion of NetCDF file to GRD and rename variable files.
 #'
 #'
 #' @param speedCompo_copernicus Target. All copernicus data processed.
@@ -24,7 +24,9 @@ connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
 
                 unlist(lapply(files, function(y){
 
-                    nc <- terra::rast(y)
+                    message(paste0("Traitement of variable : ", basename(y)))
+
+                    nc <- raster::brick(y)
 
                     # Rename output files (with "__VARS" at final name file)
                     name <- sapply(strsplit(basename(y), "_"), "[[", 1)
@@ -32,15 +34,10 @@ connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
                     finalname <- gsub(paste0(name, "_"), "", y)
                     finalname <- gsub(".nc", paste0(newname, ".nc"), finalname)
 
-                    # Remove hours intos name layer (date)
-                    date <- as.Date(terra::time(nc), "%y.%m.%d")
-                    date <- gsub("-", ".", date)
-                    names(nc) <- date
-
                     # Export file
                     pathout <- paste0(dirname(finalname), "/GRD")
                     if(!file.exists(pathout)) dir.create(pathout)
-                    terra::writeRaster(nc, 
+                    raster::writeRaster(nc, 
                                         filename = paste0(pathout, "/", gsub(".nc", ".grd", basename(finalname))), 
                                         overwrite = TRUE)
 
