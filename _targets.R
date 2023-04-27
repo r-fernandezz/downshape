@@ -52,5 +52,5 @@ list(
     ,tar_target(grad_copernicus, grad_copernicus(connectPip), format = "file")
 
     ################################# To connect downshape and modeloTrack pipeline #################################
-    ,tar_target(connectPip, connectPip(speedCompo_copernicus, speedCompo_cmip))
+    ,tar_target(connectPip, connectPip(speedCompo_copernicus, speedCompo_cmip), format = "file")
 )
