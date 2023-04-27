@@ -41,6 +41,8 @@ connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
                                         filename = paste0(pathout, "/", gsub(".nc", ".grd", basename(finalname))), 
                                         overwrite = TRUE)
 
+                    return(paste0(pathout, "/", gsub(".nc", ".grd", basename(finalname))))
+
                 }))
 
             }
