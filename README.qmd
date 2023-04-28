@@ -89,7 +89,7 @@ cat("\n```")
 
 ## Other pipeline usage and input data
 
-**If you want skip download_copernicus() function** : You can put variables (.nc) into folder "output/data_copernicus". Variable want to be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. "NameVar" (or "Name_Var") want to be the same of name inside NetCDF file (check it otherwise renameCDO() function bug).
+**If you want skip download_copernicus() function** : You can put variables (.nc) into folder "output/data_copernicus". Variable want to be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. "NameVar" (or "Name_Var") want to be the same of name inside NetCDF file (check it otherwise renameCDO() function bug). variables must to be with WGS84 projection (EPSG:4326).
 
 # :key: Dependencies
 

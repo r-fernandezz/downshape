@@ -45,9 +45,9 @@ graph LR
     xcdaf411f7aa1a87d(["connectPip"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
     x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::started --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::started
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
@@ -184,7 +184,8 @@ function and **renameVar** target.
 variables (.nc) into folder “output/data_copernicus”. Variable want to
 be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. “NameVar” (or
 “Name_Var”) want to be the same of name inside NetCDF file (check it
-otherwise renameCDO() function bug).
+otherwise renameCDO() function bug). variables must to be with WGS84
+projection (EPSG:4326).
 
 # :key: Dependencies
 
