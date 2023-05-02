@@ -235,3 +235,31 @@ http_download <- function(  http_vars = targets::tar_read("http_vars"),
 
     }else(message("Skip manually 'http_data' target (http_download function)"))
 }
+
+#' downloadCDO_bathy
+#'
+#' @description If you want download bathymetry variable with CDO.
+#'
+#' @param download Target. "bathy_CDO" target, check README documentation.
+#'
+#' @return NULL
+#'
+#' @export NetCDF file (.nc) of bathymetry come from CDO swoftware
+#' 
+
+downloadCDO_bathy <- function(download = targets::tar_read("bathy_CDO")){
+
+    if(download == TRUE){
+
+        comd <- paste(paste0("cdo -f nc -topo"), here::here("output", "data_copernicus", "topo_cdo_ETOPO_NOAA_brut.nc"))
+        system(comd)
+
+        return(here::here("output", "data_copernicus", "topo_cdo_ETOPO_NOAA_brut.nc"))
+
+    }else{
+        message("Bathymetry doesn't downloaded")
+        return(c())
+    }
+
+
+}

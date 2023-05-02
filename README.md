@@ -23,32 +23,34 @@ website.
 graph LR
   subgraph Graph
     direction LR
+    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
+    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::started --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xcdaf411f7aa1a87d(["connectPip"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
+    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
     x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
-    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xb5817e1daca13dcc(["bathy_vars"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     x35b468daf9281b76(["http_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
+    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
+    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
     xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
     xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
     xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
-    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::started
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
+    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    xcdaf411f7aa1a87d(["connectPip"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
-    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
-    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
@@ -177,6 +179,10 @@ calculated with “uo” and “vo” components will be “uovo” (two compone
 names will be always pasted to give final name of speed file). In this
 vector, given variable names after the rename step with renameVar()
 function and **renameVar** target.
+
+:heavy_check_mark: **\[bathy_CDO\]** : Logical. If “TRUE” bathymetry
+variable from CDO are downloaded into “data_copernicus” folder. The name
+of variable is “topo”. If “FALSE” bathymetry doesn’t downloaded.
 
 ## Other pipeline usage and input data
 
