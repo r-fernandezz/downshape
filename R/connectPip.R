@@ -18,6 +18,8 @@ connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
 
     grd <- unlist(lapply(list_path, function(x){
 
+        message(paste0("Processing : ", x))
+
         files <- list.files(x, recursive = TRUE, full.names = TRUE, pattern = ".nc$")
 
             if(length(files) > 0){ #if copernicus or cmip folder empty

@@ -327,7 +327,9 @@ remapCDO <- function(   file_path,
             message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
             system(com_tempReso)
             Sys.sleep(5)
-            unlink(f_maskArea)
+            ifelse( file.exists(f_tempReso),
+                    unlink(f_maskArea),
+                    stop(paste0("File not created : ", f_tempReso))) 
         }
 
         if(monthWeek == "week"){
@@ -366,6 +368,7 @@ remapCDO <- function(   file_path,
             if(reso %in% c("week", "FIXE")){
                 f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
                 file.rename(from = f_maskArea, to = f_tempReso)
+                Sys.sleep(5)
                 unlink(f_maskArea)
             }
 
@@ -373,6 +376,7 @@ remapCDO <- function(   file_path,
         }
 
     }
+
     #################### Change dimension names
     ncdf_file <- stars::read_ncdf(f_tempReso)
     dim <- names(stars::st_dimensions(ncdf_file))
