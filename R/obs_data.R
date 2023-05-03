@@ -254,10 +254,10 @@ downloadCDO_bathy <- function(  download = targets::tar_read("bathy_CDO"),
 
         if(download == TRUE){
 
-            comd <- paste(paste0("cdo -f nc -topo"), here::here("output", "data_copernicus", "topo_cdo_ETOPO_NOAA_brut.nc"))
+            comd <- paste(paste0("cdo -f nc -topo"), here::here("output", "data_copernicus", "topo_cdo_NOAA_ETOPO2_2006_brut.nc"))
             system(comd)
 
-            return(here::here("output", "data_copernicus", "topo_cdo_ETOPO_NOAA_brut.nc"))
+            return(here::here("output", "data_copernicus", "topo_cdo_NOAA_ETOPO2_2006_brut.nc"))
 
         }else{
             message("Bathymetry doesn't downloaded")
