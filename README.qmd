@@ -63,15 +63,17 @@ cat("\n```")
 ## Targets script
 :heavy_check_mark: **[experiments]** : To select ssp scenario downloaded (check on esgf website menu)
 
-:heavy_check_mark: **[vars]** : To select variables downloaded (check on esgf website menu).
+:heavy_check_mark: **[vars]** : To select cmip6 variables want to download (check on esgf website menu). Add component and speed variables (the both) there are into "vars_speed_cmip" target.
 
-:heavy_check_mark: **[freq]** : To select frequence of variables downloaded (check on esgf website menu).
+:heavy_check_mark: **[freq]** : To select frequence of cmip6 variables want to download (check on esgf website menu).
 
 :heavy_check_mark: **[time_span]** : To select min and max time of cmip6 variables downloaded (format example:"1982-01-01T00:00:00Z").
 
 :heavy_check_mark: **[historical_period]** : List start and end time. To define min and max time of cmip6 data historical period (cdo format: "YYYY-MM-DDThh:mm:ss").
 
 :heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss").
+
+:heavy_check_mark: **[vars_speed_cmip]** :
 
 :heavy_check_mark: **[resotempo]** : Give temporal resolution of all variable (copernicus or cmip or both) you want to mean by week with remapCDO(..., monthWeek = "week"). This target use into "reso" list "week" one layer by week, "month" one by month, "hour1" one by one hour, "hour6" one by 6 hours, "FIXE" one layer for all NetCDF file. Into "vars" list given variable name after rename target. Give variable name without names of depth variable create automatically by the pipeline.
 

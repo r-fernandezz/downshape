@@ -243,18 +243,18 @@ cmip_parse_search <- function(results) {
 #' @param res Table. Output of cmip_parse_search function (and search_esgf function before)
 #' @param experiment Character. ssp scénarios availables on esgf website.
 #' @param level Character. Select column for models name in table input ("source_id" or "institution_id").
-#' @param speed_vars Vector. Variable calculed with component.
-#' @param compo_vars List of vector. x and y component to calcul variable.
+#' @param speed_vars Target. It's a vector of "name" element from "vars_speed_cmip" target. Check README documentation. 
+#' @param compo_vars Target. It's a list of vector "compo1" and "compo2" elements from "vars_speed_cmip" target. Check README documentation.
 #' 
 #' @return List of two binaire tables (models by variables). One with models selected and second with all models before selection.
 #'
 #' @export NULL
 
 get_models_for_experiment <- function(res_init = res_init, 
-                                      experiment, 
+                                      experiment = targets::tar_read(experiments), 
                                       level = "source", 
-                                      speed_vars = c("sfcWind"), 
-                                      compo_vars = list(c("uas", "vas"))) {
+                                      speed_vars = targets::tar_read(vars_speed_cmip)$name, 
+                                      compo_vars = list(c(targets::tar_read(vars_speed_cmip)$compo1, targets::tar_read(vars_speed_cmip)$compo2))){
     
     #vars_types <- names(res)
     
@@ -275,32 +275,54 @@ get_models_for_experiment <- function(res_init = res_init,
     models_select <- c()
     boleen_test <- c()
 
-    for(i in 1:nrow(mods_vars)){
+    if(length(speed_vars) > 0){ #if there are component or speed variable, check if models have component or speed variables
 
-      if(all(lapply(no_composent, function(x) mods_vars[i, x] > 0) == rep(TRUE, length(no_composent))) == TRUE){ #if standard variable available for this model check speed and component variables
+      message("You ask to search models with speed and component variables")
 
-        boleen_vars <- lapply(speed_vars, function(x) mods_vars[i, x] > 0)
-        boleen_compo <- lapply(compo_vars, function(x) mods_vars[i, x] > 0)
+      for(i in 1:nrow(mods_vars)){
 
-        for(z in 1:length(boleen_vars)){ #check available composant or speed variable
+        if(all(unlist(lapply(no_composent, function(x) mods_vars[i, x] > 0)) == rep(TRUE, length(no_composent))) == TRUE){ #if standard variable available for this model check speed and component variables
 
-          if(boleen_vars[[z]] == TRUE){
-            boleen_test <- c(boleen_test, "present")
-            } else if(boleen_vars[[z]] == FALSE && all(boleen_compo[[z]] == c(TRUE, TRUE)) == TRUE){
-            boleen_test <- c(boleen_test, "present")
-            } else{
-              boleen_test <- c(boleen_test, "absent")
-            }
+          message(paste0("Component or speed variables availables for ", rownames(mods_vars)[i], " model, it was selected"))
 
+          boleen_vars <- lapply(speed_vars, function(x) mods_vars[i, x] > 0)
+          boleen_compo <- lapply(compo_vars, function(x) mods_vars[i, x] > 0)
+
+          for(z in 1:length(boleen_vars)){ #check available composant or speed variable
+
+            if(boleen_vars[[z]] == TRUE){
+              boleen_test <- c(boleen_test, "present")
+              } else if(boleen_vars[[z]] == FALSE && all(boleen_compo[[z]] == c(TRUE, TRUE)) == TRUE){
+              boleen_test <- c(boleen_test, "present")
+              } else{
+                boleen_test <- c(boleen_test, "absent")
+              }
+
+          }
+
+          if(all(boleen_test == rep("present", length(boleen_vars))) == TRUE){ #if speed variable or component available all TRUE
+            models_select <- c(models_select, rownames(mods_vars)[i])
+          } # else() speed variable and component aren't available
+
+          boleen_test <- c() #remove test vector
+
+        } else(message(paste0("Component or speed variables aren't availables for ", rownames(mods_vars)[i], " model, it was not selected"))) 
+
+      }
+
+    }
+
+    if(length(speed_vars) <= 0){ #if there aren't component or speed variable, just select models with all variables availables
+
+      message("You ask to search models without speed and component variables")
+
+      for(i in 1:nrow(mods_vars)){
+
+        if(all(unlist(lapply(no_composent, function(x) mods_vars[i, x] > 0)) == rep(TRUE, length(no_composent))) == TRUE){
+          models_select <- c(models_select, rownames(mods_vars)[i])
         }
 
-        if(all(boleen_test == rep("present", length(boleen_vars))) == TRUE){ #if speed variable or component available all TRUE
-          models_select <- c(models_select, rownames(mods_vars)[i])
-        } # else() speed variable and component aren't available
-
-        boleen_test <- c() #remove test vector
-
-      }# else() standard variables no availables for this model (row i) not select this model
+      }
 
     }
 
@@ -367,11 +389,11 @@ select_dataset <- function(res_init){
     
     message("## selecting the datasets")
     datasets_todown <- lapply(names(mods_experiments_filt_scenario), function(x) {
-
+      # x = "piControl"
       message("### experiment: ", x)
 
       r <-  do.call(c, lapply(mods_experiments_ok, function(mm) {
-        #mm = "CESM2-WACCM" mm = "IPSL-CM6A-LR" mm = "MIROC-ES2L" mm = "NorESM2-LM"
+        # mm = "CMCC-ESM2" mm = "MIROC-ES2L"
         message("#### source model: ", mm)
         
         rrr_d <- subset(res_init, experiment_id == x & source_id == mm)
@@ -425,7 +447,7 @@ select_dataset <- function(res_init){
         if(nrow(rrr_dd) != length(vars)) stop("avail grids: ", paste(unique(rrr_d$grid_label), collapse = " | "))
 
         rrr <- res_init[as.numeric(rownames(rrr_dd)), ]
-        if (length(rrr) != length(vars)) stop("check me please !")
+        if (nrow(rrr) != length(vars)) stop("Several parameters for one variable, all variables parameters (member and grid) aren't filtered correctly! ")
         message("---> selected dataset: ", unique(rrr_dd$experiment_id),
                 " ", unique(rrr_dd$grid_label),
                 " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),

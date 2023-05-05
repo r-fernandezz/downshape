@@ -700,7 +700,7 @@ speedCompo <- function( path_compo1,
 #'
 #'
 #' @param file_path Path. File paths of cmip6 variables you want process.
-#' @param vars_speed List. vars_speed targets (check readme informations).
+#' @param vars_speed List. vars_speed_cmip targets (check readme informations).
 #' @param remove Logical. Argument of speedCompo function. If TRUE remove files used to create speed file (uo, vo). If TRUE tar_visnetwork invalid previous steps.
 #'
 #' @return Vector with paths of processed variables
@@ -709,11 +709,11 @@ speedCompo <- function( path_compo1,
 #'
 
 speedCompo_cmip <- function(file_path = remapCDO_cmip, 
-                            vars_speed, 
+                            vars_speed = targets::tar_read("vars_speed_cmip"), 
                             remove = FALSE) {
 
     # file_path <- list.files(here::here("output", "data_cmip6_remapped"), recursive = TRUE, full.name = TRUE)
-    # vars_speed <- targets::tar_read("vars_speed")
+    # vars_speed <- targets::tar_read("vars_speed_cmip")
 
     model <- list.files(here::here("output", "data_cmip6_remapped"))
 
