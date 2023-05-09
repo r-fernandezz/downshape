@@ -329,9 +329,14 @@ get_models_for_experiment <- function(res_init = res_init,
     all_mods <- mods_vars[models_select, ]
 
     # remove rowname and replace by a new column
-    all_mods <- as.data.frame(cbind(rownames(all_mods), all_mods))
-    rownames(all_mods) <- NULL
-    colnames(all_mods)[1] <- paste0(level, "_id")
+    if(length(targets::tar_read(vars)) > 1){ # all_mods is (if) a or not (else) a data frame
+      all_mods <- as.data.frame(cbind(rownames(all_mods), all_mods))
+      rownames(all_mods) <- NULL
+      colnames(all_mods)[1] <- paste0(level, "_id")
+    }else{
+      all_mods <- as.data.frame(cbind(attr(all_mods, "names"), 1))
+      colnames(all_mods) <- c(paste0(level, "_id"), targets::tar_read(vars))
+    }
 
     mods_vars <- as.data.frame(cbind(rownames(mods_vars), mods_vars))
     rownames(mods_vars) <- NULL

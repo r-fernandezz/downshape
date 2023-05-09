@@ -7,7 +7,7 @@ targets::tar_source()
 list(
 
     ################################# EDIT ME !! Project parameters #################################
-    tar_target(experiments, c("piControl","historical", "ssp126", "ssp245", "ssp370", "ssp534-over", "ssp585"))
+    tar_target(experiments, c("historical", "ssp126", "ssp245", "ssp370", "ssp534-over", "ssp585"))
     ,tar_target(vars, c("thetao"))
     ,tar_target(freq, "mon")
     ,tar_target(time_span, list(start = "1982-01-01T00:00:00Z", end = "2100-12-31T23:59:59Z"))
