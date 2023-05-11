@@ -44,7 +44,7 @@ renameVar <- function(data, type_data, skip = FALSE, renameVar = targets::tar_re
                         file.rename(f_out, file_rename)
 
                     }
-                }else(stop(paste0("Not any variables with the oldname", " '", renameVar$oldname[i], "' ", "give into 'renameVar' target is found")))
+                }else(message(paste0("Not any variables with the oldname", " '", renameVar$oldname[i], "' ", "give into 'renameVar' target is found")))
             }
 
             
@@ -138,10 +138,10 @@ concatenate <- function(source = NULL,
 
 concatenate_cmip <- function(renameVar_cmip){
 
-    # download_data <- targets::tar_read("download_cmip_data")
+    cmip_data <- targets::tar_read("cmip_data")
     message("# Concatenating data files for each source * experiment * variable")
 
-    data_sets <- strsplit(download_data, "cmip6/")
+    data_sets <- strsplit(cmip_data, "cmip6/")
     data_sets <- unlist(lapply(data_sets, "[[", 2))
 
     data_sets <- do.call(rbind, lapply(strsplit(data_sets, "/"), function(x){

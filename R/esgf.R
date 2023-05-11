@@ -147,6 +147,7 @@ query_esgf <- function( url,
 search_esgf <- function(experiments,
                          freq,
                          vars,
+                         skip = FALSE,
                          time_span = NULL,
                          sources   = NULL,
                          grids     = NULL,
@@ -156,53 +157,58 @@ search_esgf <- function(experiments,
                          limit     = 10000,
                          offset    = 0,
                          verb      = TRUE,
-                         count     = 0) {
-  
-  if (verb & count == 0) message("'[-_x]' Searching root ESGF node (https://esgf-node.llnl.gov):\n- experiments in: ",
-                    paste(experiments, collapse = ", "),
-                    "\n- vars in: ",
-                    paste(unlist(vars), collapse = ", "),
-                    "\n- freq in: ",
-                    paste(freq, collapse = ", "),
-                    ifelse(is.null(time_span), "", paste0("\n- time span: ", paste0(time_span$start, " -> ", time_span$end))),
-                    ifelse(is.null(sources), "", paste0("\n- sources in: ", paste(sources, collapse = ", "))),
-                    ifelse(is.null(grids), "", paste0("\n- grids in: ", paste(grids, collapse = ", "))),
-                    ifelse(is.null(members), "", paste0("\n- members in: ", paste(members, collapse = ", "))),
-                    "\n")
-  url <- make_url(experiments, freq, vars, time_span, sources, grids, members, res_type, type, limit, offset)
-  resp  <- query_esgf(url, type = type, verb = verb)
-  n_res <- length(resp)
-  # if we reached the limit then we need to search again
-  if (n_res == limit) {
-    new_count <- count + 1
-    new_off <- new_count * limit
-    message("\n! reached the query limit (" , limit,") ", new_count, " times, querying again with offset ", new_off, "\n")
-    message("last resp element is ", resp[[length(resp)]]$dataset_id, "\n")
-    message("sleeping 3s\n")
-    Sys.sleep(3)
-    return(c(resp, search_esgf(vars = vars,
-                           experiments = experiments,
-                           freq = freq,
-                           verb = verb,
-                           time_span = time_span,
-                           res_type = res_type,
-                           limit = limit,
-                           offset = new_off,
-                           count = new_count)
-           ))
-  }
-  message("\n")
-  
-  attr(resp, "experiments") <- experiments
-  attr(resp, "freq")        <- freq
-  attr(resp, "vars")        <- vars
-  attr(resp, "time_span")   <- time_span
-  attr(resp, "sources")     <- sources
-  attr(resp, "grids")       <- grids
-  attr(resp, "members")     <- members
-  attr(resp, "res_type")    <- res_type
-  
-  resp
+                         count     = 0){
+
+  if(skip == FALSE){
+
+    if (verb & count == 0) message("'[-_x]' Searching root ESGF node (https://esgf-node.llnl.gov):\n- experiments in: ",
+                      paste(experiments, collapse = ", "),
+                      "\n- vars in: ",
+                      paste(unlist(vars), collapse = ", "),
+                      "\n- freq in: ",
+                      paste(freq, collapse = ", "),
+                      ifelse(is.null(time_span), "", paste0("\n- time span: ", paste0(time_span$start, " -> ", time_span$end))),
+                      ifelse(is.null(sources), "", paste0("\n- sources in: ", paste(sources, collapse = ", "))),
+                      ifelse(is.null(grids), "", paste0("\n- grids in: ", paste(grids, collapse = ", "))),
+                      ifelse(is.null(members), "", paste0("\n- members in: ", paste(members, collapse = ", "))),
+                      "\n")
+    url <- make_url(experiments, freq, vars, time_span, sources, grids, members, res_type, type, limit, offset)
+    resp  <- query_esgf(url, type = type, verb = verb)
+    n_res <- length(resp)
+    # if we reached the limit then we need to search again
+    if (n_res == limit) {
+      new_count <- count + 1
+      new_off <- new_count * limit
+      message("\n! reached the query limit (" , limit,") ", new_count, " times, querying again with offset ", new_off, "\n")
+      message("last resp element is ", resp[[length(resp)]]$dataset_id, "\n")
+      message("sleeping 3s\n")
+      Sys.sleep(3)
+      return(c(resp, search_esgf(vars = vars,
+                            experiments = experiments,
+                            freq = freq,
+                            verb = verb,
+                            time_span = time_span,
+                            res_type = res_type,
+                            limit = limit,
+                            offset = new_off,
+                            count = new_count)
+            ))
+    }
+    message("\n")
+    
+    attr(resp, "experiments") <- experiments
+    attr(resp, "freq")        <- freq
+    attr(resp, "vars")        <- vars
+    attr(resp, "time_span")   <- time_span
+    attr(resp, "sources")     <- sources
+    attr(resp, "grids")       <- grids
+    attr(resp, "members")     <- members
+    attr(resp, "res_type")    <- res_type
+    
+    resp
+
+  }else(message("Skip manually 'available_dataset_json' target (search_esgf function)"))
+
 }
 
 #' cmip_parse_search
@@ -215,25 +221,29 @@ search_esgf <- function(experiments,
 #
 #' @export NULL
 
-cmip_parse_search <- function(results) {
+cmip_parse_search <- function(results, skip = FALSE) {
 
-  # results <- targets::tar_read("available_dataset_json")
-  # results <- datasets_todown #output of select_dataset() function
+  if(skip == FALSE){
+      # results <- targets::tar_read("available_dataset_json")
+      # results <- datasets_todown #output of select_dataset() function
 
-  # keep all possible meta data  
+      # keep all possible meta data  
 
-  # here comes the incremental loop (omg)
-  cols <- names(results[[1]])
-  for (i in 2:length(results)) cols <- union(cols, names(results[[i]])) 
-  
-  parsed <- parallel::mclapply(results, function(result) {
-    d <- data.frame(lapply(result, '[[', 1))
-    miss_cols <- cols[!cols %in% names(d)] 
-    d[, miss_cols] <- NA
-    d
-  })
-  
-  do.call(rbind, parsed)
+      # here comes the incremental loop (omg)
+      cols <- names(results[[1]])
+      for (i in 2:length(results)) cols <- union(cols, names(results[[i]])) 
+      
+      parsed <- parallel::mclapply(results, function(result) {
+        d <- data.frame(lapply(result, '[[', 1))
+        miss_cols <- cols[!cols %in% names(d)] 
+        d[, miss_cols] <- NA
+        d
+      })
+      
+      do.call(rbind, parsed)
+    
+    }else(message("Skip manually 'available_dataset_df' target (cmip_parse_search function)"))
+
 }
 
 #' get_models_for_experiment
@@ -358,8 +368,9 @@ get_models_for_experiment <- function(res_init = res_init,
 #' @return same of export (list)
 #' @export two csv files with model selected after filtration and before (all available models)
 
-select_dataset <- function(res_init){
+select_dataset <- function(res_init, skip = FALSE){
 
+  if(skip == FALSE){
     #res_init <- targets::tar_read("available_dataset_df")
 
     vars <- targets::tar_read(vars)
@@ -468,6 +479,8 @@ select_dataset <- function(res_init){
 
     return(c(mods_initial_path, f_out))
 
+  }else(message("Skip manually 'select_dataset' target (select_dataset function)"))
+
 }
 
 #' download_cmip_data
@@ -482,136 +495,141 @@ select_dataset <- function(res_init){
 #'
 
 download_cmip_data <- function( selected_datasets,
-                                time_span = targets::tar_load("time_span")){
+                                time_span = targets::tar_read("time_span"),
+                                skip = FALSE){
 
-  message("# Download data files")
-  
-  selected_datasets <- read.csv2(here::here("output", "selected_datasets.csv"))
-  
-  res_dir <- "output/data_cmip6"
-  dir.create(res_dir, showWarnings = FALSE)
+  if(skip == FALSE){
+
+    message("# Download data files")
     
-  n_datasets <- nrow(selected_datasets)
-  
-  nc_data <- unlist(lapply(1:n_datasets, function(s) {
-    #s = 1
-    #get data features
-    meta        <- selected_datasets[s, ]
-    experiment  <- meta$experiment_id
-    var         <- meta$variable_id
-    source      <- meta$source_id
-    memb        <- meta$member_id
-    freq        <- meta$frequency
-    grid        <- meta$grid_label
+    selected_datasets <- read.csv2(here::here("output", "selected_datasets.csv"))
     
-    message(paste0("# Dataset ", s, "/", n_datasets, " -> ",
-                      source, " - ", experiment, " - ", var))
-    
-    # make dirs
-    source_dir     <- paste0(res_dir, "/", source)
-    dir.create(source_dir, showWarnings = FALSE)
-    experiment_dir <- paste0(source_dir, "/", experiment)
-    dir.create(experiment_dir, showWarnings = FALSE)
-    
-    #wget bash script
-    wgs_f    <- paste0(paste(source, experiment, var, sep = "_"), ".sh")
-    wgs_path <- file.path(experiment_dir, wgs_f)
-    
-    if (file.exists(wgs_path)) {
-      message("# Previously downloaded bash script detected: deleting it")
-      unlink(wgs_path)
-    }
-    
-    #get the script
-    wgs <- search_esgf(experiments = experiment,
-                        vars = var,
-                        freq = freq,
-                        time_span = NULL,
-                        sources = source,
-                        grids = grid,
-                        members = memb,
-                        type = "wget",
-                        verb = TRUE)
-    
-    cat(wgs, file = wgs_path)
-    Sys.sleep(5)
-    Sys.chmod(wgs_path)
-        
-    message("# Modifying the script to download only files overlapping the project time interval")
-    
-    #list files to download (as listed in the bash script)
-    wgs_content         <- readLines(wgs_path)
-    files_to_down_index <- grep("\\.nc", wgs_content)
-    files_to_down       <- wgs_content[files_to_down_index]
-    files_to_down       <- setNames(gsub("'", "", sapply(files_to_down, function(f) strsplit(f, " ")[[1]][1])), NULL)
-    
-    if (length(files_to_down) > 1) { #modify bash script for good time interval
-      #select by time
-      ##files intervals
-      splits           <- data.frame(t(data.frame(strsplit(gsub(".nc", "", sapply(strsplit(files_to_down, "_"), "[", 7)), "-"))), stringsAsFactors = FALSE)
-      rownames(splits) <- files_to_down
-      names(splits)    <- c("start", "end")
-      splits$start     <- lubridate::ymd_hms(paste0(splits$start,"01 00:00:00"), tz = "UTC")
-      splits$end       <- lubridate::ymd_hms(paste0(splits$end,"12 23:59:59"), tz = "UTC")
-      splits$interval  <- lubridate::interval(splits$start, splits$end)
+    res_dir <- "output/data_cmip6"
+    dir.create(res_dir, showWarnings = FALSE)
       
-      time_span_interval   <- lubridate::interval(lubridate::ymd_hms(time_span$start), lubridate::ymd_hms(time_span$end))
-      splits$out_time_span <- !lubridate::int_overlaps(splits$interval, time_span_interval)
+    n_datasets <- nrow(selected_datasets)
+    
+    nc_data <- unlist(lapply(1:n_datasets, function(s) {
+      #s = 1
+      #get data features
+      meta        <- selected_datasets[s, ]
+      experiment  <- meta$experiment_id
+      var         <- meta$variable_id
+      source      <- meta$source_id
+      memb        <- meta$member_id
+      freq        <- meta$frequency
+      grid        <- meta$grid_label
       
-      elems_to_rem <- files_to_down_index[splits$out_time_span]
-      wgs_content  <- wgs_content[-elems_to_rem]
+      message(paste0("# Dataset ", s, "/", n_datasets, " -> ",
+                        source, " - ", experiment, " - ", var))
       
-      wgs_content[grepl("Script created for",  wgs_content)] <- paste0(wgs_content[grepl("Script created for",  wgs_content)], " and edited programmatically by 'rcmip6' to download ", sum(!splits$out_time_span)," files")
+      # make dirs
+      source_dir     <- paste0(res_dir, "/", source)
+      dir.create(source_dir, showWarnings = FALSE)
+      experiment_dir <- paste0(source_dir, "/", experiment)
+      dir.create(experiment_dir, showWarnings = FALSE)
       
-      #update script file
-      unlink(wgs_path)
-      cat(paste(wgs_content, collapse = "\n"), file = wgs_path)
+      #wget bash script
+      wgs_f    <- paste0(paste(source, experiment, var, sep = "_"), ".sh")
+      wgs_path <- file.path(experiment_dir, wgs_f)
+      
+      if (file.exists(wgs_path)) {
+        message("# Previously downloaded bash script detected: deleting it")
+        unlink(wgs_path)
+      }
+      
+      #get the script
+      wgs <- search_esgf(experiments = experiment,
+                          vars = var,
+                          freq = freq,
+                          time_span = NULL,
+                          sources = source,
+                          grids = grid,
+                          members = memb,
+                          type = "wget",
+                          verb = TRUE)
+      
+      cat(wgs, file = wgs_path)
       Sys.sleep(5)
       Sys.chmod(wgs_path)
+          
+      message("# Modifying the script to download only files overlapping the project time interval")
       
-    }
-    
-    wd <- here::here()
-    setwd(experiment_dir)
-    wgs_out <- system(paste0("./", wgs_f, " -s"), intern = FALSE)
-    
-    Sys.sleep(30)
-    
-    n_retries <- 0
-    downloads_all_ok <- FALSE
-    
-    #check downloads and retry
-    while (!downloads_all_ok) {
-      wgs_out_report <- system(paste0("./", wgs_f, " -ns"), intern = TRUE)
-      files_reports  <- grep("\\.nc", wgs_out_report, value = TRUE)
-      reports_ok     <- grepl("Already downloaded and verified", files_reports)
-      fail           <- any(!reports_ok)
-      failed_files   <- sapply(strsplit(files_reports, " "), "[", 1)[!reports_ok]
-      ok_files       <- sapply(strsplit(files_reports, " "), "[", 1)[reports_ok]
+      #list files to download (as listed in the bash script)
+      wgs_content         <- readLines(wgs_path)
+      files_to_down_index <- grep("\\.nc", wgs_content)
+      files_to_down       <- wgs_content[files_to_down_index]
+      files_to_down       <- setNames(gsub("'", "", sapply(files_to_down, function(f) strsplit(f, " ")[[1]][1])), NULL)
       
-      if (n_retries > 3) {
-        message(paste0("Too many retries (", n_retries, ")\n"))
-        message(paste0("Failed files: ", paste(failed_files, collapse = ",\n")))
-        return(failed_files) #TODO return a better object
+      if (length(files_to_down) > 1) { #modify bash script for good time interval
+        #select by time
+        ##files intervals
+        splits           <- data.frame(t(data.frame(strsplit(gsub(".nc", "", sapply(strsplit(files_to_down, "_"), "[", 7)), "-"))), stringsAsFactors = FALSE)
+        rownames(splits) <- files_to_down
+        names(splits)    <- c("start", "end")
+        splits$start     <- lubridate::ymd_hms(paste0(splits$start,"01 00:00:00"), tz = "UTC")
+        splits$end       <- lubridate::ymd_hms(paste0(splits$end,"12 23:59:59"), tz = "UTC")
+        splits$interval  <- lubridate::interval(splits$start, splits$end)
+        
+        time_span_interval   <- lubridate::interval(lubridate::ymd_hms(time_span$start), lubridate::ymd_hms(time_span$end))
+        splits$out_time_span <- !lubridate::int_overlaps(splits$interval, time_span_interval)
+        
+        elems_to_rem <- files_to_down_index[splits$out_time_span]
+        wgs_content  <- wgs_content[-elems_to_rem]
+        
+        wgs_content[grepl("Script created for",  wgs_content)] <- paste0(wgs_content[grepl("Script created for",  wgs_content)], " and edited programmatically by 'rcmip6' to download ", sum(!splits$out_time_span)," files")
+        
+        #update script file
+        unlink(wgs_path)
+        cat(paste(wgs_content, collapse = "\n"), file = wgs_path)
+        Sys.sleep(5)
+        Sys.chmod(wgs_path)
+        
       }
       
-      if (fail) {
-        n_retries <- n_retries + 1
-        message(paste0("Failed files: ", paste(failed_files, collapse = ",\n")))
-        wgs_out   <- system(paste0("./", wgs_f, " -s"), intern = FALSE)
-      } else {
-        message(paste0("Download succes: \n", paste(ok_files, collapse = ",\n")))
-        downloads_all_ok <- TRUE
+      wd <- here::here()
+      setwd(experiment_dir)
+      wgs_out <- system(paste0("./", wgs_f, " -s"), intern = FALSE)
+      
+      Sys.sleep(30)
+      
+      n_retries <- 0
+      downloads_all_ok <- FALSE
+      
+      #check downloads and retry
+      while (!downloads_all_ok) {
+        wgs_out_report <- system(paste0("./", wgs_f, " -ns"), intern = TRUE)
+        files_reports  <- grep("\\.nc", wgs_out_report, value = TRUE)
+        reports_ok     <- grepl("Already downloaded and verified", files_reports)
+        fail           <- any(!reports_ok)
+        failed_files   <- sapply(strsplit(files_reports, " "), "[", 1)[!reports_ok]
+        ok_files       <- sapply(strsplit(files_reports, " "), "[", 1)[reports_ok]
+        
+        if (n_retries > 3) {
+          message(paste0("Too many retries (", n_retries, ")\n"))
+          message(paste0("Failed files: ", paste(failed_files, collapse = ",\n")))
+          return(failed_files) #TODO return a better object
+        }
+        
+        if (fail) {
+          n_retries <- n_retries + 1
+          message(paste0("Failed files: ", paste(failed_files, collapse = ",\n")))
+          wgs_out   <- system(paste0("./", wgs_f, " -s"), intern = FALSE)
+        } else {
+          message(paste0("Download succes: \n", paste(ok_files, collapse = ",\n")))
+          downloads_all_ok <- TRUE
+        }
       }
-    }
-    
-    setwd(wd)
+      
+      setwd(wd)
 
-  }))
+    }))
 
-  message("All variables into selected_datasets.csv table downloaded")
+    message("All variables into selected_datasets.csv table downloaded")
 
-  return(list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
+    return(list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
+
+  }else(message("Skip manually 'cmip_data' target (download_cmip_data function)"))
 
 }
 
