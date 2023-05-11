@@ -6,7 +6,7 @@ targets::tar_source()
 
 list(
 
-    ################################# EDIT ME !! Project parameters #################################
+    ################################# EDIT ME !! Project parameters ##############################################################################
     tar_target(experiments, c("historical", "ssp126", "ssp245", "ssp370", "ssp534-over", "ssp585"))
     ,tar_target(vars, c("thetao"))
     ,tar_target(freq, "mon")
@@ -26,7 +26,7 @@ list(
     ,tar_target(vars_speed, list(compo1 = c("CURRENTug"), compo2 = c("CURRENTvg"), name = c("CURRENT")))
     ,tar_target(bathy_CDO, TRUE)
 
-    ################################# CMIP data process #################################
+    ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
     # Esgf dataset search & select
     ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span, skip = TRUE))
@@ -39,8 +39,9 @@ list(
     ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
     ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
     ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed_cmip, remove = FALSE), format = "file")
-    
-    ################################# Copernicus data process #################################
+    ,tar_target(connectPip_cmip, connectPip(data = speedCompo_cmip, type_data = "cmip6"), format = "file")
+
+    ################################# Part 2 : Copernicus data process (commit all targets if you don't use this part) ###########################
 
     # Download and remmaped copernicus data (observed)
     # ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
@@ -52,8 +53,7 @@ list(
     # ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     # ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     # ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
-    # ,tar_target(grad_copernicus, grad_copernicus(connectPip), format = "file")
+    # ,tar_target(connectPip_copernicus, connectPip(data = speedCompo_copernicus, type_data = "copernicus"), format = "file")
+    # ,tar_target(grad_copernicus, grad_copernicus(connectPip_copernicus), format = "file")
 
-    ################################# To connect downshape and modeloTrack pipeline #################################
-    ,tar_target(connectPip, connectPip(speedCompo_copernicus, speedCompo_cmip), format = "file")
 )

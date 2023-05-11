@@ -3,18 +3,19 @@
 #' @description All steps to integrate variables into modeloTrack pipeline. Convertion of NetCDF file to GRD and rename variable files.
 #'
 #'
-#' @param speedCompo_copernicus Target. All copernicus data processed.
-#' @param speedCompo_cmip Target. All cmip6 data processed.
-#'
+#' @param date speedCompo_copernicus or speedCompo_cmip. Allow connection between targets
+#' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
+
 #' @return NULL
 #'
 #' @export File (.grd)
 #' 
 
-connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
-    
-    list_path <- list(  copernicus = here::here("output", "data_copernicus_remapped"),
-                        cmip6 = here::here("output", "data_copernicus_remapped"))
+connectPip <- function(data, type_data){
+
+    list_path <- switch(type_data,
+                        copernicus = here::here("output", "data_copernicus_remapped"),
+                        cmip6 = here::here("output", "data_cmip6_remapped"))
 
     grd <- unlist(lapply(list_path, function(x){
 
@@ -22,7 +23,7 @@ connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
 
         files <- list.files(x, recursive = TRUE, full.names = TRUE, pattern = ".nc$")
 
-            if(length(files) > 0){ #if copernicus or cmip folder empty
+            if(length(files) > 0){
 
                 unlist(lapply(files, function(y){
 
@@ -47,7 +48,7 @@ connectPip <- function(speedCompo_copernicus, speedCompo_cmip){
 
                 }))
 
-            }
+            }else(stop("data_copernicus_remapped or data_cmip6_remapped folder empty"))
     }))
 
     return(grd)
