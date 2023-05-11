@@ -1,6 +1,6 @@
 # renv ---------------------
 # renv::install() ; renv::snapshot(prompt = FALSE)
-# renv::restore()
+renv::restore()
 
 ######### Move target folder into output
 library(targets)

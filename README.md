@@ -10,47 +10,50 @@ Table of contents
 - [Output Folders Structuration
   Creation](#output-folders-structuration-creation)
 
-# :star: Basic Overview
+# :clipboard: Basic Overview
 
 :red_circle: *downshape* is an R research compendium exposing functions
 to search, download, preprocess and bias-adjust CMIP6 data discovered
 via the [ESGF Search RESTful
 API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html).
-This compendium allow to download observed data come from Copernicus
-website.
+Major preprocess step made with [CDO
+swofware](https://code.mpimet.mpg.de/projects/cdo/). This compendium
+allow to download observed data come from Copernicus website or other
+website with URL of variable. We can choose to download bathymetry
+variable come from CDO.
 
 ``` mermaid
 graph LR
   subgraph Graph
     direction LR
-    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
-    xd8e5f2013a341013(["cmip_data"]):::started --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    xcdaf411f7aa1a87d(["connectPip"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
+    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::started
     xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
-    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
-    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x8f15ec77b8dbd81a(["vars"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    x7a197bdf5f12681a(["vars_speed_cmip"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::started
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::started
+    xd2707862cf793d3a(["connectPip_copernicus"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
+    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> x33f1355322bf894f(["connectPip_cmip"]):::outdated
+    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
+    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xd2707862cf793d3a(["connectPip_copernicus"]):::outdated
+    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
+    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
+    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
+    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
+    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
+    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
+    xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
     xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
     xb5817e1daca13dcc(["bathy_vars"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
-    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
-    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xcdaf411f7aa1a87d(["connectPip"]):::outdated
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
+    xf4b49e2ba07661b1(["remapCDO_cmip"]):::started --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    x7a197bdf5f12681a(["vars_speed_cmip"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xbce5cad1cf7e7103(["futur_period"]):::uptodate
@@ -63,9 +66,13 @@ graph LR
 # :point_right: Step by step
 
 - :one: Import files necessary into data folder
-- :two: Edit targets of “\_targets.R” file (and check if all “skip”
-  argument into targets are “FALSE”)
+- :two: Edit targets of “\_targets.R” file into project parameters part
+  and check if all “skip” argument into targets function are “FALSE” (or
+  “TRUE” if you want skip some targets)
 - :three: Run pipeline launching *make.R* script
+
+:bulb: You can run only one part of *make.R* script when you commit
+targets of the part not used.
 
 # :heavy_check_mark: Input Informations
 
@@ -120,21 +127,26 @@ cmip6 variables downloaded (format example:“1982-01-01T00:00:00Z”).
 
 :heavy_check_mark: **\[historical_period\]** : List start and end time.
 To define min and max time of cmip6 data historical period (cdo format:
-“YYYY-MM-DDThh:mm:ss”).
+“YYYY-MM-DDThh:mm:ss”). It must existe a time overlap with *time_span*
+target.
 
 :heavy_check_mark: **\[future_period\]** : List start and end time. To
 define min and max time of cmip6 data future period (cdo format:
-“YYYY-MM-DDThh:mm:ss”).
+“YYYY-MM-DDThh:mm:ss”). It must existe a time overlap with *time_span*
+target.
 
-:heavy_check_mark: **\[vars_speed_cmip\]** :
+:heavy_check_mark: **\[vars_speed_cmip\]** : Same informations of
+*vars_speed* target but for cmip6 variables. All vectors of this target
+list can to be empty.
 
 :heavy_check_mark: **\[resotempo\]** : Give temporal resolution of all
 variable (copernicus or cmip or both) you want to mean by week with
-remapCDO(…, monthWeek = “week”). This target use into “reso” list “week”
-one layer by week, “month” one by month, “hour1” one by one hour,
-“hour6” one by 6 hours, “FIXE” one layer for all NetCDF file. Into
-“vars” list given variable name after rename target. Give variable name
-without names of depth variable create automatically by the pipeline.
+remapCDO(…, monthWeek = “week”). Complete “reso” list with “week” (if
+variable have one layer by week), “month” (one by month), “hour1” (one
+by one hour), “hour6” (one by 6 hours), “FIXE” one layer for all NetCDF
+file. Into “vars” list given variable name after rename target. Give
+variable name without names of depth variable create automatically by
+the pipeline.
 
 :heavy_check_mark: **\[http_vars\]** : List. List of download path
 (NetCDF file) and variable names. First (or n) element of “http” vector
@@ -161,39 +173,39 @@ file created. To split variable to several files by deep level. First
 First (or n) element of “oldname” vector correspond to first (or n)
 element of “newname” vector. Allow to rename into NETCDF file the
 variable juste after downloading step. This vectors gathers all old and
-new variable names used to rename cmip6 and copernicus data JUST AFTER
-DOWNLOAD STEP. In others words, it allows to change name of “variable”
+new variable names used to rename cmip6 and copernicus data **JUST AFTER
+DOWNLOAD STEP**. In others words, it allows to change name of “variable”
 column into **parameters_copernicus.csv** and “????” column into
 **selected_datasets.csv** for cmip6 data. If variable name have a name
 with “\_“,”-“,” “, rename with **rename** target to one word without
-specials characters otherwise CDO command doesn’t work.
+specials characters otherwise CDO command doesn’t work. All vectors of
+this target list can to be empty.
 
 :heavy_check_mark: **\[vars_speed\]** : List first, second component and
-variable name. To calcul variable speed with two components (name vector
-are juste used into code but it’s not names of output files). First (or
-n) element of “compo1” vector correspond to first (or n) element of
-“compo2” vector. If one short names of variable is same to cmip6 and
-copernicus data, write one time. WARNING !! : If two different variables
+variable name. To calcul copernicus variables speed with two components
+(name vector are juste used into code but it’s not names of output
+files). First (or n) element of “compo1” vector correspond to first (or
+n) element of “compo2” vector. WARNING !! : If two different variables
 have same component name, bug in the code. This target will be modified
 by speedCompo_cmip() and speedCompo_copernicus() function to integrate
 depth variables created during the process (chl50-100, uo0-100, etc…).
 For example, final name of the variable named “wind” in this target and
 calculated with “uo” and “vo” components will be “uovo” (two component
 names will be always pasted to give final name of speed file). In this
-vector, given variable names after the rename step with renameVar()
-function and **renameVar** target.
+vector, given coponent variable names after the rename step with
+renameVar() function and **renameVar** target.
 
 :heavy_check_mark: **\[bathy_CDO\]** : Logical. If “TRUE” bathymetry
 variable from CDO are downloaded into “data_copernicus” folder. The name
 of variable is “topo”. If “FALSE” bathymetry doesn’t downloaded.
 
-## Other pipeline usage and input data
+## :bookmark: Other pipeline usage and input data
 
 **If you want skip download_copernicus() function** : You can put
 variables (.nc) into folder “output/data_copernicus”. Variable want to
 be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. “NameVar” (or
 “Name_Var”) want to be the same of name inside NetCDF file (check it
-otherwise renameCDO() function bug). variables must to be with WGS84
+otherwise renameCDO() function bug). Variables must to be with WGS84
 projection (EPSG:4326).
 
 # :key: Dependencies
@@ -211,7 +223,7 @@ This R research compendium using renv package to fixe package version.
 Run renv::restore() to update your packages in your computer and
 renv::status() to check if everything is ready.
 
-# :pushpin: Output Folders Structuration Creation
+# :pushpin: Output folders structuration
 
 - :open_file_folder: output *–\[make.r\]–*
   - :page_facing_up: dataset_found_before_filter.csv
