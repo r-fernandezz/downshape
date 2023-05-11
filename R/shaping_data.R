@@ -85,7 +85,7 @@ renameVar <- function(data, type_data, skip = FALSE, renameVar = targets::tar_re
 concatenate <- function(source = NULL, 
                         experiment = NULL, 
                         var, 
-                        type_data = "cmpi6") {
+                        type_data = "cmip6") {
 
     if(type_data == "cmip6"){
         path_switch <- here::here("output", "data_cmip6", source, experiment)
