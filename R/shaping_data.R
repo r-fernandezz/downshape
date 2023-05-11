@@ -69,8 +69,7 @@ renameVar <- function(data, type_data, skip = FALSE, renameVar = targets::tar_re
 
 #' concatenate
 #'
-#' @description Merge cmip6 datasets by source x experiment x var for all datasets. Sorted by date and time. 
-#' Used into concatenate_experiment() function.
+#' @description Merge data files when there are several file for one varaible name. Output name will be changed with min and max date.
 #'
 #' @param source Model downloaded
 #' @param experiment Experiment downloaded
@@ -246,6 +245,8 @@ remapCDO <- function(   file_path,
     resotempo <- targets::tar_read("resotempo")
     v <- strsplit(basename(file_path), "_")[[1]][1]
     reso <- resotempo$reso[grep(v, resotempo$vars)]
+
+    if(length(reso) == 0)stop(paste0(v, " variable don't found into 'resotempo' target, check README documentation"))
 
     if(reso == "FIXE"){
 
@@ -515,7 +516,7 @@ remapCDO_cmip <- function(concatenate_cmip){
 
     unlist(lapply(mods, function(m){
 
-        #m = "CMCC-ESM2"
+        #m = "CanESM5"
 
         # Select files and variable names
         message(paste0("### Treatment of ", m))
@@ -537,7 +538,7 @@ remapCDO_cmip <- function(concatenate_cmip){
         unlist(parallel::mclapply(runs, function(r) {
             #r = "piControl" ; r = "historical"
             unlist(parallel::mclapply(vars, function(v){
-            #v  = "chl"
+            #v  = "SSTcmip"
 
                 # Remove path files don't exist. If "sources" () and "experiment" don't have same "variable"
                 file <- paste0(here::here("output", "data_cmip6"), "/", m, "/", r, "/", grep(v, basename(files), value = TRUE))

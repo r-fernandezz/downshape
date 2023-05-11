@@ -26,6 +26,7 @@ Imports:
   ncdf4,
   ncmeta,
   parallel,
+  PCICt,
   raster,
   spatialEco,
   stars,

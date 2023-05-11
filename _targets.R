@@ -15,8 +15,8 @@ list(
     ,tar_target(futur_period, list(start = "2015-01-01T00:00:00", end = "2100-12-01T00:00:00"))
     ,tar_target(vars_speed_cmip, list(compo1 = c(), compo2 = c(), name = c()))
     
-    ,tar_target(resotempo, list(vars = c("SSS", "SST", "CURRENTug", "CURRENTvg", "SSH", "CHLA", "WIND", "BATHY"), 
-                                reso = c("week", "week", "week", "week", "week", "week", "hour6", "FIXE"))) 
+    ,tar_target(resotempo, list(vars = c("SSS", "SST", "CURRENTug", "CURRENTvg", "SSH", "CHLA", "WIND", "BATHY", "SSTcmip"), 
+                                reso = c("week", "week", "week", "week", "week", "week", "hour6", "FIXE", "month"))) 
     ,tar_target(http_vars, list(http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                 name = c("BATHY")))
     ,tar_target(current_period, list(start = "2018-01-03T00:00:00", end = "2019-10-30T23:59:59"))
