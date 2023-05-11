@@ -129,7 +129,8 @@ query_esgf <- function( url,
 #' @param experiments Character. the desired experiments
 #' @param freq Character. the desired temporal frequency
 #' @param vars Character. the desired variable ids
-#' @param time_span
+#' @param skip Logical. If you want skip all download cmip data step. Same skip argument value for targets : search_esgf, cmip_parse_search, select_dataset, download_cmip_data.
+#' @param time_span Target "time_span". Check README documentation.
 #' @param sources
 #' @param grids Character. the desired kind(s) of grid
 #' @param members Character. the desired member(s)
@@ -216,7 +217,8 @@ search_esgf <- function(experiments,
 #' @description Parse an ESGF json result as a data.frame
 #' 
 #' @param results an ESGF json result come from search_esgf function.
-#'
+#' @param skip Logical. If you want skip all download cmip data step. Same skip argument value for targets : search_esgf, cmip_parse_search, select_dataset, download_cmip_data.
+#' 
 #' @return a data.frame
 #
 #' @export NULL
@@ -364,7 +366,8 @@ get_models_for_experiment <- function(res_init = res_init,
 #' This fucntion use get_model_for_experiment function to select model availables.
 #' 
 #' @param res_init Dataframe. Output of cmip_parse_search function (and search_esgf function before) 
-#'
+#' @param skip Logical. If you want skip all download cmip data step. Same skip argument value for targets : search_esgf, cmip_parse_search, select_dataset, download_cmip_data.
+#' 
 #' @return same of export (list)
 #' @export two csv files with model selected after filtration and before (all available models)
 
@@ -488,7 +491,8 @@ select_dataset <- function(res_init, skip = FALSE){
 #' @description Download CMIP data.
 #' 
 #' @param selected_datasets Dataframe from select_dataset() function with variables selected
-#' @param time_span time period downloaded 
+#' @param time_span Target "time_span". Check README documentation.
+#' @param skip Logical. If you want skip all download cmip data step. Same skip argument value for targets : search_esgf, cmip_parse_search, select_dataset, download_cmip_data.
 #'
 #' @return paths of folders into surface layer output netcdf files are downloaded
 #' @export variable files (.nc) into folder structure
@@ -629,7 +633,10 @@ download_cmip_data <- function( selected_datasets,
 
     return(list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
 
-  }else(message("Skip manually 'cmip_data' target (download_cmip_data function)"))
+  }else{
+    message("Skip manually 'cmip_data' target (download_cmip_data function)")
+    return(list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
+    }
 
 }
 
@@ -646,10 +653,10 @@ download_cmip_data <- function( selected_datasets,
 #' @export Two tables one with all caracteristics of data availables and one bianire table with models by variables.
 #' 
 
-search_and_parse <- function(experiments,
-                                freq,
-                                vars,
-                                time_span = NULL){
+search_and_parse <- function( experiments,
+                              freq,
+                              vars,
+                              time_span = NULL){
 
     # experiments <- targets::tar_read(experiments)
     # freq <- targets::tar_read(freq)

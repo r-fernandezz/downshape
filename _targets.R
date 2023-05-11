@@ -35,7 +35,6 @@ list(
 
     # Download and remapped esgf data selected (CMIP6)
     ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span, skip = TRUE), format = "file")
-    #,tar_target(cmip_data, list.files(here::here("output", "data_cmip6"), pattern = ".nc$", recursive = TRUE, full.names = TRUE))
     ,tar_target(renameVar_cmip, renameVar(data = cmip_data, type_data = "cmip6", skip = TRUE), format = "file")
     ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
     ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
