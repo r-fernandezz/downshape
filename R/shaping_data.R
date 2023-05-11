@@ -137,7 +137,8 @@ concatenate <- function(source = NULL,
 
 concatenate_cmip <- function(renameVar_cmip){
 
-    cmip_data <- targets::tar_read("cmip_data")
+    cmip_data <- targets::tar_read("renameVar_cmip")
+    cmip_data <- grep(".nc$", cmip_data, value = TRUE)
     message("# Concatenating data files for each source * experiment * variable")
 
     data_sets <- strsplit(cmip_data, "cmip6/")
