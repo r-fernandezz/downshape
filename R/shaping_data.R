@@ -771,7 +771,7 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip,
 
     }
 
-    # Return all file of after this step - all file after previous step = only file create during this step
+    # Return all file after this step - all file after previous step = only file create during this step
     all <- list.files(here::here("output", "data_cmip6_remapped"), recursive = TRUE, full.name = TRUE)
     previous <- file_path
     place <- grep(paste0(previous, collapse = "|"), all)
@@ -844,7 +844,7 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
         }
     }
 
-    # Return all file of after this step - all file after previous step = only file create during this step
+    # Return all file after this step - all file after previous step = only file create during this step
     all <- list.files(here::here("output", "data_copernicus_remapped"), recursive = TRUE, full.name = TRUE)
     previous <- file_path
     place <- grep(paste0(previous, collapse = "|"), all)
