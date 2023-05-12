@@ -432,7 +432,10 @@ remapCDO <- function(   file_path,
     ncdf_file <- stars::read_ncdf(f_dimName)
     dim <- names(stars::st_dimensions(ncdf_file))
 
-    boleen <- "lev" %in% dim
+    name_level <- grep("depth|lev", dim, value = TRUE)
+    if(length(name_level) == 0) stop("Level into variable don't called 'lev' or 'depth'")
+    boleen <- c("lev", "depth") %in% dim
+    boleen <- TRUE %in% boleen
 
     if(boleen == TRUE){ # if file have a "lev" dimension
 
@@ -455,9 +458,11 @@ remapCDO <- function(   file_path,
                 end <- deep_level$end[d]
 
                 ##### Mean layers between two borders
-                depth_values <- stars::st_dimensions(ncdf_file)$lev$values
-                depth_values <- depth_values[depth_values < end]
-                depth_values <- depth_values[depth_values > start]
+                depth_values <- switch( name_level,
+                                        lev = stars::st_dimensions(ncdf_file)$lev$values,
+                                        depth = stars::st_dimensions(ncdf_file)$depth$values)
+                depth_values <- depth_values[depth_values <= end]
+                depth_values <- depth_values[depth_values >= start]
 
                 f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
                 com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
@@ -473,7 +478,9 @@ remapCDO <- function(   file_path,
                 message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
                 system(com_deep)
                 Sys.sleep(5)
-                unlink(f_deepTEMPO)
+                ifelse( file.exists(f_deep),
+                        unlink(f_deepTEMPO),
+                        stop(paste0("File not created : ", f_deep)))
 
                 returnTOT <- c(returnTOT, f_deep)
 
