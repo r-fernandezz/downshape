@@ -106,6 +106,8 @@ This R research compendium using renv package to fixe package version. Run renv:
 
 # :pushpin: Output folders structuration
 
+Information: variable with "1x100", "0x1", etc... into file name are integrated (depth mean) between values before and after the "x". Variable file without "x" pattern into number are integrated on all depth available (if depth are available for the variable).
+
 - :open_file_folder:  output *--[make.r]--*
   - :page_facing_up: dataset_found_before_filter.csv *--[select_dataset()]--*
   - :page_facing_up: selected_datasets.csv *--[select_dataset()]--*

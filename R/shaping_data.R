@@ -471,7 +471,7 @@ remapCDO <- function(   file_path,
                 # Mean depth layer
                 message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
                 split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
-                f_deep <- here::here(path_output, paste0(split_name[1], start, "-", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+                f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
                 f_deep <- gsub(".nc", "_deep.nc", f_deep)
 
                 com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
@@ -675,11 +675,11 @@ speedCompo <- function( path_compo1,
     com_mergeTEMPO <- paste0("cdo merge ", path_compo1, " ", path_compo2, " ", f_mergeTEMPO)
     system(com_mergeTEMPO)
 
-    # remove depth name (ex: chl50-100 -> chl) to apply cdo command on true variable name
+    # remove depth name (ex: chl50x100 -> chl) to apply cdo command on true variable name
     new_name <- lapply(list(name_compo1 = name_compo1, 
                             name_compo2 = name_compo2, 
                             name_speed = name_speed ), 
-                        function(x) gsub("[0-9]{0,6}-[0-9]{0,6}", "", x))
+                        function(x) gsub("[0-9]{0,6}x[0-9]{0,6}", "", x))
 
     f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
     com_merge <- paste0("cdo expr,", "'", new_name$name_speed, "=", 
@@ -730,7 +730,7 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip,
 
         file_path2 <- grep(model, file_path, value = TRUE)
 
-        # Integrate depth variables (U0-50, chl50-100, etc...) in vars_speed targets
+        # Integrate depth variables (U0x50, chl50x100, etc...) in vars_speed targets
         vsplit <- sapply(strsplit(basename(file_path2), "_"), "[[", 1)
         vsplit_compo1 <- unique(grep(paste0(vars_speed$compo1, collapse = "|"), vsplit, value = TRUE))
         vsplit_compo2 <- unique(grep(paste0(vars_speed$compo2, collapse = "|"), vsplit, value = TRUE))
@@ -738,7 +738,7 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip,
         if(FALSE %in% boleen){
             vars_speed$compo1 <- vsplit_compo1
             vars_speed$compo2 <- vsplit_compo2
-            vars_speed$name <- paste0(gsub("[0-9]{1,10}-[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
+            vars_speed$name <- paste0(gsub("[0-9]{1,10}x[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
         }
 
         # Conserve path root of the file
@@ -813,7 +813,7 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
     temp_folder <- strsplit(path_root, "/")
     temp_folder <- sapply(temp_folder, "[[", length(temp_folder[[1]]))
 
-    # Integrate depth variables (U0-50, chl50-100, etc...) in vars_speed targets
+    # Integrate depth variables (U0x50, chl50x100, etc...) in vars_speed targets
     vsplit <- sapply(strsplit(basename(file_path), "_"), "[[", 1)
     vsplit_compo1 <- unique(grep(paste0(vars_speed$compo1, collapse = "|"), vsplit, value = TRUE))
     vsplit_compo2 <- unique(grep(paste0(vars_speed$compo2, collapse = "|"), vsplit, value = TRUE))
@@ -821,7 +821,7 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
     if(FALSE %in% boleen){
         vars_speed$compo1 <- vsplit_compo1
         vars_speed$compo2 <- vsplit_compo2
-        vars_speed$name <- paste0(gsub("[0-9]{1,10}-[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
+        vars_speed$name <- paste0(gsub("[0-9]{1,10}x[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
     }
 
     # Speed calcul
