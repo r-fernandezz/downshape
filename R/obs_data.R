@@ -6,11 +6,11 @@
 #'
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
 #' @param skip Logical. Default FALSE. If you want skip (TRUE) or not (FALSE) this function into the pipeline to conserve target valid into target_visnetwork visual.
+#' @param subvar Vector. Default all variables into table (target by "path_tab_param" argument). Name variable vector into table to choose time variable must to be divided by "septime" argument. 
+#' @param septime vector. Divide time (day) of variable sected in "subvar".
+#' @param divide Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
 #' @param user Character. User used to connect you on Copernicus marine service website.
 #' @param passwd Character. Password to connect you on Copernicus marine service website.
-#' @param divid Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
-#' @param subvar Vector. Name variable vector into table to choose time variable must to be divided by "septime" argument.
-#' @param septime vector. Divide time (day) of variable sected in "subvar".
 #' 
 #' @return Netcdf files
 #'
@@ -18,11 +18,11 @@
 
 copernicus_download_api <- function(path_tab_param,
                                     skip = FALSE,
-                                    user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
-                                    passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1],
+                                    subvar = NULL,
+                                    septime = c(7, 7),
                                     divide = TRUE,
-                                    subvar = c("WIND_E", "WIND_N"),
-                                    septime = c(7, 7)) {
+                                    user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
+                                    passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
     
     #path_tab_param <- here::here("data", "copernicus_parameters.csv")
 
@@ -36,6 +36,12 @@ copernicus_download_api <- function(path_tab_param,
         if(ncol(read.csv2(path_tab_param)) < 2){ 
             tab_param <- read.csv(path_tab_param)
         }else(tab_param <- read.csv2(path_tab_param))
+
+        # Create subvar argument if you want
+        if(length(subvar) > 0){message("Argument 'subvar' definied manually")}
+        if(is.null(subvar)){
+            subvar <- tab_param$my_variable_name
+        }
 
         # Check if motuclient is installed
         version <- system("python3 -m motuclient --version", inter = TRUE)
