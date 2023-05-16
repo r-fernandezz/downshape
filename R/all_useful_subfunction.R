@@ -81,3 +81,80 @@ gaussian.kernel <- function(sigma=2, n=5) {
      m[cbind(mrow, mcol)] <- 1/(2*pi*sigma^2) * exp(-(x^2+y^2)/(2*sigma^2))
    m / sum(m)
 }
+
+#' mean_month (extract from modeloTrack pipeline)
+#'
+#' @description Environmental variable will be meaned only with month chosen. 
+#'
+#' @param month Numeric vector. Number of month chosen.
+#' @param path_variable List. Path list of variable they will be meaned.
+#' @param type_output Character ("SpatRaster", "StackRaster" or "stars"). Function return object class "SpatRaster", "StackRaster" or "stars"
+#' 
+#' @return SpatRaster or stars object
+#'
+#' @export 
+
+mean_month <- function(month, path_variable, type_output = "StackRaster"){
+
+    # Initialisation loop
+    names_vec <- c()
+    vars_mean <- switch(
+                        type_output,
+                        stars = list(),
+                        SpatRaster = c(),
+                        StackRaster = raster::stack())
+    
+
+    for (i in 1:length(path_variable)){
+        
+
+            stack_vars <- switch(
+                                type_output,
+                                stars = stars::read_stars(path_variable[i]),
+                                SpatRaster = terra::rast(path_variable[i]),
+                                StackRaster = raster::stack(path_variable[i])
+                                )
+
+            if(switch(
+                    type_output, 
+                    stars = length(dim(stack_vars)) > 2, 
+                    SpatRaster = dim(stack_vars)[3] > 1,
+                    StackRaster = dim(stack_vars)[[3]] > 1)){ # dimension x, y and band into stars object
+
+                date <- switch(
+                            type_output, # extract layer names (date have "X" bellow name)
+                            stars = stars::st_dimensions(stack_vars)[[3]]$values,
+                            SpatRaster = names(stack_vars),
+                            StackRaster = names(stack_vars)
+                            )
+
+                date <- lapply(date, function(x) strsplit(x, "X")[[1]][2]) # remove X bellow name
+                date <- as.Date(sapply(date, "[[", 1), format = "%Y.%m.%d") # date format
+                date <-  as.numeric(format(date, format = "%m")) # extract month
+                position <- which(date %in% month) # extract layer position of month we want to mean
+                
+                stack_vars <- switch(
+                                type_output,
+                                stars = stars::st_apply(stack_vars[, , , position], MARGIN = 1:2, FUN = mean),
+                                SpatRaster = terra::app(stack_vars[[position]], mean),
+                                StackRaster = raster::mean(stack_vars[[position]])
+                                )
+
+            }else(message("Varible with one dimension"))
+
+            # initialisation (i=1) and stock layer
+            if(i==1){vars_mean <- stack_vars}else(switch(type_output,
+                                                        stars = vars_mean <- c(vars_mean, stack_vars),
+                                                        SpatRaster = vars_mean <- c(vars_mean, stack_vars),
+                                                        StackRaster = vars_mean <- raster::stack(vars_mean, stack_vars)))
+
+            # Extract name of processing variable into file
+            names_vec[i] <- extract_name(path_variable[i])
+
+    } 
+
+    names(vars_mean) <- names_vec    
+
+    return(vars_mean)
+
+}

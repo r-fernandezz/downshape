@@ -1,6 +1,3 @@
 my_variable_name,motu,service_id,product_id,longitude_min,longitude_max,latitude_min,latitude_max,date_min,date_max,depth_min,depth_max,variable,DOI
-CURRENT_E,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS,dataset-armor-3d-rep-weekly,10,155,-55,31,2018-01-01 00:00:00,2019-12-31 23:59:59,0,100,ugo,https://doi.org/10.48670/moi-00052
-CURRENT_N,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS,dataset-armor-3d-rep-weekly,10,155,-55,31,2018-01-01 00:00:00,2019-12-31 23:59:59,0,100,vgo,https://doi.org/10.48670/moi-00052
-SST,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS,dataset-armor-3d-rep-weekly,10,155,-55,31,2018-01-01 00:00:00,2019-12-31 23:59:59,0,100,to,https://doi.org/10.48670/moi-00052
-SSH,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS,dataset-armor-3d-rep-weekly,10,155,-55,31,2018-01-01 00:00:00,2019-12-31 23:59:59,0,100,zo,https://doi.org/10.48670/moi-00052
-CHLA,https://my.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_BIO_BGC_3D_REP_015_010-TDS,cmems_obs_glo_bgc3d_rep_weekly,10,155,-55,31,2018-01-01 00:00:00,2019-12-31 23:59:59,0,100,chl,https://doi.org/10.48670/moi-00046
+SST,https://nrt.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012-TDS,dataset-armor-3d-rep-weekly,10,155,-55,31,1999-01-01 00:00:00,2019-12-31 23:59:59,0,100,to,https://doi.org/10.48670/moi-00052
+CHLA,https://my.cmems-du.eu/motu-web/Motu,MULTIOBS_GLO_BIO_BGC_3D_REP_015_010-TDS,cmems_obs_glo_bgc3d_rep_weekly,10,155,-55,31,1999-01-01 00:00:00,2019-12-31 23:59:59,0,100,chl,https://doi.org/10.48670/moi-00046

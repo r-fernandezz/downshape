@@ -30,17 +30,16 @@ cat("\n```")
 
 # :point_right: Step by step 
 
-- :one: Import files necessary into data folder
-- :two: Edit targets of "_targets.R" file into project parameters part and check if all "skip" argument into targets function are "FALSE" (or "TRUE" if you want skip some targets)
-- :three: Run pipeline launching *make.R* script
-
-:bulb: You can run only one part of *make.R* script when you commit targets of the part not used.
+- :one: Import files necessary into data folder (information bellow)
+- :two: Edit targets of *_targets.R* file into project parameters part and check if all "skip" argument into targets function are "FALSE" (or "TRUE" if you want skip some targets).
+- :three: Select the part the part of *_targets.R* script you want run. Commit all targets of the part not used. It's impossible to run the two parts in same time.
+- :four: Run pipeline launching *make.R* script
 
 # :heavy_check_mark: Input Informations
 
 ## Data folder
 
-:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download with one row by variable downloaded. Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty. Columns "date_min" and "date_max" must be larger than (or equal) *current_period* target (into *_targets.R file*). 
+:heavy_check_mark: **[copernicus_parameters.csv]** : csv file. Parameters of data we want to download with one row by variable downloaded. Check table structuration asked bellow. If variable have big size, Copernicus api can't to download and it's necessary to divided variable in several small time periods (use "divide", "subvar" and "septime" argument of copernicus_download_api() function). If a parameter into this table doesn't exist for your product (example : depth) just leave the cell empty. Columns "date_min" and "date_max" must be larger than (or equal) *current_period* target (into *_targets.R file*). If you want create baseline to apply change factor method on cmip variable, you must have an overlap between "date_min"-"date_max" and *historical_period* target.
 
 | Columns database | Description |
 | :----: |   :-------------: |
@@ -68,11 +67,11 @@ cat("\n```")
 
 :heavy_check_mark: **[freq]** : To select frequence of cmip6 variables want to download (check on esgf website menu).
 
-:heavy_check_mark: **[time_span]** : To select min and max time of cmip6 variables downloaded (format example:"1982-01-01T00:00:00Z").
+:heavy_check_mark: **[historical_period]** : List start and end time. To define min and max time borns of cmip6 data historical period (cdo format: "YYYY-MM-DDThh:mm:ss"). Complet ssp "historical" period would you like. It must existe a time overlap with *time_span* target. Into CMIP6 ssp "historical" stop at 2014 years, but to match baseline and ssp "historical" periods it's necessary to merge historical and a short ssp periods (it's the goal of mergeHistorical_cmip function).
 
-:heavy_check_mark: **[historical_period]** : List start and end time. To define min and max time of cmip6 data historical period (cdo format: "YYYY-MM-DDThh:mm:ss"). It must existe a time overlap with *time_span* target.
+:heavy_check_mark: **[future_period]** : List start and end time. To define min and max time borns of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss"). Complet ssp period would you like (without ssp "historical").It must existe a time overlap with *time_span* target.
 
-:heavy_check_mark: **[future_period]** : List start and end time. To define min and max time of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss"). It must existe a time overlap with *time_span* target.
+:heavy_check_mark: **[time_span]** : To select min and max time of cmip6 variables downloaded (format example:"1982-01-01T00:00:00Z"). It must existe a time overlap with *historical_period* and *future_period* targets. If you want to apply change factor method, min born correspond to min born of *historical_period* target and max born corespond to max born of *future_period* target.
 
 :heavy_check_mark: **[vars_speed_cmip]** : Same informations of *vars_speed* target but for cmip6 variables. All vectors of this target list can to be empty.
 
@@ -80,13 +79,15 @@ cat("\n```")
 
 :heavy_check_mark: **[http_vars]** : List. List of download path (NetCDF file) and variable names. First (or n) element of "http" vector correspond to first (or n) element of "name" vector. "Name" vector will be the name used to rename file name of variable. To download variables outsite copernicus website. Leave empty if not used.
 
-:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss"). This period must overlap periods downloaded into **copernicus_parameters.csv**.
+:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss"). Allow to calibrate model (weekly temporal resolution) and create current projection (monthly temporal resolution). This period must overlap periods downloaded into **copernicus_parameters.csv**.
+
+:heavy_check_mark: **[baseline_period]** : List start and end time. Complet this target if you want create a baseline to apply change factor method, otherwise write "NULL" into "start" and "end" arguments. It allow to define min and max time borns of baseline period (cdo format: "YYYY-MM-DDThh:mm:ss"). 
 
 :heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector. vectors of the list can be empty.
 
-:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data **JUST AFTER DOWNLOAD STEP**. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "????" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", " ", rename with **rename** target to one word without specials characters otherwise CDO command doesn't work. All vectors of this target list can to be empty.
+:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data **JUST AFTER DOWNLOAD STEP**. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "????" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", "#", " ", rename with **rename** target to one word without specials characters otherwise CDO command doesn't work. All vectors of this target list can to be empty.
 
 :heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul copernicus variables speed with two components (name vector are juste used into code but it's not names of output files). First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be always pasted to give final name of speed file). In this vector, given coponent variable names after the rename step with renameVar() function and **renameVar** target.
 

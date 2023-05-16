@@ -239,6 +239,7 @@ remapCDO <- function(   file_path,
 
     #################### Filter by time, treatment of the period we would like
     period <- switch(period,
+                    baseline = targets::tar_read("baseline_period"),
                     current = targets::tar_read("current_period"),
                     historical = targets::tar_read("historical_period"),
                     targets::tar_read("futur_period"))
@@ -636,6 +637,28 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
 
         }, mc.cores = length(list_file))
 
+    # Create baseline if "baseline_period" target not NULL
+    if(!is.null(targets::tar_read("baseline_period")$start)){
+
+        # Remove folder and creat a folder empty
+        path_output_b <- paste0(path_output, "/", "baseline")
+        if(file.exists(path_output_b)) fs::dir_delete(path_output_b)
+        dir.create(path_output_b, showWarnings = FALSE)
+
+        parallel::mclapply(list_file, function(f){
+        
+        message("Treatment of files :", f)
+
+        remapCDO(   file_path = f, 
+                    type_data = "copernicus", 
+                    period = "baseline", 
+                    spat_reso = targets::tar_read("spat_reso"), 
+                    path_output = path_output_b)
+
+        }, mc.cores = length(list_file))
+
+    }else(message("You don't want created a baseline, arguments of 'baseline_period' target are NULL"))
+
     return(list.files(path_output, recursive = TRUE, full.names = TRUE))
 
 }
@@ -825,7 +848,7 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
     }
 
     # Speed calcul
-    for(f in 1:length(temp_folder)){ #filter by monthly and weekly data
+    for(f in 1:length(temp_folder)){ #filter by monthly, weekly or baseline data
 
         for(i in 1:length(vars_speed$compo1)){
 
