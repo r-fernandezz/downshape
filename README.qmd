@@ -125,7 +125,7 @@ Information: variable with "1x100", "0x1", etc... into file name are integrated 
         - :page_facing_up: VarsX.nc ... *--[download_cmip_data()]--*
   - :open_file_folder: data_cmip6_change_factor *--[climato_cmip()]--*
     - :open_file_folder: climatology *--[climato_cmip()]--*
-      - :open_file_folder: 2030 (name climatology)
+      - :open_file_folder: Name_climatology (ex : 2030)
         - :open_file_folder: Model_name_download  
           - :open_file_folder: Experiment_name_download 
             - :page_facing_up: Vars1.grd 
@@ -141,6 +141,15 @@ Information: variable with "1x100", "0x1", etc... into file name are integrated 
           - :page_facing_up: VarsX.grd ...
           - :page_facing_up: VarsDepth1x100.nc
           - :page_facing_up: Vars_speed.grd 
+    - :open_file_folder: variables_bias-corrected *--[deltaCF()]--*
+      - :open_file_folder: Name_climatology (ex : 2030)
+        - :open_file_folder: Model_name_download  
+          - :open_file_folder: Experiment_name_download 
+            - :page_facing_up: Vars1.grd 
+            - :page_facing_up: Vars2.grd  
+            - :page_facing_up: VarsX.grd ...
+            - :page_facing_up: VarsDepth1x100.nc 
+            - :page_facing_up: Vars_speed.grd 
   - :open_file_folder: data_cmip6_remapped *--[remapCDO_cmip()]--* 
     - :open_file_folder: Model_name_download *--[remapCDO_cmip()]--* 
       - :open_file_folder: Experiment_name_download *--[remapCDO_cmip()]--*
