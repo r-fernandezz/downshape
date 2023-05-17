@@ -25,6 +25,7 @@ list(
                                             name = c("BATHY")))
     ,tar_target(current_period,     list(   start = "2018-01-03T00:00:00", end = "2019-10-30T23:59:59"))
     ,tar_target(baseline_period,    list(   start = "1999-01-01T00:00:00", end = "2019-12-01T00:00:00"))
+    ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x1", "SST0x100"), cmip = c("SSTcmip", "SSTcmip0x1", "SSTcmip0x100")))
     ,tar_target(spat_reso,          "180x90")
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
     ,tar_target(renameVar,          list(   oldname = c("to", "chl", "topo"), 
@@ -47,8 +48,7 @@ list(
     ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed_cmip, remove = FALSE), format = "file")
     ,tar_target(climato_cmip, climato_cmip(speedCompo_cmip, climato_period), format = "file")
     ,tar_target(mergeHistorical_cmip, mergeHistorical_cmip(speedCompo_cmip, historical_period, baseline_period, futur_period, climato_period), format = "file")
-    
-    #,tar_target(connectPip_cmip, connectPip(data = speedCompo_cmip, type_data = "cmip6"), format = "file")
+    ,tar_target(varsBiasCorrected, deltaCF(climato_cmip, mergeHistorical_cmip, match_name), format = "file")
 
     ################################# Part 2 : Copernicus data process (commit all targets if you don't use this part) ###########################
 

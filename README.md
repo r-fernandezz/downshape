@@ -31,25 +31,28 @@ graph LR
     xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate
     xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate
-    x0262297569c18022(["renameVar_cmip"]):::uptodate --> x4fe875b2492d0106(["concatenate_cmip"]):::uptodate
-    xbbe4eafa679df977(["climato_period"]):::uptodate --> x0c817e56268c947c(["climato_cmip"]):::uptodate
-    xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate --> x0c817e56268c947c(["climato_cmip"]):::uptodate
-    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
-    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
+    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate
     x7a197bdf5f12681a(["vars_speed_cmip"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate
+    xbbe4eafa679df977(["climato_period"]):::uptodate --> x0c817e56268c947c(["climato_cmip"]):::uptodate
+    xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate --> x0c817e56268c947c(["climato_cmip"]):::uptodate
     x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::uptodate
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::uptodate
-    xd8e5f2013a341013(["cmip_data"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::uptodate
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::uptodate
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate --> xe895740a9b7896f7(["available_dataset_df"]):::uptodate
-    x4fe875b2492d0106(["concatenate_cmip"]):::uptodate --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::uptodate
-    xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
     x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::uptodate
+    xd8e5f2013a341013(["cmip_data"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::uptodate
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::uptodate
+    x0262297569c18022(["renameVar_cmip"]):::uptodate --> x4fe875b2492d0106(["concatenate_cmip"]):::uptodate
+    x4fe875b2492d0106(["concatenate_cmip"]):::uptodate --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::uptodate
+    x3f5ab24ee8d242b4(["select_dataset"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::uptodate
+    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::uptodate
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
+    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
+    x0c817e56268c947c(["climato_cmip"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xab1c13260db879af(["match_name"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
     x55a14a7f5821bbec(["resotempo"]):::uptodate --> x55a14a7f5821bbec(["resotempo"]):::uptodate
@@ -182,6 +185,10 @@ Complet this target if you want create a baseline to apply change factor
 method, otherwise write “NULL” into “start” and “end” arguments. It
 allow to define min and max time borns of baseline period (cdo format:
 “YYYY-MM-DDThh:mm:ss”).
+
+:heavy_check_mark: **\[match_name\]** : List of two vectors. Allow to
+correspondance between “copernicus” and “cmip” variables during calcul
+of delta in change factor method.
 
 :heavy_check_mark: **\[spat_reso\]** : To remap variables with CDO
 swoftware by bilinear method allowing change spatial resolution (cdo

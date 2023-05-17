@@ -175,3 +175,104 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
     }else(message("WARNING : 'historical_period' target and 'baseline_period' target can't to be used in 'mergeHistorical_cmip' function beacause they have same period"))
 
 }
+
+#' deltaCF
+#'
+#' @description Allow to calculate delto between historical modified (with mergeHistorical_cmip) and baseline. 
+#' Remove months not choosen to create climatology of baseline 
+#'
+#'
+#' @param Variable Type. Explication.
+#' @param Variable Type. Explication.
+#'
+#' @return Name Variable
+#'
+#' @export 
+#' 
+
+deltaCF <- function(climato_cmip, mergeHistorical_cmip, match_name){
+    
+    # Create output folder
+    path_output <- here::here("output", "data_cmip6_change_factor")
+    path_output_dir <- paste0(path_output, "/variables_bias-corrected")
+    if(file.exists(path_output_dir)) fs::dir_delete(path_output_dir)
+    dir.create(path_output_dir, showWarnings = FALSE)
+
+    # Lapply arguments
+    climato <- list.files(paste0(path_output, "/climatology"))
+    model <- list.files(here::here("output", "data_cmip6_remapped"))
+    ssp <- list.files(here::here("output", "data_cmip6_remapped", model[1])) #same ssp for all models
+    ssp <-  ssp[!(ssp %in% "historical")]
+    vars <- unlist(lapply(list.files(here::here("output", "data_cmip6_remapped", model[1], ssp[1]), pattern = ".nc$"), function(list) strsplit(list, "_")[[1]][1]))
+
+
+    histoMerge_files <- unlist(lapply(climato, function(c){
+                        dir.create(paste0(path_output_dir, "/", c), showWarnings = FALSE)
+                            unlist(lapply(model, function(m){
+                            dir.create(paste0(path_output_dir, "/", c, "/", m), showWarnings = FALSE)
+
+                                unlist(lapply(ssp, function(s){
+                                    dir.create(paste0(path_output_dir, "/", c, "/", m, "/", s), showWarnings = FALSE)
+
+                                    unlist(lapply(vars, function(v){
+
+                                        # c = "2030" ; m = "CanESM5"; s = "ssp126" ; v = "SSTcmip"
+
+                                        historical <- list.files(paste0(path_output, "/historical_ssp_merged/", m, "/", s), pattern = paste0(v, "_"), full.name = TRUE)
+                                        historical <- grep(".grd$", historical, value = TRUE)
+
+                                        ssp <- list.files(paste0(path_output, "/climatology/", c, "/", m, "/", s), pattern = paste0(v, "_"), full.name = TRUE)
+                                        ssp <- grep(".grd$", ssp, value = TRUE)
+
+                                        r_hist <- raster::stack(historical)
+                                        r_ssp <- raster::stack(ssp)
+
+                                        # Choose calcul of delta
+                                        delta_absolute <- grep(v, c("SST", "SSTcmip", "CHL", "CHLcmip", "BATHY", "BATHYcmip",
+                                                            "GSST", "GSSTcmip", "GCHL", "GCHLcmip", "GBATHY", "GBATHYcmip")) # absolute delta can be calculate on these variables
+                                        delta_absolute <- ifelse(   length(delta_absolute) > 0,
+                                                                    TRUE,
+                                                                    FALSE)
+
+                                        if(delta_absolute == TRUE){
+                                            message("Absolute difference (delta) must to be calculated for this variable (Navarro_Racines et al. 2020, page 3)")
+                                            delta <- r_ssp - r_hist
+
+                                        }else{
+                                            message("Relative change (delta) must to be calculated for this variable (Navarro_Racines et al. 2020, page 3)")
+                                            delta <- (r_ssp - r_hist)/r_hist
+                                        
+                                        }
+
+                                        # Select baseline variable (copernicus) correspond to cmip variable processing (v)
+                                        position <- grep(paste0(v, "$"), match_name$cmip)
+                                        v_copernicus <- match_name$copernicus[position]
+                                        baseline <- list.files(here::here("output", "data_copernicus_remapped", "baseline", "GRD"), pattern = paste0(v_copernicus, "_"), full.name = TRUE)
+                                        baseline <- grep(".grd$", baseline, value = TRUE)
+
+                                        # Remove months don't used to create climatology with baseline
+                                        baseline <- mean_month( month = climato_period$month_choose, 
+                                                                path_variable = baseline, 
+                                                                type_output = "StackRaster")
+
+                                        # Calcul new variable bias-corrected
+                                        if(delta_absolute == TRUE){
+
+                                            vars <- baseline + delta
+
+                                        }else{
+
+                                            vars <- baseline * (1 + delta)
+                                        
+                                        }
+
+                                        raster::writeRaster(vars, 
+                                                            filename = paste0(path_output_dir, "/", c, "/", m, "/", s, "/", "Bias-corrected_variable__", v, ".grd"), 
+                                                            overwrite = TRUE)
+
+                                    }))
+                                }))
+                            }))
+                        }))
+
+}
