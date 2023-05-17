@@ -215,7 +215,7 @@ concatenate_copernicus <- function(obs_data){
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
 #' @param period Character. "current" or "historical". Correspond to current_period historical_period target (check readme informations). Else it's not "historical_period" or "current_period", automatically function extract born of futur period.
 #' @param spat_reso Character. spat_reso targets (check readme informations).
-#' @param pat_output path. Folder where you want export variable processed.
+#' @param path_output path. Folder where you want export variable processed.
 #' @param monthWeek Logical. "month" or "week". Default "month". If you want mean data by week or month.
 #' 
 #' @return File path of the variable processed
@@ -538,7 +538,7 @@ remapCDO_cmip <- function(concatenate_cmip){
         # Select files and variable names
         message(paste0("### Treatment of ", m))
         path_output <- here::here("output", "data_cmip6_remapped", m)
-        dir.create(path_output)
+        dir.create(path_output, showWarnings = FALSE)
         path  <- paste0(here::here("output", "data_cmip6"), "/", m)
         files <- list.files(path, recursive = TRUE, pattern = ".nc", full.names = TRUE)
         files <- basename(files)[!grepl("gr", files)] #remove regrid file
@@ -554,6 +554,9 @@ remapCDO_cmip <- function(concatenate_cmip){
         # Apply CDO function at all files
         unlist(parallel::mclapply(runs, function(r) {
             #r = "piControl" ; r = "historical"
+            path_output <- here::here("output", "data_cmip6_remapped", m, r)
+            dir.create(path_output, showWarnings = FALSE)
+
             unlist(parallel::mclapply(vars, function(v){
             #v  = "SSTcmip"
 
