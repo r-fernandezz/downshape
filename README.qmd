@@ -69,11 +69,13 @@ cat("\n```")
 
 :heavy_check_mark: **[historical_period]** : List start and end time. To define min and max time borns of cmip6 data historical period (cdo format: "YYYY-MM-DDThh:mm:ss"). Complet ssp "historical" period would you like. It must existe a time overlap with *time_span* target. Into CMIP6 ssp "historical" stop at 2014 years, but to match baseline and ssp "historical" periods it's necessary to merge historical and a short ssp periods (it's the goal of mergeHistorical_cmip function).
 
-:heavy_check_mark: **[future_period]** : List start and end time. To define min and max time borns of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss"). Complet ssp period would you like (without ssp "historical").It must existe a time overlap with *time_span* target.
+:heavy_check_mark: **[future_period]** : List start and end time. To define min and max time borns of cmip6 data future period (cdo format: "YYYY-MM-DDThh:mm:ss"). Complet ssp period would you like (without ssp "historical"). It must existe a time overlap with *time_span* target (period downloaded) and entire overlap with baseline_period target (to create same period between baseline and historical). "start" vector correspond at "end" vector of *historical_period* target +1 day.
 
 :heavy_check_mark: **[time_span]** : To select min and max time of cmip6 variables downloaded (format example:"1982-01-01T00:00:00Z"). It must existe a time overlap with *historical_period* and *future_period* targets. If you want to apply change factor method, min born correspond to min born of *historical_period* target and max born corespond to max born of *future_period* target.
 
 :heavy_check_mark: **[vars_speed_cmip]** : Same informations of *vars_speed* target but for cmip6 variables. All vectors of this target list can to be empty.
+
+:heavy_check_mark: **[climato_period]** : List of vectors. Allow to name and define climatology periods use to apply change factor method (climatology on cmip6 ssp). "name" vector is how will be called climatology period and correspond to "start" and "end" vector define time bornes of climatology period (cdo format: "YYYY-MM-DDThh:mm:ss"). "month_choose" vector allow to choose month conserved into the climatology mean calcul (used into mean_month() function). It must existe a time overlap with *future_period* target.
 
 :heavy_check_mark: **[resotempo]** : Give temporal resolution of all variable (copernicus or cmip or both) you want to mean by week with remapCDO(..., monthWeek = "week"). Complete "reso" list with "week" (if variable have one layer by week), "month" (one by month), "hour1" (one by one hour), "hour6" (one by 6 hours), "FIXE" one layer for all NetCDF file. Into "vars" list given variable name after rename target. Give variable name without names of depth variable create automatically by the pipeline.
 
@@ -119,13 +121,32 @@ Information: variable with "1x100", "0x1", etc... into file name are integrated 
         - :page_facing_up: Vars1.nc *--[download_cmip_data()]--*
         - :page_facing_up: Vars2.nc *--[download_cmip_data()]--*
         - :page_facing_up: VarsX.nc ... *--[download_cmip_data()]--*
+  - :open_file_folder: data_cmip6_change_factor *--[climato_cmip()]--*
+    - :open_file_folder: climatology *--[climato_cmip()]--*
+      - :open_file_folder: 2030 (name climatology)
+        - :open_file_folder: Model_name_download  
+          - :open_file_folder: Experiment_name_download 
+            - :page_facing_up: Vars1.grd 
+            - :page_facing_up: Vars2.grd  
+            - :page_facing_up: VarsX.grd ...
+            - :page_facing_up: VarsDepth1x100.nc 
+            - :page_facing_up: Vars_speed.grd 
+    - :open_file_folder: historical_ssp_merged *--[mergeHistorical_cmip()]--*
+      - :open_file_folder: Model_name_download  
+        - :open_file_folder: Experiment_name_download 
+          - :page_facing_up: Vars1.grd 
+          - :page_facing_up: Vars2.grd  
+          - :page_facing_up: VarsX.grd ...
+          - :page_facing_up: VarsDepth1x100.nc
+          - :page_facing_up: Vars_speed.grd 
   - :open_file_folder: data_cmip6_remapped *--[remapCDO_cmip()]--* 
     - :open_file_folder: Model_name_download *--[remapCDO_cmip()]--* 
-      - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
-      - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
-      - :page_facing_up: VarsX.nc *--[remapCDO_cmip()]--* 
-      - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
-      - GRD *--[connectPip()]--*
+      - :open_file_folder: Experiment_name_download *--[remapCDO_cmip()]--*
+        - :page_facing_up: Vars1.nc *--[remapCDO_cmip()]--* 
+        - :page_facing_up: Vars2.nc *--[remapCDO_cmip()]--* 
+        - :page_facing_up: VarsX.nc ...*--[remapCDO_cmip()]--*
+        - :page_facing_up: VarsDepth1x100.nc ...*--[remapCDO_cmip()]--* 
+        - :page_facing_up: Vars_speed.nc *--[speedCompo_cmip()]--*
   - :open_file_folder: data_copernicus *--[copernicus_download_api()]--*
     - :page_facing_up: copernicus_parameters_modified.csv *--[copernicus_download_api()]--*
     - :page_facing_up: Vars1.nc *--[copernicus_download_api()]--*
@@ -135,33 +156,58 @@ Information: variable with "1x100", "0x1", etc... into file name are integrated 
     - :open_file_folder: month
       - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
       - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
-      - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
+      - :page_facing_up: VarsX.nc ...*--[remapCDO_copernicus()]--*
+      - :page_facing_up: VarsDepth1x100.nc *--[remapCDO_copernicus()]--*
       - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
       - :open_file_folder: GRD *--[connectPip()]--*
         - :page_facing_up: Vars1.nc
         - :page_facing_up: Vars2.nc
-        - :page_facing_up: VarsX.nc
+        - :page_facing_up: VarsX.nc ...
+        - :page_facing_up: VarsDepth1x100.nc
         - :page_facing_up: Vars_speed.nc
         - :open_file_folder: Gradient *--[grad_copernicus()]--* 
           - :page_facing_up: GVars1.nc 
           - :page_facing_up: GVars2.nc  
-          - :page_facing_up: GVarsX.nc 
+          - :page_facing_up: GVarsX.nc ...
+          - :page_facing_up: GVarsDepth1x100.nc
           - :page_facing_up: GVars_speed.nc
     - :open_file_folder: week
       - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
       - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
-      - :page_facing_up: VarsX.nc *--[remapCDO_copernicus()]--*
+      - :page_facing_up: VarsX.nc ... *--[remapCDO_copernicus()]--*
+      - :page_facing_up: VarsDepth1x100.nc *--[remapCDO_copernicus()]--*
       - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
       - :open_file_folder: GRD *--[connectPip()]--*
         - :page_facing_up: Vars1.nc
         - :page_facing_up: Vars2.nc
-        - :page_facing_up: VarsX.nc
+        - :page_facing_up: VarsX.nc ...
+        - :page_facing_up: VarsDepth1x100.nc 
         - :page_facing_up: Vars_speed.nc
         - :open_file_folder: Gradient *--[grad_copernicus()]--* 
           - :page_facing_up: GVars1.nc 
           - :page_facing_up: GVars2.nc  
-          - :page_facing_up: GVarsX.nc 
+          - :page_facing_up: GVarsX.nc ...
+          - :page_facing_up: GVarsDepth1x100.nc 
           - :page_facing_up: GVars_speed.nc
+    - :open_file_folder: baseline
+      - :page_facing_up: Vars1.nc *--[remapCDO_copernicus()]--* 
+      - :page_facing_up: Vars2.nc *--[remapCDO_copernicus()]--* 
+      - :page_facing_up: VarsX.nc ... *--[remapCDO_copernicus()]--*
+      - :page_facing_up: VarsDepth1x100.nc *--[remapCDO_copernicus()]--*
+      - :page_facing_up: Vars_speed.nc *--[speedCompo_copernicus()]--*
+      - :open_file_folder: GRD *--[connectPip()]--*
+        - :page_facing_up: Vars1.nc
+        - :page_facing_up: Vars2.nc
+        - :page_facing_up: VarsX.nc ...
+        - :page_facing_up: VarsDepth1x100.nc 
+        - :page_facing_up: Vars_speed.nc
+        - :open_file_folder: Gradient *--[grad_copernicus()]--* 
+          - :page_facing_up: GVars1.nc 
+          - :page_facing_up: GVars2.nc  
+          - :page_facing_up: GVarsX.nc ...
+          - :page_facing_up: GVarsDepth1x100.nc 
+          - :page_facing_up: GVars_speed.nc
+
 
 
 

@@ -82,7 +82,7 @@ gaussian.kernel <- function(sigma=2, n=5) {
    m / sum(m)
 }
 
-#' mean_month (extract from modeloTrack pipeline)
+#' mean_month (adapted from modeloTrack pipeline)
 #'
 #' @description Environmental variable will be meaned only with month chosen. 
 #'
@@ -149,7 +149,8 @@ mean_month <- function(month, path_variable, type_output = "StackRaster"){
                                                         StackRaster = vars_mean <- raster::stack(vars_mean, stack_vars)))
 
             # Extract name of processing variable into file
-            names_vec[i] <- extract_name(path_variable[i])
+            name <- basename(path_variable)
+            names_vec[i] <- strsplit(name, "_")[[1]][1]
 
     } 
 
