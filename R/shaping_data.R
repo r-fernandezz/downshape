@@ -464,26 +464,34 @@ remapCDO <- function(   file_path,
                                         depth = stars::st_dimensions(ncdf_file)$depth$values)
                 depth_values <- depth_values[depth_values <= end]
                 depth_values <- depth_values[depth_values >= start]
+                    
+                if(length(depth_values) > 0){
 
-                f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
-                com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
-                system(com_deepTEMPO)
+                    f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
+                    com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
+                    system(com_deepTEMPO)
 
-                # Mean depth layer
-                message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
-                split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
-                f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
-                f_deep <- gsub(".nc", "_deep.nc", f_deep)
+                    # Mean depth layer
+                    message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
+                    split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+                    f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+                    f_deep <- gsub(".nc", "_deep.nc", f_deep)
 
-                com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
-                message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
-                system(com_deep)
-                Sys.sleep(5)
-                ifelse( file.exists(f_deep),
-                        unlink(f_deepTEMPO),
-                        stop(paste0("File not created : ", f_deep)))
+                    com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
+                    message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
+                    system(com_deep)
+                    Sys.sleep(5)
+                    ifelse( file.exists(f_deep),
+                            unlink(f_deepTEMPO),
+                            stop(paste0("File not created : ", f_deep)))
 
-                returnTOT <- c(returnTOT, f_deep)
+                    returnTOT <- c(returnTOT, f_deep)
+
+                }else{
+                    split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+                    f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
+                    message("WARNING : Don't exist overlap beteween 'deep_level' target and depth levels variable. Variable bellow not created : \n", "--->", f_deep)
+                    }
 
             }
             Sys.sleep(5)
