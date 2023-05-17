@@ -48,7 +48,7 @@ list(
     ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed_cmip, remove = FALSE), format = "file")
     ,tar_target(climato_cmip, climato_cmip(speedCompo_cmip, climato_period), format = "file")
     ,tar_target(mergeHistorical_cmip, mergeHistorical_cmip(speedCompo_cmip, historical_period, baseline_period, futur_period, climato_period), format = "file")
-    ,tar_target(varsBiasCorrected, deltaCF(climato_cmip, mergeHistorical_cmip, match_name), format = "file")
+    ,tar_target(varsBiasCorrected, deltaCF(climato_cmip, mergeHistorical_cmip, match_name, grad_copernicus), format = "file")
 
     ################################# Part 2 : Copernicus data process (commit all targets if you don't use this part) ###########################
 

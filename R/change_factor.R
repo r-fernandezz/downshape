@@ -190,7 +190,7 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 #' @export 
 #' 
 
-deltaCF <- function(climato_cmip, mergeHistorical_cmip, match_name){
+deltaCF <- function(climato_cmip, mergeHistorical_cmip, match_name, grad_copernicus){
     
     # Create output folder
     path_output <- here::here("output", "data_cmip6_change_factor")
