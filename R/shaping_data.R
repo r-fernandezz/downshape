@@ -189,6 +189,8 @@ concatenate_cmip <- function(renameVar_cmip){
 
 concatenate_copernicus <- function(obs_data){
 
+    if(!file.exists(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))) stop("Check README documentation : File called 'copernicus_parameters_modified.csv' don't fount into data_copernicus folder")
+    
     tab <- read.csv2(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))
     
     v <- unique(sapply(strsplit(list.files(here::here("output", "data_copernicus"), pattern = ".nc$"), "_"), "[[", 1))
@@ -246,9 +248,10 @@ remapCDO <- function(   file_path,
 
     resotempo <- targets::tar_read("resotempo")
     v <- strsplit(basename(file_path), "_")[[1]][1]
-    reso <- resotempo$reso[grep(v, resotempo$vars)]
+    reso <- resotempo$reso[grep(paste0(v, "$"), resotempo$vars)]
 
-    if(length(reso) == 0)stop(paste0(v, " variable don't found into 'resotempo' target, check README documentation"))
+    if(length(reso) > 1) stop(paste0(" The pattern ", "'", v, "'", " found several variable into 'resotempo' target, check README documentation"))
+    if(length(reso) == 0) stop(paste0(v, " variable don't found into 'resotempo' target, check README documentation"))
 
     if(reso == "FIXE"){
 
@@ -278,6 +281,9 @@ remapCDO <- function(   file_path,
         f_seltime <- new_name
 
     }
+
+    if(!file.exists(f_seltime)) message(paste0( "WARNING : File was not created, maybe time period is incorrect, check README documentation : \n", 
+                                                "-------> ",  basename(f_seltime)))
 
     #################### Regrid
     f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
@@ -523,7 +529,7 @@ remapCDO <- function(   file_path,
 
 remapCDO_cmip <- function(concatenate_cmip){
 
-    mods <- list.files(here::here("output", "data_cmip6")) # tructure file give all models downloaded
+    mods <- list.files(here::here("output", "data_cmip6")) # structure file give all models downloaded
 
     # Remove folder and creat a folder empty
     if(file.exists(here::here("output", "data_cmip6_remapped"))) fs::dir_delete(here::here("output", "data_cmip6_remapped"))
@@ -532,8 +538,7 @@ remapCDO_cmip <- function(concatenate_cmip){
     message("We have ", length(mods), " models: ", paste(mods, collapse = " | "))
 
     unlist(lapply(mods, function(m){
-
-        #m = "CanESM5"
+        # m = "CanESM5"
 
         # Select files and variable names
         message(paste0("### Treatment of ", m))
@@ -605,7 +610,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
     if(file.exists(path_output)) fs::dir_delete(path_output)
     dir.create(path_output, showWarnings = FALSE)
 
-    list_file <- list.files(here::here("output", "data_copernicus"), full.name = TRUE)
+    list_file <- list.files(here::here("output", "data_copernicus"), pattern = ".nc$", full.name = TRUE)
     
     ####### Monthly mean
     message("Mean by month")
@@ -617,7 +622,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
 
     parallel::mclapply(list_file, function(f){
         
-        message("Treatment of files :", list_file)
+        message("Treatment of files : ", basename(f))
 
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
@@ -637,7 +642,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
 
     parallel::mclapply(list_file, function(f){
         
-        message("Treatment of files :", f)
+        message("Treatment of files : ", basename(f))
 
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
@@ -649,6 +654,8 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
         }, mc.cores = length(list_file))
 
     # Create baseline if "baseline_period" target not NULL
+    message("Create baseline")
+    
     if(!is.null(targets::tar_read("baseline_period")$start)){
 
         # Remove folder and creat a folder empty
@@ -658,7 +665,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
 
         parallel::mclapply(list_file, function(f){
         
-        message("Treatment of files :", f)
+        message("Treatment of files : ", basename(f))
 
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
@@ -920,7 +927,7 @@ grad_copernicus <- function(connectPip) {
 
         for (i in 1:length(list_path_use)){ # For all variables
 
-            message(paste("Treatment of variable (", i, "/", length(list_path_use), ") :", basename(list_path_use[i]), sep = " "))
+            message(paste0("Treatment of variable (", i, "/", length(list_path_use), " for ", reso[r], ") : ", basename(list_path_use[i])))
 
             raster <- raster::brick(list_path_use[i]) # import du raster de travail
 
