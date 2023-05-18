@@ -5,7 +5,7 @@
 #' @param speedCompo_cmip Target. Allow to connect target. Check README documentation.
 #' @param climato_period Target. Check README documentation.
 #' 
-#' @return List of files created
+#' @return Files path list of files created
 #'
 #' @export .grd files into "output/data_cmip6_change_factor/climatology"
 #' 
@@ -93,7 +93,7 @@ climato_cmip <- function(speedCompo_cmip, climato_period){
 #' @param futur_period Target. Check README documentation.
 #' @param climato_period Target. Check README documentation.
 #'
-#' @return List of files created
+#' @return Files path list of files created
 #'
 #' @export .grd files into "output/data_cmip6_change_factor/historical_ssp_merged"
 #' 
@@ -188,7 +188,7 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 #' @param match_name Target. Check README documentation.
 #' @param climato_period Target. Check README documentation.
 #'
-#' @return List of files created
+#' @return Files path list of files created
 #'
 #' @export .grd files into "output/data_cmip6_change_factor/variables_bias-corrected"
 #' 
@@ -298,3 +298,75 @@ deltaCF <- function(climato_cmip, mergeHistorical_cmip, grad_copernicus,
     return(histoMerge_files)
 }
 
+#' meanMod
+#'
+#' @description Allow to mean models by ssp and variables.
+#'
+#'
+#' @param varsBiasCorrected Target. Allow to connect target. Check README documentation.
+#'
+#' @return Files path list of files created
+#'
+#' @export .grd files into "output/data_cmip6_change_factor/variables_bias-corrected_mean"
+
+
+meanMod <- function(varsBiasCorrected){
+
+    # Create output folder
+    path_output <- here::here("output", "data_cmip6_change_factor")
+    path_output_dir <- paste0(path_output, "/variables_bias-corrected_mean")
+    if(file.exists(path_output_dir)) fs::dir_delete(path_output_dir)
+    dir.create(path_output_dir, showWarnings = FALSE)
+
+    # Lapply arguments
+    climato <- list.files(paste0(path_output, "/variables_bias-corrected"))
+    model <- list.files(paste0(path_output, "/variables_bias-corrected", "/", climato[1])) #same model for all climato
+    ssp <- list.files(paste0(path_output, "/variables_bias-corrected", "/", climato[1], "/", model[1])) #same ssp for all models
+    vars <- list.files(paste0(path_output, "/variables_bias-corrected", "/", climato[1], "/", model[1], "/", ssp[1]), pattern = ".grd$")
+    vars <- unlist(lapply(vars, function(v){
+                                    v <- gsub(".grd", "", v)
+                                    strsplit(v, "__")[[1]][2]
+            }))
+
+    if(length(model) == 0) stop("Impossible to run 'meanMod' function ('MeanModel' target) beacause only one model")
+    if(length(model) > 1){
+
+        histoMerge_files <- unlist(lapply(climato, function(c){
+                            dir.create(paste0(path_output_dir, "/", c), showWarnings = FALSE)
+                                unlist(lapply(ssp, function(s){
+                                dir.create(paste0(path_output_dir, "/", c, "/", s), showWarnings = FALSE)
+                                    unlist(lapply(vars, function(v){
+                                        
+                                        message(paste0("Mean models by : ", c, "|", s, "|", v))
+                                        
+                                        # Select files will be meaned
+                                        variables_mean <- list.files(paste0(path_output, "/variables_bias-corrected", "/", c), pattern = ".grd$", recursive = TRUE, full.name = TRUE) # good climatology
+                                        variables_mean <- grep(s, variables_mean, value = TRUE) # good ssp
+                                        variables_mean <- grep(paste0("__", v, ".grd"), variables_mean, value = TRUE) # good variable
+                                        
+                                        # Mean all files selected
+                                        stock <- raster::stack()
+
+                                        for(i in 1:length(variables_mean)){
+                                            vars <- raster::stack(variables_mean[i])
+                                            stock <- raster::stack(stock, vars)
+                                        }
+
+                                        stock_mean <- raster::mean(stock)
+
+                                        raster::writeRaster(stock_mean, 
+                                                            filename = paste0(path_output_dir, "/", c, "/", s, "/Bias-corrected_variable_mean__", v, ".grd"), 
+                                                            format = "raster",
+                                                            bylayer = FALSE,
+                                                            overwrite = TRUE)
+
+                                        return(paste0(path_output_dir, "/", c, "/", s, "/Bias-corrected_variable_mean__", v, ".grd"))
+
+                                    }))
+                                }))
+                            }))
+    }
+
+    return(histoMerge_files)
+
+}
