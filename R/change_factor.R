@@ -7,7 +7,7 @@
 #' 
 #' @return List of files created
 #'
-#' @export .grd files meaned without months not choosen
+#' @export .grd files into "output/data_cmip6_change_factor/climatology"
 #' 
 
 climato_cmip <- function(speedCompo_cmip, climato_period){
@@ -84,7 +84,7 @@ climato_cmip <- function(speedCompo_cmip, climato_period){
 
 #' mergeHistorical_cmip
 #'
-#' @description Convert historical variable to raster and merge time period (historical + ssp) if necessary.
+#' @description Convert historical variable to raster and merge time period (historical + ssp) without months not choosen.
 #'
 #'
 #' @param speedCompo_cmip Target. Allow to connect target. Check README documentation.
@@ -93,9 +93,9 @@ climato_cmip <- function(speedCompo_cmip, climato_period){
 #' @param futur_period Target. Check README documentation.
 #' @param climato_period Target. Check README documentation.
 #'
-#' @return Name Variable
+#' @return List of files created
 #'
-#' @export 
+#' @export .grd files into "output/data_cmip6_change_factor/historical_ssp_merged"
 #' 
 
 mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_period, futur_period, climato_period){
@@ -182,15 +182,20 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 #' Remove months not choosen to create climatology of baseline 
 #'
 #'
-#' @param Variable Type. Explication.
-#' @param Variable Type. Explication.
+#' @param climato_cmip Target. Allow to connect target. Check README documentation.
+#' @param mergeHistorical_cmip Target. Allow to connect target. Check README documentation.
+#' @param grad_copernicus Target. Allow to connect target. Check README documentation.
+#' @param match_name Target. Check README documentation.
+#' @param climato_period Target. Check README documentation.
 #'
-#' @return Name Variable
+#' @return List of files created
 #'
-#' @export 
+#' @export .grd files into "output/data_cmip6_change_factor/variables_bias-corrected"
 #' 
 
-deltaCF <- function(climato_cmip, mergeHistorical_cmip, match_name, grad_copernicus, climato_period){
+deltaCF <- function(climato_cmip, mergeHistorical_cmip, grad_copernicus, 
+                    match_name,
+                    climato_period){
     
     # Create output folder
     path_output <- here::here("output", "data_cmip6_change_factor")
@@ -292,3 +297,4 @@ deltaCF <- function(climato_cmip, mergeHistorical_cmip, match_name, grad_coperni
 
     return(histoMerge_files)
 }
+
