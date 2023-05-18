@@ -33,8 +33,8 @@ graph LR
     x7a197bdf5f12681a(["vars_speed_cmip"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate
     xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
     xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
-    xb5817e1daca13dcc(["bathy_vars"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::uptodate
+    xb5817e1daca13dcc(["bathy_vars"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     x35b468daf9281b76(["http_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
@@ -57,11 +57,12 @@ graph LR
     x57dd1d5e854c11b6(["historical_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate
     xe5de19f3be59da20(["speedCompo_cmip"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate
     x0262297569c18022(["renameVar_cmip"]):::uptodate --> x4fe875b2492d0106(["concatenate_cmip"]):::uptodate
-    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    x0c817e56268c947c(["climato_cmip"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::errored
-    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::errored
-    xab1c13260db879af(["match_name"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::errored
-    xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::errored
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
+    x0c817e56268c947c(["climato_cmip"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xbbe4eafa679df977(["climato_period"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xab1c13260db879af(["match_name"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xf21dac5ab86940da(["mergeHistorical_cmip"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::uptodate --> x3f5ab24ee8d242b4(["select_dataset"]):::uptodate
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
@@ -198,7 +199,15 @@ allow to define min and max time borns of baseline period (cdo format:
 
 :heavy_check_mark: **\[match_name\]** : List of two vectors. Allow to
 correspondance between “copernicus” and “cmip” variables during calcul
-of delta in change factor method.
+of delta in change factor method. List uniquelly variables you want
+bias-corrected. These vectors must to contain all variables name create
+during process (variable processed by speed_vars and deep_level
+targets). The last vector “copy” contain copernicus variable names with
+fixe temporal resolution and they don’t have correspondance with cmip6
+but you want copy and rename into the output folder
+(“output/data_cmip6_change_factor/variables_bias-corrected”). Given
+variable names after the rename step with renameVar() function and
+**renameVar** target.
 
 :heavy_check_mark: **\[spat_reso\]** : To remap variables with CDO
 swoftware by bilinear method allowing change spatial resolution (cdo
@@ -242,32 +251,41 @@ of variable is “topo”. If “FALSE” bathymetry doesn’t downloaded.
 
 ## :bookmark: Other pipeline usage and input data
 
-**If you want skip download_copernicus() function** : You can put
-variables (.nc) into folder “output/data_copernicus”. Variable want to
-be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. “NameVar” (or
-“Name_Var”) want to be the same of name inside NetCDF file (check it
-otherwise renameCDO() function bug). Variables must to be with WGS84
-projection (EPSG:4326).
+:triangular_flag_on_post: **If you want skip copernicus_download_api()
+function** : You can put variables (.nc) into folder
+“output/data_copernicus” with file called
+“copernicus_parameters_modified” create during downloading data.
+Variable want to be named
+*NameVar_XXXX_XXX_XXX_XXXX_DateBegining-DateFinal.nc.*.
+
+:triangular_flag_on_post: **If you want skip download_cmip_data()
+function** : You can put variables (.nc) into folder “output/data_cmip6”
+with subfolders by model and experiment. Variable want to be named
+*NameVar_XXXX_model_experiment_XXXX_XXX_DateBegining-DateFinal.nc.*
+
+:warning: “NameVar” want to be the same of name inside NetCDF file
+(check it otherwise renameCDO() function bug). Variables must to be with
+WGS84 projection (EPSG:4326).
 
 # :key: Dependencies
 
-To download Copernicus data it’s necessary to install
+:arrow_forward: To download Copernicus data it’s necessary to install
 [python3](https://www.python.org/downloads/) and motuclient (Ubuntu
 command: *python3 -m pip install motuclient==1.8.4 –no-cache-dir*).
 
-To formate cmip data it’s necessary to install
+:arrow_forward: To formate cmip data it’s necessary to install
 [gdal](https://gdal.org/download.html),
 [cdo](https://code.mpimet.mpg.de/projects/cdo/embedded/index.html#x1-30001.1),
 [nco](https://command-not-found.com/ncrename).
 
-This R research compendium using renv package to fixe package version.
-Run renv::restore() to update your packages in your computer and
-renv::status() to check if everything is ready.
+:arrow_forward: This R research compendium using renv package to fixe
+package version. Run renv::restore() to update your packages in your
+computer and renv::status() to check if everything is ready.
 
 # :pushpin: Output folders structuration
 
-Information: variable with “1x100”, “0x1”, etc… into file name are
-integrated (depth mean) between values before and after the “x”.
+:information_source: Variable with “1x100”, “0x1”, etc… into file name
+are integrated (depth mean) between values before and after the “x”.
 Variable file without “x” pattern into number are integrated on all
 depth available (if depth are available for the variable).
 

@@ -140,7 +140,7 @@ mean_month <- function(month, path_variable, type_output = "StackRaster"){
                                 StackRaster = raster::mean(stack_vars[[position]])
                                 )
 
-            }else(message("Varible with one dimension"))
+            }else(stop("Varible with one dimension, impossible to choose months and calcul the period mean"))
 
             # initialisation (i=1) and stock layer
             if(i==1){vars_mean <- stack_vars}else(switch(type_output,

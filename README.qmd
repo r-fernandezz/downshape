@@ -85,7 +85,7 @@ cat("\n```")
 
 :heavy_check_mark: **[baseline_period]** : List start and end time. Complet this target if you want create a baseline to apply change factor method, otherwise write "NULL" into "start" and "end" arguments. It allow to define min and max time borns of baseline period (cdo format: "YYYY-MM-DDThh:mm:ss"). 
 
-:heavy_check_mark: **[match_name]** : List of two vectors. Allow to correspondance between "copernicus" and "cmip" variables during calcul of delta in change factor method.
+:heavy_check_mark: **[match_name]** : List of two vectors. Allow to correspondance between "copernicus" and "cmip" variables during calcul of delta in change factor method. List uniquelly variables you want bias-corrected. These vectors must to contain all variables name create during process (variable processed by speed_vars and deep_level targets). The last vector "copy" contain copernicus variable names with fixe temporal resolution and they don't have correspondance with cmip6 but you want copy and rename into the output folder ("output/data_cmip6_change_factor/variables_bias-corrected"). Given variable names after the rename step with renameVar() function and **renameVar** target.
 
 :heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).
 
@@ -99,19 +99,23 @@ cat("\n```")
 
 ## :bookmark: Other pipeline usage and input data
 
-**If you want skip download_copernicus() function** : You can put variables (.nc) into folder "output/data_copernicus". Variable want to be named *NameVar_XXXX_XXX_DateBegining-DateFinal.nc.*. "NameVar" (or "Name_Var") want to be the same of name inside NetCDF file (check it otherwise renameCDO() function bug). Variables must to be with WGS84 projection (EPSG:4326).
+:triangular_flag_on_post: **If you want skip copernicus_download_api() function** : You can put variables (.nc) into folder "output/data_copernicus" with file called "copernicus_parameters_modified" create during downloading data. Variable want to be named *NameVar_XXXX_XXX_XXX_XXXX_DateBegining-DateFinal.nc.*. 
+
+:triangular_flag_on_post: **If you want skip download_cmip_data() function** : You can put variables (.nc) into folder "output/data_cmip6" with subfolders by model and experiment. Variable want to be named *NameVar_XXXX_model_experiment_XXXX_XXX_DateBegining-DateFinal.nc.*
+
+:warning: "NameVar" want to be the same of name inside NetCDF file (check it otherwise renameCDO() function bug). Variables must to be with WGS84 projection (EPSG:4326).
 
 # :key: Dependencies
 
-To download Copernicus data it's necessary to install [python3](https://www.python.org/downloads/) and motuclient (Ubuntu command: *python3 -m pip install motuclient==1.8.4 --no-cache-dir*).
+:arrow_forward: To download Copernicus data it's necessary to install [python3](https://www.python.org/downloads/) and motuclient (Ubuntu command: *python3 -m pip install motuclient==1.8.4 --no-cache-dir*).
 
-To formate cmip data it's necessary to install [gdal](https://gdal.org/download.html), [cdo](https://code.mpimet.mpg.de/projects/cdo/embedded/index.html#x1-30001.1), [nco](https://command-not-found.com/ncrename).
+:arrow_forward: To formate cmip data it's necessary to install [gdal](https://gdal.org/download.html), [cdo](https://code.mpimet.mpg.de/projects/cdo/embedded/index.html#x1-30001.1), [nco](https://command-not-found.com/ncrename).
 
-This R research compendium using renv package to fixe package version. Run renv::restore() to update your packages in your computer and renv::status() to check if everything is ready.
+:arrow_forward: This R research compendium using renv package to fixe package version. Run renv::restore() to update your packages in your computer and renv::status() to check if everything is ready.
 
 # :pushpin: Output folders structuration
 
-Information: variable with "1x100", "0x1", etc... into file name are integrated (depth mean) between values before and after the "x". Variable file without "x" pattern into number are integrated on all depth available (if depth are available for the variable).
+:information_source: Variable with "1x100", "0x1", etc... into file name are integrated (depth mean) between values before and after the "x". Variable file without "x" pattern into number are integrated on all depth available (if depth are available for the variable).
 
 - :open_file_folder:  output *--[make.r]--*
   - :page_facing_up: dataset_found_before_filter.csv *--[select_dataset()]--*

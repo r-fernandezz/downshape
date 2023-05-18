@@ -250,8 +250,8 @@ remapCDO <- function(   file_path,
     v <- strsplit(basename(file_path), "_")[[1]][1]
     reso <- resotempo$reso[grep(paste0(v, "$"), resotempo$vars)]
 
-    if(length(reso) > 1) stop(paste0(" The pattern ", "'", v, "'", " found several variable into 'resotempo' target, check README documentation"))
-    if(length(reso) == 0) stop(paste0(v, " variable don't found into 'resotempo' target, check README documentation"))
+    if(length(reso) > 1){ stop(paste0(" The pattern ", "'", v, "'", " found several variable into 'resotempo' target, check README documentation"))}
+    if(length(reso) == 0){ stop(paste0(v, " variable don't found into 'resotempo' target, check README documentation"))}
 
     if(reso == "FIXE"){
 
