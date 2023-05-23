@@ -332,7 +332,8 @@ depth available (if depth are available for the variable).
     - :open_file_folder: variables_bias-corrected_mean
       *–\[meanMod()\]–* - :open_file_folder: Name_climatology (ex
       : 2030) - :open_file_folder: Experiment_name_download -
-      :page_facing_up: Vars1.grd - :page_facing_up: Vars2.grd  
+      :open_file_folder: Gradient *–\[grad_cmip()\]–* - :page_facing_up:
+      Vars1.grd - :page_facing_up: Vars2.grd  
       - :page_facing_up: VarsX.grd … - :page_facing_up:
       VarsDepth1x100.nc - :page_facing_up: Vars_speed.grd
   - :open_file_folder: data_cmip6_remapped *–\[remapCDO_cmip()\]–*
