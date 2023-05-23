@@ -913,7 +913,7 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
 #'
 #' @return Path file of variable exported
 #'
-#' @export Gradients variable (.grd)
+#' @export Gradient variable files (.grd)
 #' 
 
 grad_copernicus <- function(connectPip) {
@@ -988,7 +988,7 @@ grad_copernicus <- function(connectPip) {
 #'
 #' @return Path file of variable exported
 #'
-#' @export Gradients variable (.grd)
+#' @export Gradient variable files (.grd)
 #' 
 
 grad_cmip <- function(MeanModel) {
