@@ -85,7 +85,7 @@ cat("\n```")
 
 :heavy_check_mark: **[baseline_period]** : List start and end time. Complet this target if you want create a baseline to apply change factor method, otherwise write "NULL" into "start" and "end" arguments. It allow to define min and max time borns of baseline period (cdo format: "YYYY-MM-DDThh:mm:ss"). 
 
-:heavy_check_mark: **[match_name]** : List of two vectors. Allow to correspondance between "copernicus" and "cmip" variables during calcul of delta in change factor method. List uniquelly variables you want bias-corrected. These vectors must to contain all variables name create during process (variable processed by speed_vars and deep_level targets). The last vector "copy" contain copernicus variable names with fixe temporal resolution and they don't have correspondance with cmip6 but you want copy and rename into the output folder ("output/data_cmip6_change_factor/variables_bias-corrected"). Given variable names after the rename step with renameVar() function and **renameVar** target.
+:heavy_check_mark: **[match_name]** : List of two vectors. Allow to correspondance between "copernicus" and "cmip" variables during calcul of delta in change factor method. List uniquelly variables you want bias-corrected. These vectors must to contain all variables name create during process (variable processed by speed_vars and deep_level targets). Given variable names after the rename step with renameVar() function and **renameVar** target.
 
 :heavy_check_mark: **[spat_reso]** : To remap variables with CDO swoftware by bilinear method allowing change spatial resolution (cdo command format: "180x90" correspond to 2°x2°, "360x180" correspond to 1°x1°).
 

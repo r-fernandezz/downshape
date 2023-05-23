@@ -909,10 +909,9 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
 #' @description To create gradient on GRD files for copernicus variables
 #'
 #'
-#' @param Variable Type. Explication.
-#' @param Variable Type. Explication.
+#' @param connectPip Target. Allow to connect target. Check README documentation.
 #'
-#' @return Name file of variable
+#' @return Path file of variable exported
 #'
 #' @export Gradients variable (.grd)
 #' 
@@ -977,5 +976,89 @@ grad_copernicus <- function(connectPip) {
     }
 
     return(list.files(paste0(here::here("output", "data_copernicus_remapped"), "/", reso, "/GRD"), full.names = TRUE))
+
+}
+
+#' grad_cmip
+#'
+#' @description To create gradient on GRD files for cmip variables
+#'
+#'
+#' @param Variable MeanModel. Target. Allow to connect target. Check README documentation.
+#'
+#' @return Path file of variable exported
+#'
+#' @export Gradients variable (.grd)
+#' 
+
+grad_cmip <- function(MeanModel) {
+
+    reso <- list.files(here::here("output", "data_cmip6_change_factor", "variables_bias-corrected_mean"))
+    ssp <- list.files(here::here("output", "data_cmip6_change_factor", "variables_bias-corrected_mean", reso[1]))
+
+    return_path <- c()
+
+    for(r in 1:length(reso)){
+
+        for(s in 1:length(ssp)){
+
+            list_path_use <- list.files(paste0(here::here("output", "data_cmip6_change_factor", "variables_bias-corrected_mean"), "/", reso[r], "/", ssp[s]), 
+                                        pattern = ".grd$", 
+                                        full.names = TRUE)
+
+            for (i in 1:length(list_path_use)){ # For all variables
+
+                message(paste0("Treatment of variable (", i, "/", length(list_path_use), " for ", reso[r], ") : ", basename(list_path_use[i])))
+
+                raster <- raster::brick(list_path_use[i]) # import du raster de travail
+
+                raster_stack <- raster::stack()
+                vect_names <- c()
+
+                for (ii in 1:as.numeric(raster@file@nbands)){ # For all bandes of a variable
+
+                    #message(paste("Filtre Gaussien", "3","by", "3", "and slope window", "8", "by", "8", "applied on bande :", ii, "/", raster@file@nbands, sep = " "))
+
+                    name_bande <- raster@data@names[ii] # To select work bande
+                    raster_bande <- raster::subset(raster, subset = name_bande, drop = TRUE) 
+
+                    raster_bande <- raster.gaussian.smooth(x = raster_bande, sigma = 2, n = 3, type = mean) # To apply gaussian filter
+
+                    raster_bande <- raster::terrain(raster_bande, opt = "slope", unit = "degrees", neighbors = 8) # To apply slop being calcul gradient
+
+                    # To stocke variables averaged into stack object
+                    raster_stack <- raster::stack(raster_stack, raster_bande)
+
+                    # To stocke names of different layers added at stack object
+                    vect_names[ii] <- name_bande
+                }
+
+                # Rename raster layers
+                names(raster_stack) <- vect_names
+
+                # To creat output folder and file name
+                dir_path <- unique(dirname(list_path_use))
+                pathout <- paste0(dir_path, "/Gradient")
+                if(!file.exists(pathout)) dir.create(pathout)
+
+                dir_name <- basename(list_path_use[i])
+                dir_split <- strsplit(dir_name, "__")
+                new_name <- paste0("G", dir_split[[1]][2])
+                name_export <- paste(dir_split[[1]][1], new_name, sep = "__")
+
+                raster::writeRaster(raster_stack, 
+                                    filename = paste(pathout, "/", name_export, sep = ""), 
+                                    format = "raster",
+                                    bylayer = FALSE, 
+                                    overwrite = TRUE)
+
+                message("Variable exported")
+                return <- paste(pathout, "/", name_export, sep = "")
+                return_path <- c(return, return_path)
+            }
+        }
+    }
+
+    return(return_path)
 
 }
