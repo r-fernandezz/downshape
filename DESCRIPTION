@@ -6,7 +6,7 @@ Authors@R:
            family = "Fernandez",
            role = c("aut", "cre"),
            email = "romain.fernandez@univ-reunion.fr",
-           comment = c(ORCID = "YOUR-ORCID-ID")),
+           comment = c(ORCID = "0009-0004-0984-7301")),
     person(given = "François",
            family = "Guilhaumon",
            role = c("aut"),
