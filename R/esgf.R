@@ -411,7 +411,7 @@ select_dataset <- function(res_init, skip = FALSE){
       # x = "piControl"
       message("### experiment: ", x)
 
-      r <-  do.call(c, lapply(mods_experiments_ok, function(mm) {
+      r <- lapply(mods_experiments_ok, function(mm) {
         # mm = "CMCC-ESM2" mm = "MIROC-ES2L"
         message("#### source model: ", mm)
         
@@ -472,7 +472,9 @@ select_dataset <- function(res_init, skip = FALSE){
                 " ", unique(rrr_dd$source_id), " ", unique(rrr_dd$member_id),
                 " for variables: ", paste(sort(rrr_dd$variable_id), collapse = "/"), "\n")
         rrr
-      }))
+      })
+
+      data.table::rbindlist(r)
 
     })
 
