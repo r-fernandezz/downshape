@@ -285,13 +285,26 @@ remapCDO <- function(   file_path,
     if(!file.exists(f_seltime)) message(paste0( "WARNING : File was not created, maybe time period is incorrect, check README documentation : \n", 
                                                 "-------> ",  basename(f_seltime)))
 
+    #################### Remove variable no used if data have more than one variables
+    vars_used <- strsplit(basename(file_path), "_")[[1]][1]
+    f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
+    com_varname <- paste0("cdo select,name=", vars_used, " ", f_seltime, " ", f_varname)
+    message("### Running CDO command to remove variable not used :  \n", "--->", com_varname)
+    system(com_varname)
+    Sys.sleep(5)
+    ifelse( file.exists(f_varname),
+            unlink(f_seltime),
+            stop(paste0("File not created : ", f_varname))) 
+
     #################### Regrid
-    f_regrid <- gsub(".nc", "_regrid.nc", f_seltime)
-    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_seltime, " ", f_regrid)
+    f_regrid <- gsub(".nc", "_regrid.nc", f_varname)
+    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_varname, " ", f_regrid)
     message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
     system(com_regrid)
     Sys.sleep(5)
-    unlink(f_seltime)
+    ifelse( file.exists(f_regrid),
+            unlink(f_varname),
+            stop(paste0("File not created : ", f_regrid)))
 
     #################### Fill missing values
     f_miss <- gsub(".nc", "_miss.nc", f_regrid)
