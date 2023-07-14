@@ -99,26 +99,44 @@ concatenate <- function(source = NULL,
                                     full.names = TRUE))
 
     exp_files <- basename(exp_files_full)
-    
+
     #if only one file then do nothing
     if (length(exp_files) == 1){
         message("### WARNING: Only one file, impossible to merge files")
         return(paste0(path_switch, "/", exp_files))
-    } 
+    }
 
-    # Output file name
-    h1 <- exp_files[1]
-    h2 <- exp_files[length(exp_files)]
-    f_out <- paste0(path_switch, "/", substr(h1, 1, nchar(h1) - 9),
-                    substr(h2, nchar(h2) - 8, nchar(h2)-3),
-                    ".nc")
+    while(length(exp_files) > 1){
+        
+        # Output file name
+        files <- exp_files[1:1000]
+        files <- files[!is.na(files)] # if 1000 files aren't availables, remove na into the list
 
-    f_in <- paste(exp_files_full, collapse = " ")
-    com <- paste0("cdo mergetime ", f_in, " ", f_out)
-    message("### Running CDO command to merge:  \n", "--->", com)
-    system(com)
-    Sys.sleep(5)
-    unlink(exp_files_full)
+        date_deb <- strsplit(files[1], "_")[[1]]
+        date_deb <- strsplit(date_deb[length(date_deb)], "-")[[1]][1]
+
+        date_fin <- strsplit(files[length(files)], "_")[[1]]
+        date_fin <- strsplit(date_fin[length(date_fin)], "-")[[1]][2]
+        date_fin <- strsplit(date_fin[length(date_fin)], "[.]")[[1]][1]
+
+        f_out <- paste0(path_switch, "/", gsub("[0-9]{6,9}-[0-9]{6,9}", paste0(date_deb, "-", date_fin), exp_files[1]))
+
+        # Merge file with CDO by two file
+        f_in <- paste0(path_switch, "/", files, collapse = " ")
+        com <- paste0("cdo mergetime ", f_in, " ", f_out)
+        message("### Running CDO command to merge:  \n", "--->", com)
+        system(com)
+        Sys.sleep(5)
+        ifelse( file.exists(f_out),
+                unlink(paste0(path_switch, "/", files)),
+                stop(paste0("Merge failed, file not created : ", f_out)))
+
+        #Remove file concatenate
+        exp_files <- sort(list.files(path = path_switch,
+                                    pattern = paste0(var, "_"),
+                                    full.names = TRUE))
+        exp_files <- basename(exp_files)
+    }
 
     return(f_out)
 
