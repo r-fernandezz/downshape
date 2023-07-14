@@ -559,7 +559,6 @@ remapCDO_cmip <- function(concatenate_cmip){
         dir.create(path_output, showWarnings = FALSE)
         path  <- paste0(here::here("output", "data_cmip6"), "/", m)
         files <- list.files(path, recursive = TRUE, pattern = ".nc", full.names = TRUE)
-        files <- basename(files)[!grepl("gr", files)] #remove regrid file
         splits <- sapply(basename(files), strsplit, "_")
         vars <- unique(sapply(splits, '[', 1))
 
