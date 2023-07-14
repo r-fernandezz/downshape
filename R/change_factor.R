@@ -48,7 +48,7 @@ climato_cmip <- function(speedCompo_cmip, climato_period){
                                                         list.files(here::here("output", "data_cmip6_remapped", m, s), pattern = ".nc$", full.names = TRUE),
                                                         value = TRUE)
                                         out_mean <- gsub("data_cmip6_remapped", paste0("data_cmip6_change_factor/climatology/", climato_period$name[c]), in_mean)
-                                        out_mean <- gsub("[0-9]{1,10}-[0-9]{1,10}", paste0("climato", climato_period$name[c]), out_mean)
+                                        out_mean <- gsub("[0-9]{8}-[0-9]{8}", paste0("climato", climato_period$name[c]), out_mean)
 
                                         # Mean time to create climatology with CDO
                                         comd <- paste0("cdo seldate,", climato_period$start[c], ",", climato_period$end[c], " ", in_mean, " ", out_mean)
@@ -140,6 +140,11 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
                                         format_date <- gsub("-", "", strsplit(baseline_period$end, "T")[[1]][1])
                                         out_select <- gsub("-[0-9]{1,10}", paste0("-", format_date), out_select )
                                         out_select <- gsub("_historical_", paste0("_historical+", s, "_"), out_select)
+
+                                        # Historical time borns
+                                        #out_name_hist <- paste0(dirname(out_select), "/ssp_period_merged_to_historical_TEMPO_file.nc")
+                                        #comd_sel_hist <- paste0("cdo seldate,", historical_period$end, ",", baseline_period$end, " ", ssp, " ", out_name)
+                                        #system(comd_sel_hist)
 
                                         # Select and merge ssp time period with all historical period
                                         out_name <- paste0(dirname(out_select), "/ssp_period_merged_to_historical_TEMPO_file.nc")
