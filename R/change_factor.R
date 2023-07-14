@@ -101,7 +101,7 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 
     # Control error into targets time
     if(as.Date(historical_period$end) > as.Date(baseline_period$end)) stop("Check README documentation, 'historical_period$end' target more older than 'baseline_period$end' target")
-    if(as.Date(historical_period$start) != as.Date(baseline_period$start)) stop("Check README documentation, not same date for'historical_period$start' target and 'baseline_period$start' target")
+    if(as.Date(historical_period$start) != as.Date(baseline_period$start)) stop("Check README documentation, not same date for 'historical_period$start' target and 'baseline_period$start' target")
     if(as.Date(futur_period$start) - as.Date(historical_period$end) > 31) stop("Check README documentation, 'futur_period' target not begining juste after 'historical_period' target")
     message("Check ready, so we can merged historical and ssp periods")
 
@@ -138,23 +138,23 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
                                         # Create output name for CDO command
                                         out_select <- paste0(path_output, "/", m, "/", s, "/", basename(historical))
                                         format_date <- gsub("-", "", strsplit(baseline_period$end, "T")[[1]][1])
-                                        out_select <- gsub("-[0-9]{1,10}", paste0("-", format_date), out_select )
+                                        out_select <- gsub("-[0-9]{8}", paste0("-", format_date), out_select )
                                         out_select <- gsub("_historical_", paste0("_historical+", s, "_"), out_select)
 
                                         # Historical time borns
-                                        #out_name_hist <- paste0(dirname(out_select), "/ssp_period_merged_to_historical_TEMPO_file.nc")
-                                        #comd_sel_hist <- paste0("cdo seldate,", historical_period$end, ",", baseline_period$end, " ", ssp, " ", out_name)
-                                        #system(comd_sel_hist)
+                                        out_name_hist <- paste0(dirname(out_select), "/ssp_period_merged_to_historical_TEMPO1_file.nc")
+                                        comd_sel_hist <- paste0("cdo seldate,", historical_period$start, ",", historical_period$end, " ", historical, " ", out_name_hist)
+                                        system(comd_sel_hist)
 
                                         # Select and merge ssp time period with all historical period
-                                        out_name <- paste0(dirname(out_select), "/ssp_period_merged_to_historical_TEMPO_file.nc")
+                                        out_name <- paste0(dirname(out_select), "/ssp_period_merged_to_historical_TEMPO2_file.nc")
                                         comd_sel <- paste0("cdo seldate,", historical_period$end, ",", baseline_period$end, " ", ssp, " ", out_name)
                                         system(comd_sel)
 
-                                        comd_merge <- paste0("cdo mergetime ", historical, " ", out_name, " ", out_select)
+                                        comd_merge <- paste0("cdo mergetime ", out_name_hist, " ", out_name, " ", out_select)
                                         system(comd_merge)
                                         ifelse( file.exists(out_select),
-                                                unlink(out_name),
+                                                unlink(c(out_name_hist, out_name)),
                                                 stop(paste0("Historical period not merged or ssp period not selected for : ", m, "|", s, "|", v)))
 
                                         # Mean historical period, remove month not used and export to raster format
