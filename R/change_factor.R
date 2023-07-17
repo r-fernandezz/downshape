@@ -185,8 +185,9 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 
 #' deltaCF
 #'
-#' @description Allow to calculate delto between historical modified (with mergeHistorical_cmip) and baseline. 
-#' Remove months not choosen to create climatology of baseline 
+#' @description Allow to calculate delta between historical modified (with mergeHistorical_cmip) and baseline. 
+#' Remove months not choosen to create climatology of baseline. 
+#' By default absolute difference delta will be calculated for variables (Navarro_Racines et al. 2020) otherwise complete relativeDelta argument of this function.
 #'
 #'
 #' @param climato_cmip Target. Allow to connect target. Check README documentation.
@@ -194,6 +195,7 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 #' @param grad_copernicus Target. Allow to connect target. Check README documentation.
 #' @param match_name Target. Check README documentation.
 #' @param climato_period Target. Check README documentation.
+#' @param relativeDelta Vector of characters. Variable names (found in the file name) for which we calcule relative change delta.
 #'
 #' @return Files path list of files created
 #'
@@ -202,7 +204,8 @@ mergeHistorical_cmip <- function(speedCompo_cmip, historical_period, baseline_pe
 
 deltaCF <- function(climato_cmip, mergeHistorical_cmip, grad_copernicus, 
                     match_name,
-                    climato_period){
+                    climato_period,
+                    relativeDelta = c("Precipitation")){
     
     # Create output folder
     path_output <- here::here("output", "data_cmip6_change_factor")
@@ -243,13 +246,12 @@ deltaCF <- function(climato_cmip, mergeHistorical_cmip, grad_copernicus,
                                         r_ssp <- raster::stack(ssp)
 
                                         # Choose calcul of delta
-                                        delta_absolute <- grep(v, c("SST", "SSTcmip", "CHL", "CHLcmip", "BATHY", "BATHYcmip",
-                                                            "GSST", "GSSTcmip", "GCHL", "GCHLcmip", "GBATHY", "GBATHYcmip")) # absolute delta can be calculate on these variables
+                                        delta_absolute <- grep(v, relativeDelta) # relative delta will be calculate for variables selected
                                         delta_absolute <- ifelse(   length(delta_absolute) > 0,
                                                                     TRUE,
                                                                     FALSE)
 
-                                        if(delta_absolute == TRUE){
+                                        if(delta_absolute == FALSE){
                                             message("INFORMATION : Absolute difference (delta) must to be calculated for this variable (Navarro_Racines et al. 2020)")
                                             delta <- r_ssp - r_hist
 
@@ -262,6 +264,7 @@ deltaCF <- function(climato_cmip, mergeHistorical_cmip, grad_copernicus,
                                         # Select cmip variable (v) correspond to copernicus variable processing (baseline)
                                         position <- grep(paste0(v, "$"), match_name$cmip)
                                         v_copernicus <- match_name$copernicus[position]
+                                        if(!file.exists(here::here("output", "data_copernicus_remapped", "baseline", "GRD"))) stop("Baseline isn't calculated, check the process of Copernicus variables")
                                         baseline <- list.files(here::here("output", "data_copernicus_remapped", "baseline", "GRD"), pattern = paste0("__", v_copernicus, ".grd"), full.name = TRUE)
 
                                         if(length(baseline) > 1) stop(paste0("Check README documentation, pattern ", "'", v, "'", " into 'match_name$cmip' target found several variables into 'match_name$copernicus'"))
@@ -273,7 +276,7 @@ deltaCF <- function(climato_cmip, mergeHistorical_cmip, grad_copernicus,
                                         names(baseline) <- v
 
                                         # Calcul new variable bias-corrected
-                                        if(delta_absolute == TRUE){
+                                        if(delta_absolute == FALSE){
                                             message("INFORMATION : Absolute difference (delta) add to baseline (Navarro_Racines et al. 2020)")
                                             vars_correct <- baseline + delta
                                         }else{
