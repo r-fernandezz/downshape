@@ -19,13 +19,13 @@ list(
                                             end = c("2040-12-30T23:59:59", "2060-12-30T23:59:59", "2080-12-30T23:59:59"),
                                             month_choose = c(2, 3, 4, 5, 6, 7, 8, 9)))
     
-    ,tar_target(resotempo,          list(   vars = c("SST",  "CHLA", "BATHY", "SSTcmip"), 
-                                            reso = c("week", "week", "FIXE", "month"))) 
+    ,tar_target(resotempo,          list(   vars = c("CHLA", "STTcmip", "SST"), 
+                                            reso = c("week", "month", "week"))) 
     ,tar_target(http_vars,          list(   http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                             name = c("BATHY")))
     ,tar_target(current_period,     list(   start = "2018-01-03T00:00:00", end = "2019-10-30T23:59:59"))
     ,tar_target(baseline_period,    list(   start = "1999-01-01T00:00:00", end = "2019-12-01T00:00:00"))
-    ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("SSTcmip", "SSTcmip0x100")))
+    ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("STTcmip", "STTcmip0x100")))
     ,tar_target(spat_reso,          "180x90")
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
     ,tar_target(renameVar,          list(   oldname = c("to", "chl", "topo", "thetao"), 
