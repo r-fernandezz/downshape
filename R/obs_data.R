@@ -9,6 +9,7 @@
 #' @param subvar Vector. Default all variables into table (target by "path_tab_param" argument). Name variable vector into table to choose time variable must to be divided by "septime" argument. 
 #' @param septime vector. Divide time (day) of variable sected in "subvar".
 #' @param divide Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
+#' @param nb_retry Number. If copernicus API disconnect, you can fixe an retry number to test a new download before to print download error.
 #' @param user Character. User used to connect you on Copernicus marine service website.
 #' @param passwd Character. Password to connect you on Copernicus marine service website.
 #' 
@@ -21,6 +22,7 @@ copernicus_download_api <- function(path_tab_param,
                                     subvar = NULL,
                                     septime = c(7, 7),
                                     divide = TRUE,
+                                    nb_retry = 100,
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {
     
@@ -166,18 +168,32 @@ copernicus_download_api <- function(path_tab_param,
                                     " --user ", user,
                                     " --pwd ", passwd)
 
-                # run python command
                 message("Downloading... Launch command : \n", "---> ", command)
-                system(command, inter = TRUE)
+                
+                # Download and check file downloaded
+                retry <- 0
 
-                # Check if file is downloaded
-                if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
+                while(file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
+                            strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
+                            strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc")) == FALSE){
+                    
+                    # run python command
+                    system(command, inter = TRUE)
+
+                    if(retry == nb_retry){
+                        stop(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " not downloaded! Number of tries exceeded..."))
+                    }
+                    
+                    if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
                             strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
                             strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc"))){
 
-                    stop(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " not downloaded! "))
+                        retry <- retry + 1
+                        message(paste0("retry ", retry, "/", nb_retry, " for ", tab_param[i, "my_variable_name"], " variable"))
+                        
+                        }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " downloaded successfully")))
 
-                }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " downloaded successfully")))
+                }
 
             }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], 
                                 " (", tab_param[i, "variable"], ") ", 

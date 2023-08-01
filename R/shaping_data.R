@@ -229,7 +229,6 @@ concatenate_copernicus <- function(obs_data){
 #' remapCDO
 #'
 #' @description To formate cmip6 and copernicus data download with CDO swofware. This function create and run CDO commands to shaping data.
-#' If file final exists, the file will not be formatted again.
 #'
 #' @param file_path Path. File path of variable you want process.
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
