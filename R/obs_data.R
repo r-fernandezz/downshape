@@ -7,7 +7,9 @@
 #' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
 #' @param skip Logical. Default FALSE. If you want skip (TRUE) or not (FALSE) this function into the pipeline to conserve target valid into target_visnetwork visual.
 #' @param subvar Vector. Default all variables into table (target by "path_tab_param" argument). Name variable vector into table to choose time variable must to be divided by "septime" argument. 
-#' @param septime vector. Divide time (day) of variable sected in "subvar".
+#' @param septime Character. Divide time by "month" or "week" of variable sected in "subvar". 
+#' The day number from "date_min" in "path_tab_param" is used to create a vector with increments either by month or week, starting and ending from the corresponding day of this date.
+#' The "septime" argument must be adequate for the time period downloaded
 #' @param divide Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
 #' @param nb_retry Number. If copernicus API disconnect, you can fixe an retry number to test a new download before to print download error.
 #' @param user Character. User used to connect you on Copernicus marine service website.
@@ -20,7 +22,7 @@
 copernicus_download_api <- function(path_tab_param,
                                     skip = FALSE,
                                     subvar = NULL,
-                                    septime = c(7, 7),
+                                    septime = "month",
                                     divide = TRUE,
                                     nb_retry = 100,
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
@@ -66,7 +68,14 @@ copernicus_download_api <- function(path_tab_param,
                     date_deb <- tab_param[i, "date_min"]
                     date_fin <- tab_param[i, "date_max"]
 
-                    vec <- seq(as.Date(date_deb), as.Date(date_fin), by = septime[i])
+                    if(septime == "month"){
+                        vec <- seq(as.Date(date_deb), as.Date(date_fin), by = septime)
+                    }
+
+                    if(septime == "week"){
+                        vec <- seq(as.Date(date_deb), as.Date(date_fin), by = septime)
+                    }
+
                     tab_tempo <- tab_param[i, !(names(tab_param) %in% c("date_min", "date_max"))]
                     tab_tempo_var <- data.frame(tab_tempo, date_min = paste(vec[1], "00:00:00"), date_max = paste(vec[2], "23:59:59"))
 
