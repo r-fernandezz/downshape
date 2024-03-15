@@ -1,6 +1,12 @@
 downshape
 ================
 
+![WIP](https://www.repostatus.org/badges/latest/wip.svg) ![GPL-3.0
+License](https://img.shields.io/badge/License-GPL%20v3.0-blue.svg)
+
+<img src="pictures/downshape_logo.png" data-fig-align="center"
+width="300" />
+
 Table of contents
 
 - [Basic Overview](#basic-overview)
@@ -38,7 +44,7 @@ en UTF-8, est-ce correct dans ‘ANSI_X3.4-1968’ ? ℹ Using R 4.2.2
 graph LR
   subgraph Graph
     direction LR
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
     x21b09bf88a2ff147(["baseline_period"]):::uptodate --> x21b09bf88a2ff147(["baseline_period"]):::uptodate
     xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate
     xbbe4eafa679df977(["climato_period"]):::uptodate --> xbbe4eafa679df977(["climato_period"]):::uptodate

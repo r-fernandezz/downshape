@@ -3,6 +3,9 @@ title: "downshape"
 author: ""
 format: gfm
 ---
+![WIP](https://www.repostatus.org/badges/latest/wip.svg) ![GPL-3.0 License](https://img.shields.io/badge/License-GPL%20v3.0-blue.svg)
+
+![](pictures/downshape_logo.png){fig-align="center" width=300}
 
 Table of contents
 
