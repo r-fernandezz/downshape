@@ -7,14 +7,6 @@ format: gfm
 
 ![](pictures/downshape_logo.png){fig-align="center" width=300}
 
-Table of contents
-
-- [Basic Overview](#basic-overview)
-- [Step by step](#step-by-step)
-- [Input Data Informations](#input-data-informations)
-- [Dependencies](#dependencies)
-- [Output Folders Structuration Creation](#output-folders-structuration-creation)
-
 # :clipboard: Basic Overview 
 
 :red_circle: *downshape* is an R research compendium exposing functions to search, download, preprocess and bias-adjust CMIP6 data discovered via the [ESGF Search RESTful API](https://esgf.github.io/esg-search/ESGF_Search_RESTful_API.html). Major preprocess step made with [CDO swofware](https://code.mpimet.mpg.de/projects/cdo/). This compendium allow to download observed data come from Copernicus website or other website with URL of variable. We can choose to download bathymetry variable come from CDO.
