@@ -19,18 +19,6 @@ allow to download observed data come from Copernicus website or other
 website with URL of variable. We can choose to download bathymetry
 variable come from CDO.
 
-Message d’avis : Dans (function (n) : la chaîne de caractères en entrée
-‘/home/romain/Téléchargements/R-4.2.2/library’ ne peut pas être traduite
-en UTF-8, est-ce correct dans ‘ANSI_X3.4-1968’ ? Messages d’avis : 1:
-Dans (function (n) : la chaîne de caractères en entrée
-‘/home/romain/Téléchargements/R-4.2.2/library/methods/R/methods’ ne peut
-pas être traduite en UTF-8, est-ce correct dans ‘ANSI_X3.4-1968’ ? 2:
-Dans (function (n) : la chaîne de caractères en entrée
-‘/home/romain/Téléchargements/R-4.2.2/library’ ne peut pas être traduite
-en UTF-8, est-ce correct dans ‘ANSI_X3.4-1968’ ? ℹ Using R 4.2.2
-(lockfile was generated with R 4.3.0) Message d’avis : le package
-‘targets’ a été compilé avec la version R 4.2.3
-
 ``` mermaid
 graph LR
   subgraph Graph
