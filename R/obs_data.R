@@ -1,28 +1,32 @@
 #' Copernicus_download_api
 #'
-#' @description To download data on Copernicus marine service website with MOTU API and csv table. 
-#' Complete csv table column (copernicus_parameters.csv) with MOTU API requeste output on Copernicus website.
-#' This function check the file names of variables downloaded into the path to skip it if they exist.
+#' @description To download data on Copernicus marine service website with Copernicus Marine Toolbox and csv table. 
+#' Complete the CSV table column (copernicus_parameters.csv) with information from the Copernicus website.
+#' This function checks the file names of the variables downloaded into the path to skip them if they already exist.
+#' If the Copernicus Marine Toolbox is installed in a folder without full rights, it is necessary to run the "copernicusmarine login" command in the bash terminal and enter your username and password.
+#' After this, when you run a request to download data, you won't have to enter your credentials again.
 #'
-#' @param path_tab_param Path. Path where is the table with parameters of variables you would downloaded.
-#' @param skip Logical. Default FALSE. If you want skip (TRUE) or not (FALSE) this function into the pipeline to conserve target valid into target_visnetwork visual.
-#' @param subvar Vector. Default all variables into table (target by "path_tab_param" argument). Name variable vector into table to choose time variable must to be divided by "septime" argument. 
-#' @param septime Character. Divide time by "month" or "week" of variable sected in "subvar". 
-#' The day number from "date_min" in "path_tab_param" is used to create a vector with increments either by month or week, starting and ending from the corresponding day of this date.
-#' The "septime" argument must be adequate for the time period downloaded
-#' @param divide Logical. If you want use "subvar" and "septime" to divided variable into the time during downloading.
-#' @param nb_retry Number. If copernicus API disconnect, you can fixe an retry number to test a new download before to print download error.
-#' @param user Character. User used to connect you on Copernicus marine service website.
-#' @param passwd Character. Password to connect you on Copernicus marine service website.
+#' @param path_tab_param Character. The path where the parameter table with variables information you want to download is located.
+#' @param skip Logical. Default FALSE. If you want to skip (TRUE) or not (FALSE) this function in the pipeline to keep the target valid in the target_visnetwork visual.
+#' @param path_copernicusmarine Character. The installation location of the Copernicus Marine Toolbox. You can find this path with the bash command "which copernicusmarine" (and use the provided output).
+#' @param subvar Vector. Defaults to all variables in the table (targeted by the "path_tab_param" argument). A vector of variable names from the table to select which time variable must be divided by the "septime" argument.
+#' @param septime Character. Divides time by "month" or "week" for variables selected in "subvar". 
+#' The day number from "date_min" in the "path_tab_param" is used to create a vector with increments either by month or week, starting from the corresponding day of this date.
+#' The "septime" argument must be adequate for the time period being downloaded.
+#' @param divide Logical. If you want to use "subvar" and "septime" to divide the variable over time during downloading.
+#' @param nb_retry Number. If the Copernicus API disconnects, you can set a retry number to attempt a new download before printing a download error.
+#' @param user Character. The username used to log in to the Copernicus Marine Service website.
+#' @param passwd Character. The password for logging in to the Copernicus Marine Service website.
 #' 
-#' @return Netcdf files
+#' @return Netcdf files paths
 #'
 #' @export Netcdf files downloaded
 
 copernicus_download_api <- function(path_tab_param,
                                     skip = FALSE,
+                                    path_copernicusmarine = "/home/romain/.local/bin/copernicusmarine",
                                     subvar = NULL,
-                                    septime = "month",
+                                    septime = "week",
                                     divide = TRUE,
                                     nb_retry = 100,
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
@@ -106,58 +110,74 @@ copernicus_download_api <- function(path_tab_param,
 
         # Creat python command and download by table row
         for(i in 1:nrow(tab_param)){
-
-            if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
-                            strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
-                            strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc"))){
                 
-                message(paste0("Traitement of ", tab_param[i, "my_variable_name"], " variable"))
+            out_name <- sprintf("%s_%s_%s-%s.nc", 
+                            tab_param[i, "variable"], 
+                            tab_param[i, "dataset_id"], 
+                            strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], 
+                            strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1])
 
-                command <- paste("python3 -m motuclient")
+            if(!file.exists(paste0(path_output, "/", out_name))){
+                
+                message(paste0("\n ########################### Traitement of ", tab_param[i, "my_variable_name"], " variable"))
 
-                if(!is.na(tab_param[i, "motu"])){
-                    command <- paste0(command, " --motu ", tab_param[i, "motu"])
-                }else("motu parameter doesn't exist")
+                # command2 <- sprintf(paste0(path_copernicusmarine, " subset --dataset-id %s --variable %s --minimum-longitude %s --maximum-longitude %s --minimum-latitude %s --maximum-latitude %s --start-datetime '%s' --end-datetime '%s' --minimum-depth %s --maximum-depth %s --output-directory %s --output-filename %s --username %s --password %s --force-download"),
+                #                     tab_param[i, "dataset_id"],
+                #                     tab_param[i, "variable"],  
+                #                     tab_param[i, "longitude_min"], 
+                #                     tab_param[i, "longitude_max"], 
+                #                     tab_param[i, "latitude_min"], 
+                #                     tab_param[i, "latitude_max"],
+                #                     tab_param[i, "date_min"], 
+                #                     tab_param[i, "date_max"],
+                #                     tab_param[i, "depth_min"], 
+                #                     tab_param[i, "depth_max"], 
+                #                     path_output, 
+                #                     out_name, 
+                #                     user, 
+                #                     passwd)
+                
+                command <- paste0(path_copernicusmarine, " subset --force-download")
 
-                if(!is.na(tab_param[i, "service_id"])){
-                    command <- paste0(command, " --service-id ", tab_param[i, "service_id"])
-                }else("service_id parameter doesn't exist")
+                if(!is.na(tab_param[i, "dataset_id"])){
+                    command <- paste0(command, " --dataset-id ", tab_param[i, "dataset_id"])
+                }else{stop("dataset_id parameter doesn't exist in the parameters table")}
 
-                if(!is.na(tab_param[i, "product_id"])){
-                    command <- paste0(command, " --product-id ", tab_param[i, "product_id"])
-                }else("product_id parameter doesn't exist")
+                if(!is.na(tab_param[i, "dataset_version"])){
+                    command <- paste0(command, " --dataset-version ", tab_param[i, "dataset_version"])
+                }else{stop("dataset_version parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "longitude_min"])){
-                    command <- paste0(command, " --longitude-min ", tab_param[i, "longitude_min"])
-                }else("longitude_min parameter doesn't exist")
+                    command <- paste0(command, " --minimum-longitude ", tab_param[i, "longitude_min"])
+                }else{stop("longitude_min parameter doesn't exist in the parameters table")} 
 
                 if(!is.na(tab_param[i, "latitude_min"])){
-                    command <- paste0(command, " --latitude-min ", tab_param[i, "latitude_min"])
-                }else("latitude_min parameter doesn't exist")
+                    command <- paste0(command, " --minimum-latitude ", tab_param[i, "latitude_min"])
+                }else{stop("latitude_min parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "longitude_max"])){
-                    command <- paste0(command, " --longitude-max ", tab_param[i, "longitude_max"])
-                }else("longitude_max parameter doesn't exist")
+                    command <- paste0(command, " --maximum-longitude ", tab_param[i, "longitude_max"])
+                }else{stop("longitude_max parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "latitude_max"])){
-                    command <- paste0(command, " --latitude-max ", tab_param[i, "latitude_max"])
-                }else("latitude_max parameter doesn't exist")
+                    command <- paste0(command, " --maximum-latitude ", tab_param[i, "latitude_max"])
+                }else{stop("latitude_max parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "date_min"])){
-                    command <- paste0(command, " --date-min ", tab_param[i, "date_min"])
-                }else("date_min parameter doesn't exist")
+                    command <- paste0(command, " --start-datetime ", gsub(" ", "T", tab_param[i, "date_min"]))
+                }else{stop("date_min parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "date_max"])){
-                    command <- paste0(command, " --date-max ", tab_param[i, "date_max"])
-                }else("date_max parameter doesn't exist")
+                    command <- paste0(command, " --end-datetime ", gsub(" ", "T", tab_param[i, "date_max"]))
+                }else{stop("date_max parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "depth_min"])){
-                    command <- paste0(command, " --depth-min ", tab_param[i, "depth_min"])
-                }else("depth_min parameter doesn't exist")
+                    command <- paste0(command, " --minimum-depth ", tab_param[i, "depth_min"])
+                }else{message("depth_min parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "depth_max"])){
-                    command <- paste0(command, " --depth-max ", tab_param[i, "depth_max"])
-                }else("depth_max parameter doesn't exist")
+                    command <- paste0(command, " --maximum-depth ", tab_param[i, "depth_max"])
+                }else{message("depth_max parameter doesn't exist in the parameters table")}
 
                 if(!is.na(tab_param[i, "variable"])){
                     
@@ -167,24 +187,22 @@ copernicus_download_api <- function(path_tab_param,
                     cmd_variable <- do.call("paste", cmd_variable)
                     command <- paste0(command, cmd_variable)
 
-                }else("variable parameter doesn't exist")
+                }else{stop("variable parameter doesn't exist in the parameters table")}
 
-                command <- paste0(command, 
-                                    " --out-dir ", path_output, 
-                                    " --out-name ", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
-                                                    strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
-                                                    strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc", 
-                                    " --user ", user,
-                                    " --pwd ", passwd)
+                command <- paste0(command, " --output-directory ", path_output)
 
-                message("Downloading... Launch command : \n", "---> ", command)
+                command <- paste0(command, " --output-filename ", out_name)
+
+                command <- paste0(command, " --username ", user)
+
+                command <- paste0(command, " --password ", passwd)
+
+                message("Downloading... Launch command : \n", "---> ", command, "\n")
                 
                 # Download and check file downloaded
                 retry <- 0
 
-                while(file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
-                            strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
-                            strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc")) == FALSE){
+                while(file.exists(paste0(path_output, "/", out_name)) == FALSE){
                     
                     # run python command
                     system(command, inter = TRUE)
@@ -193,14 +211,12 @@ copernicus_download_api <- function(path_tab_param,
                         stop(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " not downloaded! Number of tries exceeded..."))
                     }
                     
-                    if(!file.exists(paste0(path_output, "/", tab_param[i, "variable"], "_", tab_param[i, "service_id"], "_", 
-                            strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], "-", 
-                            strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1], ".nc"))){
+                    if(!file.exists(paste0(path_output, "/", out_name))){
 
                         retry <- retry + 1
                         message(paste0("retry ", retry, "/", nb_retry, " for ", tab_param[i, "my_variable_name"], " variable"))
                         
-                        }else(message(paste0("Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " downloaded successfully")))
+                        }else(message(paste0("\n", "---> Variable ", tab_param[i, "my_variable_name"], " (", tab_param[i, "variable"], ")", " downloaded successfully")))
 
                 }
 

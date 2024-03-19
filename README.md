@@ -23,51 +23,17 @@ variable come from CDO.
 graph LR
   subgraph Graph
     direction LR
-    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xd2707862cf793d3a(["connectPip_copernicus"]):::outdated
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
     x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
-    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x906e78a8df9f52cb(["freq"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    x8f15ec77b8dbd81a(["vars"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    xd2707862cf793d3a(["connectPip_copernicus"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
-    xbbe4eafa679df977(["climato_period"]):::uptodate --> x0c817e56268c947c(["climato_cmip"]):::outdated
-    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> x0c817e56268c947c(["climato_cmip"]):::outdated
-    xb5817e1daca13dcc(["bathy_vars"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
-    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    x7a197bdf5f12681a(["vars_speed_cmip"]):::uptodate --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    x2c0118dd07b06ac8(["time_span"]):::uptodate --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    x21b09bf88a2ff147(["baseline_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    xbbe4eafa679df977(["climato_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    xbce5cad1cf7e7103(["futur_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    x57dd1d5e854c11b6(["historical_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
-    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
-    x0754d07deb71dd34(["MeanModel"]):::outdated --> x4c3d86d2401270ef(["grad_cmip"]):::outdated
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
-    xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    x178958aede3793d9(["varsBiasCorrected"]):::outdated --> x0754d07deb71dd34(["MeanModel"]):::outdated
-    x0c817e56268c947c(["climato_cmip"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
-    xbbe4eafa679df977(["climato_period"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
-    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
-    xab1c13260db879af(["match_name"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
-    xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    x21b09bf88a2ff147(["baseline_period"]):::uptodate --> x21b09bf88a2ff147(["baseline_period"]):::uptodate
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
+    xac02e5e58926353b(["experiments"]):::uptodate --> xac02e5e58926353b(["experiments"]):::uptodate
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xd15c82dcb79a7c2e(["renameVar"]):::uptodate
     x55a14a7f5821bbec(["resotempo"]):::uptodate --> x55a14a7f5821bbec(["resotempo"]):::uptodate
     xe73cbbcc20086ecd(["spat_reso"]):::uptodate --> xe73cbbcc20086ecd(["spat_reso"]):::uptodate
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xca459201a27e8460(["vars_speed"]):::uptodate
   end
 ```
 
@@ -89,9 +55,8 @@ graph LR
 | Columns database |                                                                                                      Description                                                                                                      |
 |:----------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | my_variable_name |                                                                                       Your variable name (outside api command)                                                                                        |
-|       motu       |                                                                                        Check API request on Copernicus website                                                                                        |
-|    service_id    |                                                                                        Check API request on Copernicus website                                                                                        |
-|    product_id    |                                                                                        Check API request on Copernicus website                                                                                        |
+|    dataset_id    |                                                                                              Check on Copernicus website                                                                                              |
+| dataset_version  |                                                                                        Check API request on Copernicus website                                                                                        |
 |  longitude_min   |                                                                                               Extend of map downloaded                                                                                                |
 |  longitude_max   |                                                                                               Extend of map downloaded                                                                                                |
 |   latitude_min   |                                                                                               Extend of map downloaded                                                                                                |
@@ -101,20 +66,21 @@ graph LR
 |    depth_min     | Numeric. Depth in meters. If you want to download one depth layer, same value for “depth_min” and “depth_max”. If it’s a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
 |    depth_max     | Numeric. Depth in meters. If you want to download one depth layer, same value for “depth_min” and “depth_max”. If it’s a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
 |     variable     |                                                      Short name of variable downloaded. If several variable by product create one line by variable in the table                                                       |
-|       DOI        |                                                                                               Check Copernicus website                                                                                                |
+|       DOI        |                                                                                              Check on Copernicus website                                                                                              |
 
-heavy_check_mark: **\[copernicus_parameters.csv\]** : csv file.
-Parameters of data we want to download with one row by variable
-downloaded. Check table structuration asked bellow. If variable have big
-size, Copernicus api can’t to download and it’s necessary to divided
-variable in several small time periods (use “divide”, “subvar” and
-“septime” argument of copernicus_download_api() function). If a
-parameter into this table doesn’t exist for your product (example :
-depth) just leave the cell empty. Columns “date_min” and “date_max” must
-be larger than (or equal) *current_period* target (into \*\_targets.R
-file*). If you want create baseline to apply change factor method on
-cmip variable, you must have an overlap between “date_min”-“date_max”
-and *historical_period\* target.
+heavy_check_mark: **\[copernicus_parameters.csv\]**: CSV file.
+Parameters of the data we wish to download, with one row per variable to
+be downloaded. Please refer to the table structure requirements below.
+If a variable is large, the Copernicus API may not be able to download
+it, and it will be necessary to divide the variable into several smaller
+time periods (use the “divide”, “subvar”, and “septime” arguments of the
+copernicus_download_api() function). If a parameter in this table does
+not exist for your product (for example: depth), simply leave the cell
+empty. Columns “date_min” and “date_max” must be equal to or later than
+the current_period target (in the \_targets.R file). To create a
+baseline for applying the change factor method to a CMIP variable, there
+must be an overlap between “date_min”-“date_max” and the
+historical_period target.
 
 :heavy_check_mark: **\[Mask_PA_variable.shp\]** : Shapefile. Mask of
 study area to crop environmental rasters with CDO. This shapefile will
@@ -266,8 +232,9 @@ WGS84 projection (EPSG:4326).
 # :key: Dependencies
 
 :arrow_forward: To download Copernicus data it’s necessary to install
-[python3](https://www.python.org/downloads/) and motuclient (Ubuntu
-command: *python3 -m pip install motuclient==1.8.4 –no-cache-dir*).
+[python3](https://www.python.org/downloads/) and [Copernicus marine
+ToolBox](https://help.marine.copernicus.eu/en/articles/7970514-copernicus-marine-toolbox-installation)
+(Ubuntu command: *python3 -m pip install copernicusmarine*).
 
 :arrow_forward: To formate cmip data it’s necessary to install
 [gdal](https://gdal.org/download.html),
