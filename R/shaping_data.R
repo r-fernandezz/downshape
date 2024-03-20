@@ -880,8 +880,7 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
 
     # Extract path for monthly and weekly data 
     path_root <- unique(dirname(file_path))
-    temp_folder <- strsplit(path_root, "/")
-    temp_folder <- sapply(temp_folder, "[[", length(temp_folder[[1]]))
+    temp_folder <- basename(path_root)
 
     # Integrate depth variables (U0x50, chl50x100, etc...) in vars_speed targets
     vsplit <- sapply(strsplit(basename(file_path), "_"), "[[", 1)
@@ -899,11 +898,11 @@ speedCompo_copernicus <- function(file_path = remapCDO_copernicus,
 
         for(i in 1:length(vars_speed$compo1)){
 
-            grep_var <- grep(file_path, pattern = temp_folder[f], value = TRUE)
+            grep_var <- grep(file_path, pattern = paste0("/", temp_folder[f], "/"), value = TRUE)
 
             # Select variable with two coponents
             grep_var <- grep(basename(grep_var), pattern = paste0("^(", vars_speed$compo1[i], "_)", "|", "^(", vars_speed$compo2[i], "_)"), value = TRUE)
-            if(length(grep_var) > 2) stop("Error: more than one file found to calculate speed!" )
+            if(length(grep_var) > 2) stop("More than one file found to calculate speed: \n", paste(grep_var, collapse = "\n"))
 
             if(length(grep_var) == 2){ # if pattern "fs" object correspond to cmip6 variable names, length = 0
                     
