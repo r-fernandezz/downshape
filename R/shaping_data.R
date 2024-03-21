@@ -226,6 +226,81 @@ concatenate_copernicus <- function(obs_data){
 }
 
 
+#' regrid
+#'
+#' @description Regrid variable to appropriate spatial resolution (after calculating gradients)
+#'
+#'
+#' @param data Allow connection between targets.
+#' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
+#'
+#' @return NULL
+#'
+#' @export File (.grd)
+#' 
+#' 
+
+regrid <- function(data, type_data) {
+    
+    list_path <- switch(type_data,
+                        copernicus = here::here("output", "data_copernicus_remapped"),
+                        cmip6 = here::here("output", "data_cmip6_remapped"))
+
+    files <- list.files(list_path, recursive = TRUE, full.names = TRUE, pattern = ".grd$")
+
+        if(length(files) > 0){
+        
+            return_path <- unlist(lapply(files, function(y){
+
+                message(paste0("################ Processing : ", y))
+
+                rast_original <- raster::stack(y)
+                desired_reso <- targets::tar_read("spat_reso")$desired_reso
+
+                # Create reference grid
+                rast_ref <- raster::raster( nrows = as.numeric(strsplit(desired_reso, "x")[[1]][2]), 
+                                            ncols = as.numeric(strsplit(desired_reso, "x")[[1]][1]), 
+                                            xmn = -180,
+                                            xmx = 180,
+                                            ymn = -90,
+                                            ymx = 90, 
+                                            crs = "epsg:4326")
+
+                # Remapped file all bandes of a variable
+                raster_stack <- raster::stack()
+                
+                for (ii in 1:dim(rast_original)[3]){ 
+
+                    name_bande <- names(rast_original)[ii]
+                    raster_bande <- rast_original[[name_bande]]
+                    rast_remapped <- raster::resample(raster_bande, rast_ref, method = "bilinear")
+                    names(rast_remapped) <- name_bande
+
+                    raster_stack <- raster::stack(raster_stack, rast_remapped)
+                }
+
+                # Exportation files regrided
+                path_out <- paste0(gsub("remapped", "final", list_path), "/", gsub(paste0(list_path, "/"), "", y))
+                outpath(dirname(path_out))
+                raster::writeRaster(raster_stack, 
+                                    filename = path_out, 
+                                    format = "raster",
+                                    bylayer = FALSE, 
+                                    overwrite = TRUE)
+
+                message("---> Variable exported")
+
+                return(path_out)
+
+            }))
+
+        }
+
+    return(return_path)
+
+}
+
+
 #' remapCDO
 #'
 #' @description To formate cmip6 and copernicus data download with CDO swofware. This function create and run CDO commands to shaping data.
@@ -313,14 +388,70 @@ remapCDO <- function(   file_path,
             unlink(f_seltime),
             stop(paste0("File not created : ", f_varname))) 
 
+    #################### Change dimension names
+    ncdf_file <- stars::read_ncdf(f_varname)
+    dim <- names(stars::st_dimensions(ncdf_file))
+
+    boleen <- dim != c("lon", "lat", "lev", "time")
+    if(exists("com_dimName") == TRUE) rm(com_dimName) #remove command if exist
+    com_dimName <- paste0("ncrename") #first command part
+
+    if(boleen[1] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[1], ",lon",
+                                " -v ", dim[1], ",lon")
+    }
+
+    if(boleen[2] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[2], ",lat",
+                                " -v ", dim[2], ",lat") 
+    }
+
+    if(boleen[3] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[3], ",lev", 
+                                " -v ", dim[3], ",lev") 
+    }
+
+    if(boleen[4] == TRUE){
+        com_dimName <- paste0(  com_dimName,
+                                " -d ", dim[4], ",time", 
+                                " -v ", dim[4], ",time") 
+    }
+
+    if(com_dimName != "ncrename" ){
+        f_dimName <- gsub(".nc", "_dimName.nc", f_varname)
+        com_dimName <- paste0(  com_dimName,
+                                " ", f_varname,
+                                " ", f_dimName)
+        message("### Running CDO command to change dimension names :  \n", "--->", com_dimName)
+        system(com_dimName)
+        Sys.sleep(5)
+        unlink(f_varname)
+
+    } else {
+        message("### -> Dimension names don't change. File rename")
+        f_dimName <- gsub(".nc", "_dimName.nc", f_varname)
+        file.rename(f_varname, f_dimName)
+        Sys.sleep(5)
+    }
+
     #################### Regrid
-    f_regrid <- gsub(".nc", "_regrid.nc", f_varname)
-    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_varname, " ", f_regrid)
+
+    ## Found spatial resolution
+    spat_reso <- targets::tar_read("spat_reso")
+    reso <- spat_reso$reso[grep(paste0(v, "$"), spat_reso$vars)] #v <- strsplit(basename(file_path), "_")[[1]][1]
+    reso <- gsub("[*]", "x", reso)
+
+    ## Regrided with the initial resolution of downloaded files
+    f_regrid <- gsub(".nc", "_regrid.nc", f_dimName)
+    com_regrid <- paste0("cdo remapdis,r", reso, " ", f_dimName, " ", f_regrid)
     message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
     system(com_regrid)
     Sys.sleep(5)
     ifelse( file.exists(f_regrid),
-            unlink(f_varname),
+            unlink(f_dimName),
             stop(paste0("File not created : ", f_regrid)))
 
     #################### Fill missing values
@@ -338,7 +469,7 @@ remapCDO <- function(   file_path,
 
     ## Regrid mask
     f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
-    com_maskRegrid <- paste0("cdo -remapbil,r", spat_reso, " ", mask_PA_out, " ", f_maskRegrid)
+    com_maskRegrid <- paste0("cdo -remapbil,r", reso, " ", mask_PA_out, " ", f_maskRegrid)
     system(com_maskRegrid)
     Sys.sleep(5)
     unlink(mask_PA_out)
@@ -416,57 +547,8 @@ remapCDO <- function(   file_path,
 
     }
 
-    #################### Change dimension names
-    ncdf_file <- stars::read_ncdf(f_tempReso)
-    dim <- names(stars::st_dimensions(ncdf_file))
-
-    boleen <- dim != c("lon", "lat", "lev", "time")
-    if(exists("com_dimName") == TRUE) rm(com_dimName) #remove command if exist
-    com_dimName <- paste0("ncrename") #first command part
-
-    if(boleen[1] == TRUE){
-        com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[1], ",lon",
-                                " -v ", dim[1], ",lon")
-    }
-
-    if(boleen[2] == TRUE){
-        com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[2], ",lat",
-                                " -v ", dim[2], ",lat") 
-    }
-
-    if(boleen[3] == TRUE){
-        com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[3], ",lev", 
-                                " -v ", dim[3], ",lev") 
-    }
-
-    if(boleen[4] == TRUE){
-        com_dimName <- paste0(  com_dimName,
-                                " -d ", dim[4], ",time", 
-                                " -v ", dim[4], ",time") 
-    }
-
-    if(com_dimName != "ncrename" ){
-        f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
-        com_dimName <- paste0(  com_dimName,
-                                " ", f_tempReso,
-                                " ", f_dimName)
-        message("### Running CDO command to change dimension names :  \n", "--->", com_dimName)
-        system(com_dimName)
-        Sys.sleep(5)
-        unlink(f_tempReso)
-
-    } else {
-        message("### -> Dimension names don't change. File rename")
-        f_dimName <- gsub(".nc", "_dimName.nc", f_tempReso)
-        file.rename(f_tempReso, f_dimName)
-        Sys.sleep(5)
-    }
-
     #################### Extract depth levels
-    ncdf_file <- stars::read_ncdf(f_dimName)
+    ncdf_file <- stars::read_ncdf(f_tempReso)
     dim <- names(stars::st_dimensions(ncdf_file))
 
     name_level <- grep("depth|lev", dim, value = TRUE)
@@ -477,8 +559,8 @@ remapCDO <- function(   file_path,
     if(boleen == TRUE){ # if file have a "lev" dimension
 
         # Mean all depth layers
-        f_deep_tot <- gsub(".nc", "_deep.nc", f_dimName)
-        com_deep_tot <- paste0("cdo vertmean ", f_dimName, " ", f_deep_tot)
+        f_deep_tot <- gsub(".nc", "_deep.nc", f_tempReso)
+        com_deep_tot <- paste0("cdo vertmean ", f_tempReso, " ", f_deep_tot)
         message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
         system(com_deep_tot)
 
@@ -503,13 +585,13 @@ remapCDO <- function(   file_path,
                     
                 if(length(depth_values) > 0){
 
-                    f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_dimName)
-                    com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_dimName, " ", f_deepTEMPO)
+                    f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_tempReso)
+                    com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_tempReso, " ", f_deepTEMPO)
                     system(com_deepTEMPO)
 
                     # Mean depth layer
                     message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
-                    split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+                    split_name <- strsplit(basename(f_tempReso), "_")[[1]] # create name of output file
                     f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
                     f_deep <- gsub(".nc", "_deep.nc", f_deep)
 
@@ -524,22 +606,22 @@ remapCDO <- function(   file_path,
                     returnTOT <- c(returnTOT, f_deep)
 
                 }else{
-                    split_name <- strsplit(basename(f_dimName), "_")[[1]] # create name of output file
+                    split_name <- strsplit(basename(f_tempReso), "_")[[1]] # create name of output file
                     f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
                     message("WARNING : Don't exist overlap beteween 'deep_level' target and depth levels variable. Variable bellow not created : \n", "--->", f_deep)
                     }
 
             }
             Sys.sleep(5)
-            unlink(f_dimName)
+            unlink(f_tempReso)
             return(c(f_deep_tot, returnTOT))
 
         }else(return(f_deep_tot))
 
     } else {
-        f_deep <- gsub(".nc", "_deep.nc", f_dimName)
-        message(paste0("No depth levels for this variable: ", f_dimName))
-        file.rename(f_dimName, f_deep)
+        f_deep <- gsub(".nc", "_deep.nc", f_tempReso)
+        message(paste0("No depth levels for this variable: ", f_tempReso))
+        file.rename(f_tempReso, f_deep)
         return(f_deep)
     }
 

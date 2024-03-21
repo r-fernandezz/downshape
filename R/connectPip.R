@@ -37,6 +37,10 @@ connectPip <- function(data, type_data){
                     finalname <- gsub(paste0(name, "_"), "", y)
                     finalname <- gsub(".nc", paste0(newname, ".nc"), finalname)
 
+                    # Rename layer (remove hours and conserve date)
+                    true_names <- gsub(".*(X\\d{4}\\.\\d{2}\\.\\d{2}).*", "\\1", names(nc))
+                    names(nc) <- true_names
+
                     # Export file
                     pathout <- paste0(dirname(finalname), "/GRD")
                     if(!file.exists(pathout)) dir.create(pathout)
