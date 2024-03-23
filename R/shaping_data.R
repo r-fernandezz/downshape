@@ -441,12 +441,12 @@ remapCDO <- function(   file_path,
 
     ## Found spatial resolution
     spat_reso <- targets::tar_read("spat_reso")
-    reso <- spat_reso$reso[grep(paste0(v, "$"), spat_reso$vars)] #v <- strsplit(basename(file_path), "_")[[1]][1]
-    reso <- gsub("[*]", "x", reso)
+    spat_reso <- spat_reso$reso[grep(paste0(v, "$"), spat_reso$vars)] #v <- strsplit(basename(file_path), "_")[[1]][1]
+    spat_reso <- gsub("[*]", "x", spat_reso)
 
     ## Regrided with the initial resolution of downloaded files
     f_regrid <- gsub(".nc", "_regrid.nc", f_dimName)
-    com_regrid <- paste0("cdo remapdis,r", reso, " ", f_dimName, " ", f_regrid)
+    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_dimName, " ", f_regrid)
     message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
     system(com_regrid)
     Sys.sleep(5)
@@ -469,7 +469,7 @@ remapCDO <- function(   file_path,
 
     ## Regrid mask
     f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
-    com_maskRegrid <- paste0("cdo -remapbil,r", reso, " ", mask_PA_out, " ", f_maskRegrid)
+    com_maskRegrid <- paste0("cdo -remapbil,r", spat_reso, " ", mask_PA_out, " ", f_maskRegrid)
     system(com_maskRegrid)
     Sys.sleep(5)
     unlink(mask_PA_out)
@@ -552,7 +552,6 @@ remapCDO <- function(   file_path,
     dim <- names(stars::st_dimensions(ncdf_file))
 
     name_level <- grep("depth|lev", dim, value = TRUE)
-    if(length(name_level) == 0) stop("Level into variable don't called 'lev' or 'depth'")
     boleen <- c("lev", "depth") %in% dim
     boleen <- TRUE %in% boleen
 
@@ -739,9 +738,10 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     type_data = "copernicus", 
                     period = "current", 
                     spat_reso = targets::tar_read("spat_reso"), 
-                    path_output = path_output_m)
+                    path_output = path_output_m,
+                    monthWeek = "month")
 
-        }, mc.cores = length(list_file))
+        }, mc.cores = 4)
 
     ####### Weekly mean
     message("Mean by week")
@@ -762,7 +762,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     path_output = path_output_w,
                     monthWeek = "week")
 
-        }, mc.cores = length(list_file))
+        }, mc.cores = 4)
 
     # Create baseline if "baseline_period" target not NULL
     message("Create baseline")
@@ -784,7 +784,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     spat_reso = targets::tar_read("spat_reso"), 
                     path_output = path_output_b)
 
-        }, mc.cores = length(list_file))
+        }, mc.cores = 4)
 
     }else(message("You don't want created a baseline, arguments of 'baseline_period' target are NULL"))
 
