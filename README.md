@@ -24,42 +24,53 @@ variable come from CDO.
 graph LR
   subgraph Graph
     direction LR
-    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x86e690a15fc5d647(["regrid_copernicus"]):::outdated
-    xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    xd15c82dcb79a7c2e(["renameVar"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
-    x178958aede3793d9(["varsBiasCorrected"]):::outdated --> x0754d07deb71dd34(["MeanModel"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
-    x4c3d86d2401270ef(["grad_cmip"]):::outdated --> x14e8a4fa0f44afa5(["regrid_cmip"]):::outdated
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
-    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
-    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
+    xb5817e1daca13dcc(["bathy_vars"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::started --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     x0754d07deb71dd34(["MeanModel"]):::outdated --> x4c3d86d2401270ef(["grad_cmip"]):::outdated
     x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xca459201a27e8460(["vars_speed"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
-    xb5817e1daca13dcc(["bathy_vars"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    x35b468daf9281b76(["http_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    xd15c82dcb79a7c2e(["renameVar"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
-    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::uptodate
-    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
-    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
-    xd2707862cf793d3a(["connectPip_copernicus"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
-    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
+    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x86e690a15fc5d647(["regrid_copernicus"]):::outdated
+    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
+    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::started
     x0c817e56268c947c(["climato_cmip"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xbbe4eafa679df977(["climato_period"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    xab1c13260db879af(["match_name"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
     x21b09bf88a2ff147(["baseline_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
+    xbbe4eafa679df977(["climato_period"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
+    xbce5cad1cf7e7103(["futur_period"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
+    x57dd1d5e854c11b6(["historical_period"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
     xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
-    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> x0c817e56268c947c(["climato_cmip"]):::outdated
+    xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    x7a197bdf5f12681a(["vars_speed_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
     xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xd2707862cf793d3a(["connectPip_copernicus"]):::outdated
+    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
+    xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x906e78a8df9f52cb(["freq"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x2c0118dd07b06ac8(["time_span"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x8f15ec77b8dbd81a(["vars"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
+    x178958aede3793d9(["varsBiasCorrected"]):::outdated --> x0754d07deb71dd34(["MeanModel"]):::outdated
+    xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
+    xd2707862cf793d3a(["connectPip_copernicus"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
+    x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
+    xbbe4eafa679df977(["climato_period"]):::outdated --> x0c817e56268c947c(["climato_cmip"]):::outdated
+    xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> x0c817e56268c947c(["climato_cmip"]):::outdated
+    x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
+    x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
+    x4c3d86d2401270ef(["grad_cmip"]):::outdated --> x14e8a4fa0f44afa5(["regrid_cmip"]):::outdated
     x084994fb0e480676(["current_period"]):::uptodate --> x084994fb0e480676(["current_period"]):::uptodate
     x625f066a5f205ec8(["deep_level"]):::uptodate --> x625f066a5f205ec8(["deep_level"]):::uptodate
-    x55a14a7f5821bbec(["resotempo"]):::outdated --> x55a14a7f5821bbec(["resotempo"]):::outdated
-    xe73cbbcc20086ecd(["spat_reso"]):::outdated --> xe73cbbcc20086ecd(["spat_reso"]):::outdated
+    x55a14a7f5821bbec(["resotempo"]):::uptodate --> x55a14a7f5821bbec(["resotempo"]):::uptodate
+    xe73cbbcc20086ecd(["spat_reso"]):::uptodate --> xe73cbbcc20086ecd(["spat_reso"]):::uptodate
   end
 ```
 
@@ -93,7 +104,6 @@ graph LR
 |    depth_max     | Numeric. Depth in meters. If you want to download one depth layer, same value for “depth_min” and “depth_max”. If it’s a 3D variable (with depth dimension) the depth must be provided otherwise leave the cell empty |
 |     variable     |                                                      Short name of variable downloaded. If several variable by product create one line by variable in the table                                                       |
 |       DOI        |                                                                                              Check on Copernicus website                                                                                              |
-
 
 heavy_check_mark: **\[copernicus_parameters.csv\]**: CSV file.
 Parameters of the data we wish to download, with one row per variable to
@@ -164,11 +174,11 @@ existe a time overlap with *future_period* target.
 :heavy_check_mark: **\[resotempo\]** : Give temporal resolution of all
 variable (copernicus or cmip or both) you want to mean by week with
 remapCDO(…, monthWeek = “week”). Complete “reso” list with “week” (if
-variable have one layer by week), “month” (one by month), “hour1” (one
-by one hour), “hour6” (one by 6 hours), “FIXE” one layer for all NetCDF
-file. Into “vars” list given variable name after rename target. Give
-variable name without names of depth variable create automatically by
-the pipeline.
+variable have one layer by week), “day” (if variable have one layer by
+day), “month” (one by month), “hour1” (one by one hour), “hour6” (one by
+6 hours), “FIXE” one layer for all NetCDF file. Into “vars” list given
+variable name after rename target. Give variable name without names of
+depth variable create automatically by the pipeline.
 
 :heavy_check_mark: **\[http_vars\]** : List. List of download path
 (NetCDF file) and variable names. First (or n) element of “http” vector
@@ -198,18 +208,18 @@ targets). Given variable names after the rename step with renameVar()
 function and **renameVar** target.
 
 :heavy_check_mark: **\[spat_reso\]** : The initial spatial resolution of
-downloaded files is in the format “Xresolution*Yresolution”, for
-example, ”180*90” for a 2°x2° resolution or “360\*180” for a 1°x1°
-resolution. You can find the spatial resolution of downloaded files with
-the CDO command “cdo griddes path_to_your_file.nc” (check “xsize” and
-“ysize”). If you have the degree resolution of downloaded files, you can
-convert it as follows: Xresolution = 360 / XdegreeResolution and
-Yresolution = 180 / YdegreeResolution. The “reso” is a list that
-provides the resolutions of variables, and “vars” is a list that
-provides the names of variables after they have been renamed to the
-target. Provide the names of variables excluding the names of depth
-variables created automatically by the pipeline. The “desired_reso” is
-the resolution desired for all variables downloaded.
+downloaded files is in the format “XresolutionGrid\*YresolutionGrid”,
+for example, “180\*90” for a 2°x2° resolution or “360\*180” for a 1°x1°
+resolution. You can find the spatial resolution of downloaded files
+using the CDO command “cdo griddes path_to_your_file.nc” (check “xsize”
+and “ysize” argument respectively ‘XresolutionGrid’ and
+‘YresolutionGrid’). The “reso” is a list that provides the resolutions
+of variables, and “vars” is a list that provides the names of variables
+after they have been renamed to the target. Provide the names of
+variables excluding the names of depth variables created automatically
+by the pipeline. The “desired_reso” is the resolution desired for all
+variables downloaded (XresolutionGrid = 360/XdegreeResolution and
+YresolutionGrid = 180/YdegreeResolution).
 
 :heavy_check_mark: **\[deep_level\]** : List start and end deep level by
 file created. To split variable to several files by deep level. First
