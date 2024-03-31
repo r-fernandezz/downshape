@@ -258,8 +258,8 @@ regrid <- function(data, type_data) {
                 desired_reso <- targets::tar_read("spat_reso")$desired_reso
 
                 # Create reference grid
-                rast_ref <- raster::raster( nrows = as.numeric(strsplit(desired_reso, "x")[[1]][2]), 
-                                            ncols = as.numeric(strsplit(desired_reso, "x")[[1]][1]), 
+                rast_ref <- raster::raster( nrows = as.numeric(strsplit(desired_reso, "[*]")[[1]][2]), 
+                                            ncols = as.numeric(strsplit(desired_reso, "[*]")[[1]][1]), 
                                             xmn = -180,
                                             xmx = 180,
                                             ymn = -90,
@@ -383,7 +383,7 @@ remapCDO <- function(   file_path,
     com_varname <- paste0("cdo select,name=", vars_used, " ", f_seltime, " ", f_varname)
     message("### Running CDO command to remove variable not used :  \n", "--->", com_varname)
     system(com_varname)
-    Sys.sleep(5)
+    Sys.sleep(2)
     ifelse( file.exists(f_varname),
             unlink(f_seltime),
             stop(paste0("File not created : ", f_varname))) 
@@ -427,14 +427,97 @@ remapCDO <- function(   file_path,
                                 " ", f_dimName)
         message("### Running CDO command to change dimension names :  \n", "--->", com_dimName)
         system(com_dimName)
-        Sys.sleep(5)
+        Sys.sleep(2)
         unlink(f_varname)
 
     } else {
         message("### -> Dimension names don't change. File rename")
         f_dimName <- gsub(".nc", "_dimName.nc", f_varname)
         file.rename(f_varname, f_dimName)
-        Sys.sleep(5)
+        Sys.sleep(2)
+    }
+
+    #################### Change temporal resolution
+    if(reso == "FIXE"){
+
+        f_tempReso <- gsub(".nc", "_tempReso.nc", f_dimName)
+        file.copy(from = f_dimName, to = f_tempReso)
+        unlink(f_dimName)
+
+    }else{
+
+        if(monthWeek == "month"){
+            f_tempReso <- gsub(".nc", "_tempReso.nc", f_dimName)
+            com_tempReso <- paste0("cdo monmean ", f_dimName, " ", f_tempReso)
+            message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+            system(com_tempReso)
+            Sys.sleep(2)
+            ifelse( file.exists(f_tempReso),
+                    unlink(f_dimName),
+                    stop(paste0("File not created : ", f_tempReso))) 
+        }
+
+        if(monthWeek == "week"){
+
+            resotempo <- targets::tar_read("resotempo")
+            v <- strsplit(basename(f_dimName), "_")[[1]][1]
+            reso <- resotempo$reso[grep(v, resotempo$vars)]
+
+            if(reso == "day"){
+                f_tempReso <- gsub(".nc", "_tempReso.nc", f_dimName)
+                com_tempReso <- paste0("cdo timselmean,7 ", f_dimName, " ", f_tempReso)
+                message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+                system(com_tempReso)
+                Sys.sleep(2)
+                unlink(f_dimName)
+            }
+
+            if(reso == "hour1"){
+                f_tempReso <- gsub(".nc", "_tempReso.nc", f_dimName)
+                com_tempReso <- paste0("cdo timselmean,168 ", f_dimName, " ", f_tempReso)
+                message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+                system(com_tempReso)
+                Sys.sleep(2)
+                unlink(f_dimName)
+            }
+
+            if(reso == "hour6"){
+                f_tempReso <- gsub(".nc", "_tempReso.nc", f_dimName)
+                com_tempReso <- paste0("cdo timselmean,28 ", f_dimName, " ", f_tempReso)
+                message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
+                system(com_tempReso)
+                Sys.sleep(2)
+                unlink(f_dimName)
+            }
+
+            if(reso %in% c("week", "FIXE")){
+                f_tempReso <- gsub(".nc", "_tempReso.nc", f_dimName)
+                file.rename(from = f_dimName, to = f_tempReso)
+                Sys.sleep(2)
+                unlink(f_dimName)
+            }
+
+            if(reso == "month"){
+                stop("Time mean by week impossible beacause of file have a time unit in week")
+                
+                # message("Time mean by week impossible beacause of file have a time unit in week --> duplicated files")
+                
+                # # Monthly data to daily
+                # f_tempReso1 <- gsub(".nc", "_tempReso1.nc", f_dimName)
+                # com_tempReso1 <- paste0("cdo setday,1 ", f_dimName, " ", f_tempReso1)
+                # system(com_tempReso1)
+
+                # # Daily data to weekly
+                # f_tempReso2 <- gsub(".nc", "_tempReso.nc", f_tempReso1)
+                # com_tempReso2 <- paste0("cdo timselmean,7 ", f_tempReso1, " ", f_tempReso2)
+                # message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso2)
+                # system(com_tempReso2)
+                # Sys.sleep(5)
+                # unlink(f_dimName)
+            
+            }
+        }
+
     }
 
     #################### Regrid
@@ -445,13 +528,14 @@ remapCDO <- function(   file_path,
     spat_reso <- gsub("[*]", "x", spat_reso)
 
     ## Regrided with the initial resolution of downloaded files
-    f_regrid <- gsub(".nc", "_regrid.nc", f_dimName)
-    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_dimName, " ", f_regrid)
+    f_regrid <- gsub(".nc", "_regrid.nc", f_tempReso)
+    com_regrid <- paste0("cdo remapdis,r", spat_reso, " ", f_tempReso, " ", f_regrid)
     message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
     system(com_regrid)
-    Sys.sleep(5)
+    Sys.sleep(2)
+
     ifelse( file.exists(f_regrid),
-            unlink(f_dimName),
+            unlink(f_tempReso),
             stop(paste0("File not created : ", f_regrid)))
 
     #################### Fill missing values
@@ -459,8 +543,11 @@ remapCDO <- function(   file_path,
     com_miss <- paste0("cdo fillmiss ", f_regrid, " ", f_miss)
     message("### Running CDO command to fill missinf values :  \n", "--->", com_miss)
     system(com_miss)
-    Sys.sleep(5)
-    unlink(f_regrid)
+    Sys.sleep(2)
+
+    ifelse( file.exists(f_miss),
+            unlink(f_regrid),
+            stop(paste0("File not created : ", f_miss)))
 
     #################### Create, regrid, replicated and apply mask only to conserve study area
     mask_PA <- here::here("data", "mask_PA_variable.shp")
@@ -471,84 +558,25 @@ remapCDO <- function(   file_path,
     f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
     com_maskRegrid <- paste0("cdo -remapbil,r", spat_reso, " ", mask_PA_out, " ", f_maskRegrid)
     system(com_maskRegrid)
-    Sys.sleep(5)
-    unlink(mask_PA_out)
+    Sys.sleep(2)
+
+    ifelse( file.exists(f_maskRegrid),
+        unlink(mask_PA_out),
+        stop(paste0("File not created : ", f_maskRegrid)))
 
     ## Apply mask at several time series
     f_maskArea <- gsub(".nc", "_maskArea.nc", f_miss)
     com_maskArea <- paste0("cdo ifthen ", f_maskRegrid, " ", f_miss, " ", f_maskArea)
     message("### Running CDO command to apply mask :  \n", "--->", com_maskArea)
     system(com_maskArea)
-    Sys.sleep(5)
-    unlink(f_miss)
+    Sys.sleep(2)
 
-    #################### Change temporal resolution
-    if(reso == "FIXE"){
-
-        f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-        file.copy(from = f_maskArea, to = f_tempReso)
-        unlink(f_maskArea)
-
-    }else{
-
-        if(monthWeek == "month"){
-            f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-            com_tempReso <- paste0("cdo monmean ", f_maskArea, " ", f_tempReso)
-            message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
-            system(com_tempReso)
-            Sys.sleep(5)
-            ifelse( file.exists(f_tempReso),
-                    unlink(f_maskArea),
-                    stop(paste0("File not created : ", f_tempReso))) 
-        }
-
-        if(monthWeek == "week"){
-
-            resotempo <- targets::tar_read("resotempo")
-            v <- strsplit(basename(f_maskArea), "_")[[1]][1]
-            reso <- resotempo$reso[grep(v, resotempo$vars)]
-
-            if(reso == "day"){
-                f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-                com_tempReso <- paste0("cdo timselmean,7 ", f_maskArea, " ", f_tempReso)
-                message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
-                system(com_tempReso)
-                Sys.sleep(5)
-                unlink(f_maskArea)
-            }
-
-            if(reso == "hour1"){
-                f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-                com_tempReso <- paste0("cdo timselmean,168 ", f_maskArea, " ", f_tempReso)
-                message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
-                system(com_tempReso)
-                Sys.sleep(5)
-                unlink(f_maskArea)
-            }
-
-            if(reso == "hour6"){
-                f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-                com_tempReso <- paste0("cdo timselmean,28 ", f_maskArea, " ", f_tempReso)
-                message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
-                system(com_tempReso)
-                Sys.sleep(5)
-                unlink(f_maskArea)
-            }
-
-            if(reso %in% c("week", "FIXE")){
-                f_tempReso <- gsub(".nc", "_tempReso.nc", f_maskArea)
-                file.rename(from = f_maskArea, to = f_tempReso)
-                Sys.sleep(5)
-                unlink(f_maskArea)
-            }
-
-            if(reso == "month"){stop("Time mean by week impossible beacause of file have a time unit in week")}
-        }
-
-    }
+    ifelse( file.exists(f_maskArea),
+            unlink(f_miss),
+            stop(paste0("File not created : ", f_maskArea)))
 
     #################### Extract depth levels
-    ncdf_file <- stars::read_ncdf(f_tempReso)
+    ncdf_file <- stars::read_ncdf(f_maskArea)
     dim <- names(stars::st_dimensions(ncdf_file))
 
     name_level <- grep("depth|lev", dim, value = TRUE)
@@ -558,8 +586,8 @@ remapCDO <- function(   file_path,
     if(boleen == TRUE){ # if file have a "lev" dimension
 
         # Mean all depth layers
-        f_deep_tot <- gsub(".nc", "_deep.nc", f_tempReso)
-        com_deep_tot <- paste0("cdo vertmean ", f_tempReso, " ", f_deep_tot)
+        f_deep_tot <- gsub(".nc", "_deep.nc", f_maskArea)
+        com_deep_tot <- paste0("cdo vertmean ", f_maskArea, " ", f_deep_tot)
         message("### Running CDO command to mean all depth levels :  \n", "--->", com_deep_tot)
         system(com_deep_tot)
 
@@ -584,20 +612,20 @@ remapCDO <- function(   file_path,
                     
                 if(length(depth_values) > 0){
 
-                    f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_tempReso)
-                    com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_tempReso, " ", f_deepTEMPO)
+                    f_deepTEMPO <- gsub(".nc", "_deepTEMPO.nc", f_maskArea)
+                    com_deepTEMPO <- paste0("cdo select,level=", paste(depth_values, collapse = ","), " ", f_maskArea, " ", f_deepTEMPO)
                     system(com_deepTEMPO)
 
                     # Mean depth layer
                     message(paste0("Create file for the deep ", start, "m", " to ", end, "m"))
-                    split_name <- strsplit(basename(f_tempReso), "_")[[1]] # create name of output file
+                    split_name <- strsplit(basename(f_maskArea), "_")[[1]] # create name of output file
                     f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
                     f_deep <- gsub(".nc", "_deep.nc", f_deep)
 
                     com_deep <- paste0("cdo vertmean ", f_deepTEMPO, " ", f_deep)
                     message("### Running CDO command to extract depth levels between two values :  \n", "--->", com_deep)
                     system(com_deep)
-                    Sys.sleep(5)
+                    Sys.sleep(2)
                     ifelse( file.exists(f_deep),
                             unlink(f_deepTEMPO),
                             stop(paste0("File not created : ", f_deep)))
@@ -605,22 +633,22 @@ remapCDO <- function(   file_path,
                     returnTOT <- c(returnTOT, f_deep)
 
                 }else{
-                    split_name <- strsplit(basename(f_tempReso), "_")[[1]] # create name of output file
+                    split_name <- strsplit(basename(f_maskArea), "_")[[1]] # create name of output file
                     f_deep <- here::here(path_output, paste0(split_name[1], start, "x", end, "_", paste(split_name[2:length(split_name)], collapse = "_")))
                     message("WARNING : Don't exist overlap beteween 'deep_level' target and depth levels variable. Variable bellow not created : \n", "--->", f_deep)
                     }
 
             }
-            Sys.sleep(5)
-            unlink(f_tempReso)
+            Sys.sleep(2)
+            unlink(f_maskArea)
             return(c(f_deep_tot, returnTOT))
 
         }else(return(f_deep_tot))
 
     } else {
-        f_deep <- gsub(".nc", "_deep.nc", f_tempReso)
-        message(paste0("No depth levels for this variable: ", f_tempReso))
-        file.rename(f_tempReso, f_deep)
+        f_deep <- gsub(".nc", "_deep.nc", f_maskArea)
+        message(paste0("No depth levels for this variable: ", f_maskArea))
+        file.rename(f_maskArea, f_deep)
         return(f_deep)
     }
 
