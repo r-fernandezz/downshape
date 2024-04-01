@@ -21,14 +21,14 @@ list(
     # ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("STTcmip", "STTcmip0x100")))
 
     ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"), 
-                                            reso = c("FIXE", "week", "week", "week", "week", "week", "hour1", "hour1"))) 
+                                            reso = c("FIXE", "week", "week", "week", "week", "week", "day", "day"))) 
     ,tar_target(http_vars,          list(   http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                             name = c("BATHY")))
-    ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2009-01-01T23:59:59"))
+    ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2008-01-01T00:00:00"))
     ,tar_target(baseline_period,    list(   start = NULL, end = NULL))
     ,tar_target(spat_reso,          list(   vars = c("BATHY", "CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"), 
-                                            reso = c("720*360", "580*344", "580*344", "580*344", "580*344", "580*344", "1440*720", "1440*720"),
-                                            desired_reso = "180x90"))
+                                            reso = c("720*360", "580*344", "580*344", "580*344", "580*344", "580*344", "1160*688", "1160*688"),
+                                            desired_reso = "180*90"))
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
     ,tar_target(renameVar,          list(   oldname = c("topo", "ugo", "vgo", "to", "zo", "chl", "northward_wind", "eastward_wind"),
                                             newname = c("BATHY", "CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
@@ -37,23 +37,23 @@ list(
 
     ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
-    Esgf dataset search, select and download
-    ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span, skip = FALSE))
-    ,tar_target(available_dataset_df, cmip_parse_search(available_dataset_json, skip = FALSE))
-    ,tar_target(select_dataset, select_dataset(available_dataset_df, skip = FALSE), format = "file")
-    ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span, skip = FALSE), format = "file")
+    # Esgf dataset search, select and download
+    # ,tar_target(available_dataset_json, search_esgf(experiments, freq, vars, time_span, skip = FALSE))
+    # ,tar_target(available_dataset_df, cmip_parse_search(available_dataset_json, skip = FALSE))
+    # ,tar_target(select_dataset, select_dataset(available_dataset_df, skip = FALSE), format = "file")
+    # ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span, skip = FALSE), format = "file")
 
     # Shaping esgf data downloaded (CMIP6)
-    ,tar_target(renameVar_cmip, renameVar(data = cmip_data, type_data = "cmip6", skip = TRUE), format = "file")
-    ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
-    ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
-    ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed_cmip, remove = FALSE), format = "file")
-    ,tar_target(climato_cmip, climato_cmip(speedCompo_cmip, climato_period), format = "file")
-    ,tar_target(mergeHistorical_cmip, mergeHistorical_cmip(speedCompo_cmip, historical_period, baseline_period, futur_period, climato_period), format = "file")
-    ,tar_target(varsBiasCorrected, deltaCF(climato_cmip, mergeHistorical_cmip, grad_copernicus, match_name, climato_period), format = "file")
-    ,tar_target(MeanModel, meanMod(varsBiasCorrected), format = "file")
-    ,tar_target(grad_cmip, grad_cmip(MeanModel), format = "file")
-    ,tar_target(regrid_cmip, regrid(data = grad_cmip, type_data = "cmip6"), format = "file")
+    # ,tar_target(renameVar_cmip, renameVar(data = cmip_data, type_data = "cmip6", skip = TRUE), format = "file")
+    # ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
+    # ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
+    # ,tar_target(speedCompo_cmip, speedCompo_cmip(remapCDO_cmip, vars_speed_cmip, remove = FALSE), format = "file")
+    # ,tar_target(climato_cmip, climato_cmip(speedCompo_cmip, climato_period), format = "file")
+    # ,tar_target(mergeHistorical_cmip, mergeHistorical_cmip(speedCompo_cmip, historical_period, baseline_period, futur_period, climato_period), format = "file")
+    # ,tar_target(varsBiasCorrected, deltaCF(climato_cmip, mergeHistorical_cmip, grad_copernicus, match_name, climato_period), format = "file")
+    # ,tar_target(MeanModel, meanMod(varsBiasCorrected), format = "file")
+    # ,tar_target(grad_cmip, grad_cmip(MeanModel), format = "file")
+    # ,tar_target(regrid_cmip, regrid(data = grad_cmip, type_data = "cmip6"), format = "file")
 
     ################################# Part 2 : Copernicus data process (commit all targets if you don't use this part) ###########################
 
