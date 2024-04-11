@@ -3,7 +3,7 @@ title: "downshape"
 author: ""
 format: gfm
 ---
-![WIP](https://www.repostatus.org/badges/latest/wip.svg) ![GPL-3.0 License](https://img.shields.io/badge/License-GPL%20v3.0-blue.svg)
+![GPL-3.0 License](https://img.shields.io/badge/License-GPL%20v3.0-blue.svg) ![WIP](https://www.repostatus.org/badges/latest/wip.svg) 
 
 ![](pictures/downshape_logo.png){fig-align="center" width=300}
 
@@ -38,7 +38,7 @@ cat("\n```")
 
 | Columns database | Description |
 | :----: |   :-------------: |
-| my_variable_name              | Your variable name (outside api command) | 
+| my_variable_name              | Your variable name (outside api command). Each name must be unique | 
 | dataset_id              | Check on Copernicus website | 
 | dataset_version            | Check API request on Copernicus website |
 | longitude_min             | Extend of map downloaded |
@@ -75,17 +75,17 @@ cat("\n```")
 
 :heavy_check_mark: **[http_vars]** : List. List of download path (NetCDF file) and variable names. First (or n) element of "http" vector correspond to first (or n) element of "name" vector. "Name" vector will be the name used to rename file name of variable. To download variables outsite copernicus website. Leave empty if not used.
 
-:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss"). Allow to calibrate model (weekly temporal resolution) and create current projection (monthly temporal resolution). This period must overlap periods downloaded into **copernicus_parameters.csv**.
+:heavy_check_mark: **[current_period]** : List start and end time. To define min and max time of copernicus data current period (cdo format: "YYYY-MM-DDThh:mm:ss"). Allow to calibrate model (weekly temporal resolution) and create current projection (monthly temporal resolution). This period must overlap all variable periods downloaded into **copernicus_parameters.csv**.
 
 :heavy_check_mark: **[baseline_period]** : List start and end time. Complet this target if you want create a baseline to apply change factor method, otherwise write "NULL" into "start" and "end" arguments. It allow to define min and max time borns of baseline period (cdo format: "YYYY-MM-DDThh:mm:ss"). 
 
 :heavy_check_mark: **[match_name]** : List of two vectors. Allow to correspondance between "copernicus" and "cmip" variables during calcul of delta in change factor method. List uniquelly variables you want bias-corrected. These vectors must to contain all variables name create during process (variable processed by speed_vars and deep_level targets). Given variable names after the rename step with renameVar() function and **renameVar** target.
 
-:heavy_check_mark: **[spat_reso]** : The initial spatial resolution of downloaded files is in the format "XresolutionGrid\*YresolutionGrid", for example, "180\*90" for a 2°x2° resolution or "360\*180" for a 1°x1° resolution. You can find the spatial resolution of downloaded files using the CDO command "cdo griddes path_to_your_file.nc" (check "xsize" and "ysize" argument respectively 'XresolutionGrid' and 'YresolutionGrid'). The "reso" is a list that provides the resolutions of variables, and "vars" is a list that provides the names of variables after they have been renamed to the target. Provide the names of variables excluding the names of depth variables created automatically by the pipeline. The "desired_reso" is the resolution desired for all variables downloaded (XresolutionGrid = 360/XdegreeResolution and YresolutionGrid = 180/YdegreeResolution).
+:heavy_check_mark: **[spat_reso]** : The initial spatial resolution of downloaded files is in the format "XresolutionGrid\*YresolutionGrid". You can find the spatial resolution of downloaded files using the CDO command "cdo griddes path_to_your_file.nc" (check "xsize" and "ysize" argument respectively 'XresolutionGrid' and 'YresolutionGrid'). The "reso" is a list that provides the resolutions of variables, and "vars" is a list that provides the names of variables after they have been renamed to the target. Provide the names of variables excluding the names of depth variables created automatically by the pipeline. The "desired_reso" is the resolution desired for all variables downloaded (XresolutionGrid = 360/XdegreeResolution and YresolutionGrid = 180/YdegreeResolution). For example, "180\*90" for a 2°x2° resolution or "360\*180" for a 1°x1° resolution
 
 :heavy_check_mark: **[deep_level]** : List start and end deep level by file created. To split variable to several files by deep level. First (or n) element of "start" vector correspond to first (or n) element of "end" vector. vectors of the list can be empty.
 
-:heavy_check_mark: **[renameVar]** : List with old name and new name. First (or n) element of "oldname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. This vectors gathers all old and new variable names used to rename cmip6 and copernicus data **JUST AFTER DOWNLOAD STEP**. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "Variable_id" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", "#", " ", rename with **rename** target to one word without specials characters otherwise CDO command doesn't work. All vectors of this target list can to be empty.
+:heavy_check_mark: **[renameVar]** : List with "my_variable_name" column value into "copernicus_parameters.csv" table and new name you want inside netcdf file. First (or n) element of "tabname" vector correspond to first (or n) element of "newname" vector. Allow to rename into NETCDF file the variable juste after downloading step. The name of file stay with "my_variable_name" column value. This vectors gathers all variable names used to rename cmip6 and copernicus data **JUST AFTER DOWNLOAD STEP**. In others words, it allows to change name of "variable" column into **parameters_copernicus.csv** and "Variable_id" column into **selected_datasets.csv** for cmip6 data. If variable name have a name with "_", "-", "#", " ", rename with **rename** target to one word without specials characters otherwise CDO command doesn't work. All vectors of this target list can to be empty. If bathymetry is downloaded by downloadCDO_bathy() it will be called "BATHY" and variable name inside the NetCDF file will be not rename (called "topo").
 
 :heavy_check_mark: **[vars_speed]** : List first, second component and variable name. To calcul copernicus variables speed with two components (name vector are juste used into code but it's not names of output files). First (or n) element of "compo1" vector correspond to first (or n) element of "compo2" vector. WARNING !! : If two different variables have same component name, bug in the code. This target will be modified by speedCompo_cmip() and speedCompo_copernicus() function to integrate depth variables created during the process (chl50-100, uo0-100, etc...). For example, final name of the variable named "wind" in this target and calculated with "uo" and "vo" components will be "uovo" (two component names will be always pasted to give final name of speed file). In this vector, given coponent variable names after the rename step with renameVar() function and **renameVar** target.
 

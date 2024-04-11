@@ -23,28 +23,33 @@ renameVar <- function(data, type_data, skip = FALSE, renameVar = targets::tar_re
 
             files <- list.files(path, recursive = TRUE, full.names = TRUE)
 
-            for(i in 1:length(renameVar$oldname)){
+            for(i in 1:length(renameVar$tabname)){
 
-                file_path <- grep(paste0(renameVar$oldname[i], "_"), files, value = TRUE)
+                file_path <- grep(paste0(renameVar$tabname[i], "_"), files, value = TRUE)
 
                 if(length(file_path) >= 1){
 
                     for(f in 1:length(file_path)){
 
                         f_out <- gsub(".nc", "_TEMPO.nc", file_path[f])
+                        
+                        # Check database to found variable name inside netcdf
+                        bdd <- read.csv(targets::tar_read(tab_parameters))
+                        oldname <- subset(bdd, my_variable_name == renameVar$tabname[i])
+                        oldname <- oldname$variable
 
-                        com_rename <- paste0("cdo chname,", renameVar$oldname[i], ",", renameVar$newname[i], " ", file_path[f], " ", f_out)
+                        com_rename <- paste0("cdo chname,", oldname, ",", renameVar$newname[i], " ", file_path[f], " ", f_out)
                         message("### Running CDO command to rename variable :  \n", "--->", com_rename)
                         system(com_rename)
 
                         unlink(file_path[f])
                         file_rename <- strsplit(basename(file_path[f]), "_")[[1]]
-                        file_rename[1] <- renameVar$newname[i]
+                        file_rename[1] <- renameVar$tabname[i]
                         file_rename <- paste(dirname(file_path[f]), paste0(file_rename, collapse = "_"), sep = "/")
                         file.rename(f_out, file_rename)
 
                     }
-                }else(message(paste0("Not any variables with the oldname", " '", renameVar$oldname[i], "' ", "give into 'renameVar' target is found")))
+                }else(message(paste0("Not any variables with the 'tabname'", " '", renameVar$tabname[i], "' ", "give into 'renameVar' target is found")))
             }
 
             
@@ -307,7 +312,7 @@ regrid <- function(data, type_data) {
 #'
 #' @param file_path Path. File path of variable you want process.
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
-#' @param period Character. "current" or "historical". Correspond to current_period historical_period target (check readme informations). Else it's not "historical_period" or "current_period", automatically function extract born of futur period.
+#' @param period Character. "current" or "historical". Correspond to current_period and historical_period target (check readme informations). Else it's not "historical_period" or "current_period", automatically function extract born of futur period.
 #' @param spat_reso Character. spat_reso targets (check readme informations).
 #' @param path_output path. Folder where you want export variable processed.
 #' @param monthWeek Logical. "month" or "week". Default "month". If you want mean data by week or month.
@@ -379,14 +384,25 @@ remapCDO <- function(   file_path,
 
     #################### Remove variable no used if data have more than one variables
     vars_used <- strsplit(basename(file_path), "_")[[1]][1]
-    f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
-    com_varname <- paste0("cdo select,name=", vars_used, " ", f_seltime, " ", f_varname)
-    message("### Running CDO command to remove variable not used :  \n", "--->", com_varname)
-    system(com_varname)
-    Sys.sleep(2)
-    ifelse( file.exists(f_varname),
-            unlink(f_seltime),
-            stop(paste0("File not created : ", f_varname))) 
+
+    if( vars_used != "BATHY"){
+
+        vars_used <- grep(paste0(vars_used, "$"), targets::tar_read(renameVar)$tabname)
+        vars_used <- targets::tar_read(renameVar)$newname[vars_used]
+        f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
+        com_varname <- paste0("cdo select,name=", vars_used, " ", f_seltime, " ", f_varname)
+        message("### Running CDO command to remove variable not used :  \n", "--->", com_varname)
+        system(com_varname)
+        Sys.sleep(2)
+        ifelse( file.exists(f_varname),
+                unlink(f_seltime),
+                stop(paste0("File not created : ", f_varname)))
+
+    }else{
+        f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
+        file.rename(f_seltime, f_varname)
+    }
+    
 
     #################### Change temporal resolution
     if(reso == "FIXE"){
@@ -412,7 +428,7 @@ remapCDO <- function(   file_path,
 
             resotempo <- targets::tar_read("resotempo")
             v <- strsplit(basename(f_varname), "_")[[1]][1]
-            reso <- resotempo$reso[grep(v, resotempo$vars)]
+            reso <- resotempo$reso[grep(paste0(v, "$"), resotempo$vars)]
 
             if(reso == "day"){
                 f_tempReso <- gsub(".nc", "_tempReso.nc", f_varname)
@@ -824,6 +840,13 @@ speedCompo <- function( path_compo1,
                             name_compo2 = name_compo2, 
                             name_speed = name_speed ), 
                         function(x) gsub("[0-9]{0,6}x[0-9]{0,6}", "", x))
+
+    # Correspondance between variable names inside NetCDF files and the table
+    nameIn_compo1 <- targets::tar_read(renameVar)$newname[grep(name_compo1, targets::tar_read(renameVar)$tabname)]
+    nameIn_compo2 <- targets::tar_read(renameVar)$newname[grep(name_compo2, targets::tar_read(renameVar)$tabname)]
+    new_name <- list(   name_compo1 = nameIn_compo1,
+                        name_compo2 = nameIn_compo2, 
+                        name_speed = paste0(nameIn_compo1, nameIn_compo2))
 
     f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
     com_merge <- paste0("cdo expr,", "'", new_name$name_speed, "=", 

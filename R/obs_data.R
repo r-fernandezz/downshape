@@ -112,7 +112,7 @@ copernicus_download_api <- function(path_tab_param,
         for(i in 1:nrow(tab_param)){
                 
             out_name <- sprintf("%s_%s_%s-%s.nc", 
-                            tab_param[i, "variable"], 
+                            tab_param[i, "my_variable_name"], 
                             tab_param[i, "dataset_id"], 
                             strsplit(gsub("-", "", tab_param[i, "date_min"]), " ")[[1]][1], 
                             strsplit(gsub("-", "", tab_param[i, "date_max"]), " ")[[1]][1])
@@ -120,22 +120,6 @@ copernicus_download_api <- function(path_tab_param,
             if(!file.exists(paste0(path_output, "/", out_name))){
                 
                 message(paste0("\n ########################### Traitement of ", tab_param[i, "my_variable_name"], " variable"))
-
-                # command2 <- sprintf(paste0(path_copernicusmarine, " subset --dataset-id %s --variable %s --minimum-longitude %s --maximum-longitude %s --minimum-latitude %s --maximum-latitude %s --start-datetime '%s' --end-datetime '%s' --minimum-depth %s --maximum-depth %s --output-directory %s --output-filename %s --username %s --password %s --force-download"),
-                #                     tab_param[i, "dataset_id"],
-                #                     tab_param[i, "variable"],  
-                #                     tab_param[i, "longitude_min"], 
-                #                     tab_param[i, "longitude_max"], 
-                #                     tab_param[i, "latitude_min"], 
-                #                     tab_param[i, "latitude_max"],
-                #                     tab_param[i, "date_min"], 
-                #                     tab_param[i, "date_max"],
-                #                     tab_param[i, "depth_min"], 
-                #                     tab_param[i, "depth_max"], 
-                #                     path_output, 
-                #                     out_name, 
-                #                     user, 
-                #                     passwd)
                 
                 command <- paste0(path_copernicusmarine, " subset --force-download")
 
@@ -301,10 +285,10 @@ downloadCDO_bathy <- function(  download = targets::tar_read("bathy_CDO"),
 
         if(download == TRUE){
 
-            comd <- paste(paste0("cdo -f nc -topo"), here::here("output", "data_copernicus", "topo_cdo_NOAA_ETOPO2_2006_brut.nc"))
+            comd <- paste(paste0("cdo -f nc -topo"), here::here("output", "data_copernicus", "BATHY_cdo_NOAA_ETOPO2_2006_brut.nc"))
             system(comd)
 
-            return(here::here("output", "data_copernicus", "topo_cdo_NOAA_ETOPO2_2006_brut.nc"))
+            return(here::here("output", "data_copernicus", "BATHY_cdo_NOAA_ETOPO2_2006_brut.nc"))
 
         }else{
             message("Bathymetry doesn't downloaded")
