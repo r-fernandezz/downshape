@@ -842,8 +842,8 @@ speedCompo <- function( path_compo1,
                         function(x) gsub("[0-9]{0,6}x[0-9]{0,6}", "", x))
 
     # Correspondance between variable names inside NetCDF files and the table
-    nameIn_compo1 <- targets::tar_read(renameVar)$newname[grep(name_compo1, targets::tar_read(renameVar)$tabname)]
-    nameIn_compo2 <- targets::tar_read(renameVar)$newname[grep(name_compo2, targets::tar_read(renameVar)$tabname)]
+    nameIn_compo1 <- targets::tar_read(renameVar)$newname[grep(new_name$name_compo1, targets::tar_read(renameVar)$tabname)]
+    nameIn_compo2 <- targets::tar_read(renameVar)$newname[grep(new_name$name_compo2, targets::tar_read(renameVar)$tabname)]
     new_name <- list(   name_compo1 = nameIn_compo1,
                         name_compo2 = nameIn_compo2, 
                         name_speed = paste0(nameIn_compo1, nameIn_compo2))
