@@ -27,7 +27,7 @@ copernicus_download_api <- function(path_tab_param,
                                     path_copernicusmarine = "/home/romain/.local/bin/copernicusmarine",
                                     subvar = NULL,
                                     septime = "week",
-                                    divide = TRUE,
+                                    divide = FALSE,
                                     nb_retry = 100,
                                     user = read.table(here::here("data", "copernicus_logging.txt"))[1, 1],
                                     passwd = read.table(here::here("data", "copernicus_logging.txt"))[2, 1]) {

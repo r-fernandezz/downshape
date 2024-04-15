@@ -212,10 +212,6 @@ concatenate_cmip <- function(renameVar_cmip){
 
 concatenate_copernicus <- function(obs_data){
 
-    if(!file.exists(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))) stop("Check README documentation : File called 'copernicus_parameters_modified.csv' don't fount into data_copernicus folder")
-    
-    tab <- read.csv2(here::here("output", "data_copernicus", "copernicus_parameters_modified.csv"))
-    
     v <- unique(sapply(strsplit(list.files(here::here("output", "data_copernicus"), pattern = ".nc$"), "_"), "[[", 1))
 
     vars <- unlist(lapply(v, function(v){
