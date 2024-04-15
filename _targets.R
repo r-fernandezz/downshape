@@ -20,20 +20,19 @@ list(
     #                                         month_choose = c(2, 3, 4, 5, 6, 7, 8, 9)))
     # ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("STTcmip", "STTcmip0x100")))
 
-    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "CHLA2", "WINDn", "WINDe", "WINDn2", "WINDe2"), 
-                                            reso = c("FIXE", "week", "week", "week", "week", "week", "day", "day", "day", "day", "day"))) 
+    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"), 
+                                            reso = c("FIXE", "week", "week", "week", "week", "week", "day", "day"))) 
     ,tar_target(http_vars,          list(   http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                             name = c("BATHY")))
-    ,tar_target(current_period,     list(   current = "2000-09-01T00:00:00", end = "2030-08-01T00:00:00"))
+    ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2008-01-01T00:00:00"))
     ,tar_target(baseline_period,    list(   start = NULL, end = NULL))
-    ,tar_target(spat_reso,          list(   vars = c("BATHY", "CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "CHLA2", "WINDn", "WINDe", "WINDn2", "WINDe2"), 
-                                            reso = c("720*360", "580*344", "580*344", "580*344", "580*344", "580*344", "581*345", "1160*688", "1160*688", "1160*688", "1160*688"),
-                                            desired_reso = "180*90"))
+    ,tar_target(spat_reso,          "180*90")
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
-    ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "CHLA2", "WINDn", "WINDe","WINDn2", "WINDe2"),
-                                            newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "CHLA", "WINDn", "WINDe", "WINDn", "WINDe")))
-    ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe", "WINDe2"), compo2 = c("CURRENTn", "WINDn", "WINDn2"), name = c("CURRENT", "WIND", "WIND2")))
+    ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"),
+                                            newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
+    ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe"), compo2 = c("CURRENTn", "WINDn"), name = c("CURRENT", "WIND")))
     ,tar_target(bathy_CDO,          TRUE)
+    #,tar_target(ano_vars,           vars = c("SST0x100"))
 
     ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
@@ -64,12 +63,13 @@ list(
     ,tar_target(http_data, http_download(http_vars, path_output = here::here("output", "data_copernicus"), skip = TRUE))
 
     # Shaping copernicus data downloaded (observed)
-    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = TRUE), format = "file")
+    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = FALSE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
     ,tar_target(connectPip_copernicus, connectPip(data = speedCompo_copernicus, type_data = "copernicus"), format = "file")
     ,tar_target(grad_copernicus, grad_copernicus(connectPip_copernicus), format = "file")
+    #,tar_target(anomaly, anomaly(grad_copernicus, vars = ano_vars, skip = FALSE), format = "file")
     ,tar_target(regrid_copernicus, regrid(data = grad_copernicus, type_data = "copernicus"), format = "file")
 
 )

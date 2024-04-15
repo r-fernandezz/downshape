@@ -260,7 +260,7 @@ regrid <- function(data, type_data) {
                 message(paste0("################ Processing : ", y))
 
                 rast_original <- raster::stack(y)
-                desired_reso <- targets::tar_read("spat_reso")$desired_reso
+                desired_reso <- targets::tar_read("spat_reso")
 
                 # Create reference grid
                 rast_ref <- raster::raster( nrows = as.numeric(strsplit(desired_reso, "[*]")[[1]][2]), 
@@ -313,7 +313,6 @@ regrid <- function(data, type_data) {
 #' @param file_path Path. File path of variable you want process.
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
 #' @param period Character. "current" or "historical". Correspond to current_period and historical_period target (check readme informations). Else it's not "historical_period" or "current_period", automatically function extract born of futur period.
-#' @param spat_reso Character. spat_reso targets (check readme informations).
 #' @param path_output path. Folder where you want export variable processed.
 #' @param monthWeek Logical. "month" or "week". Default "month". If you want mean data by week or month.
 #' 
@@ -325,7 +324,6 @@ regrid <- function(data, type_data) {
 remapCDO <- function(   file_path, 
                         type_data = "cmip6", 
                         period, 
-                        spat_reso, 
                         path_output,
                         monthWeek = "month"){
 
@@ -418,7 +416,7 @@ remapCDO <- function(   file_path,
             com_tempReso <- paste0("cdo monmean ", f_varname, " ", f_tempReso)
             message("### Running CDO command to change temporal resolution :  \n", "--->", com_tempReso)
             system(com_tempReso)
-            Sys.sleep(2)
+            Sys.sleep(4)
             ifelse( file.exists(f_tempReso),
                     unlink(f_varname),
                     stop(paste0("File not created : ", f_tempReso))) 
@@ -469,42 +467,25 @@ remapCDO <- function(   file_path,
 
     }
 
-    #################### Regrid
-
-    ## Found spatial resolution
-    spat_reso <- targets::tar_read("spat_reso")
-    resoSpat <- spat_reso$reso[grep(paste0(v, "$"), spat_reso$vars)] #v <- strsplit(basename(file_path), "_")[[1]][1]
-    resoSpat <- gsub("[*]", "x", resoSpat)
-    
-    ## Regrided with the initial resolution of downloaded files
-    f_regrid <- gsub(".nc", "_regrid.nc", f_tempReso)
-    com_regrid <- paste0("cdo remapdis,r", resoSpat, " ", f_tempReso, " ", f_regrid)
-    message("### Running CDO command to regrid :  \n", "--->", com_regrid)	      
-    system(com_regrid)
-    Sys.sleep(2)
-    ifelse( file.exists(f_regrid),
-            unlink(f_tempReso),
-            stop(paste0("File not created : ", f_regrid)))
-
     #################### Create, regrid, replicated and apply mask only to conserve study area
     mask_PA <- here::here("data", "mask_PA_variable.shp")
     mask_PA_out <- here::here("output", "mask_PA_variable.nc")
     system(paste0("gdal_rasterize -of netCDF -burn 1 -tr 0.01 0.01 ", "-a_srs EPSG:4326 ", mask_PA, " ", mask_PA_out)) # convert shp to nc
 
-    ## Regrid mask
+    ## Regrid mask with same variable parameters 
     f_maskRegrid <- gsub(".nc", "_regrid.nc", mask_PA_out)
-    com_maskRegrid <- paste0("cdo -remapbil,r", resoSpat, " ", mask_PA_out, " ", f_maskRegrid)
+    com_maskRegrid <- paste0("cdo -remapbil,", f_tempReso, " ", mask_PA_out, " ", f_maskRegrid)
     system(com_maskRegrid)
     Sys.sleep(2)
     unlink(mask_PA_out)
 
     ## Apply mask at several time series
-    f_maskArea <- gsub(".nc", "_maskArea.nc", f_regrid)
-    com_maskArea <- paste0("cdo ifthen ", f_maskRegrid, " ", f_regrid, " ", f_maskArea)
+    f_maskArea <- gsub(".nc", "_maskArea.nc", f_tempReso)
+    com_maskArea <- paste0("cdo ifthen ", f_maskRegrid, " ", f_tempReso, " ", f_maskArea)
     message("### Running CDO command to apply mask :  \n", "--->", com_maskArea)
     system(com_maskArea)
     Sys.sleep(2)
-    unlink(f_regrid)
+    unlink(f_tempReso)
 
     #################### Change dimension names
     ncdf_file <- stars::read_ncdf(f_maskArea)
@@ -693,8 +674,7 @@ remapCDO_cmip <- function(concatenate_cmip){
 
                     file_form <- remapCDO(  file_path = file, 
                                             type_data = "cmip6", 
-                                            period = r, 
-                                            spat_reso = targets::tar_read("spat_reso"), 
+                                            period = r,  
                                             path_output = path_output)
 
                     return(file_form)
@@ -744,8 +724,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
 
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
-                    period = "current", 
-                    spat_reso = targets::tar_read("spat_reso"), 
+                    period = "current",  
                     path_output = path_output_m,
                     monthWeek = "month")
 
@@ -766,7 +745,6 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
                     period = "current", 
-                    spat_reso = targets::tar_read("spat_reso"), 
                     path_output = path_output_w,
                     monthWeek = "week")
 
@@ -789,7 +767,6 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
         remapCDO(   file_path = f, 
                     type_data = "copernicus", 
                     period = "baseline", 
-                    spat_reso = targets::tar_read("spat_reso"), 
                     path_output = path_output_b)
 
         }, mc.cores = 4)
