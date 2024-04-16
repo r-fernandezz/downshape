@@ -42,20 +42,72 @@ anomaly <- function(connectPip_copernicus, ano_vars = NULL, skip = FALSE){
                     clim_list <- grep(paste0(t, "[.]"), clim_list, value = TRUE) #weekly or monthly climatology
                     clim_list <- grep(paste0("[.]grd$|[.]nc$"), clim_list, value = TRUE) #remove .grid files
                     if(length(clim_list) < 0) stop(paste0("Climatology not available for the variable : ", ano_vars[ii]))
-                    
+
                     message(paste0("--> Climatology processing :", clim_list))
                     clim <- raster::stack(clim_list)
-                    
+
                     # Check errors
-                    if(TRUE %in% c(dim(v) != dim(clim))) stop(paste0(  "Variable and climatology dimension are different", "\n",
+                    if(TRUE %in% c(dim(v)[1:2] != dim(clim)[1:2])) stop(paste0(  "Variable and climatology dimension are different", "\n",
                                                                         "--> variable : ", list_file_full[i], "\n",
                                                                         "--> climatology : ", clim_list, "\n"))
 
                     # Anomaly calculation anomaly 
-                    message("Anomaly calculation processing...")
-                    anomaly <- v - clim
-                    names(anomaly) <- names(v)
-                    message("Anomaly calculation processing ---> DONE")
+                    num_weekMonth <- function(raster, time){ #transforme layer date to week number
+                        date_init <- gsub("X", "", names(raster))
+                        date <- gsub("[.]", "-", date_init)
+
+                        if(time == "week"){
+                            date <- as.numeric(format(as.Date(date), "%U")) + 1 #betweeen 1 and 52 (not 0 and 51)
+                            date <- paste0("Week_", date)
+                            return(list(date_init, date))
+                        }
+
+                        if(time == "month"){
+                            date <- format(as.Date(date), "%m")
+                            date <- paste0("Month_", date)
+                            return(list(date_init, date))
+                        }
+
+                    }
+
+                    if(t == "week"){
+
+                        num <- num_weekMonth(v, "week")
+                        names(v) <- num[[2]]
+
+                        message("Anomaly calculation processing...")
+                        anomaly <- raster::stack()
+
+                        for(l in 1:length(names(v))){
+                            ll <- as.numeric(gsub("Week_", "", num[[2]]))
+                            anomaly_sub <- raster::subset(v, l) - raster::subset(clim, ll[l])
+                            anomaly <- raster::stack(anomaly, anomaly_sub)
+                        }
+
+                        message("Anomaly calculation processing ---> DONE")
+
+                    }
+
+                    if(t == "month"){
+
+                        num <- num_weekMonth(v, "month")
+                        names(v) <- num[[2]]
+
+                        message("Anomaly calculation processing...")
+
+                        anomaly <- raster::stack()
+
+                        for(l in 1:length(names(v))){
+                            ll <- as.numeric(gsub("Month_", "", num[[2]]))
+                            anomaly_sub <- raster::subset(v, l) - raster::subset(clim, ll[l])
+                            anomaly <- raster::stack(anomaly, anomaly_sub)
+                        }
+
+                        message("Anomaly calculation processing ---> DONE")
+
+                    }
+
+                    names(anomaly) <- num[[1]]
 
                     # Rename file name and export into folder "GRD"
                     name_path <- gsub("[.]nc", ".grd", list_file_full[i])
@@ -76,6 +128,7 @@ anomaly <- function(connectPip_copernicus, ano_vars = NULL, skip = FALSE){
                     message("Anomaly variable exportation ---> DONE")
 
                     return_names <- c(return_names, out_name)
+
                 }
             }
 
