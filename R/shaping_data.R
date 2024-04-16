@@ -231,8 +231,8 @@ concatenate_copernicus <- function(obs_data){
 #'
 #' @description Regrid variable to appropriate spatial resolution (after calculating gradients)
 #'
-#'
-#' @param data Allow connection between targets.
+#' @param grad_copernicus Target. Allow connection between targets.
+#' @param anomaly Target. Allow connection between targets.
 #' @param type_data Character. Type of data you want process, "cmip6" or "copernicus".
 #'
 #' @return NULL
@@ -241,7 +241,7 @@ concatenate_copernicus <- function(obs_data){
 #' 
 #' 
 
-regrid <- function(data, type_data) {
+regrid <- function(grad_copernicus, anomaly, type_data) {
     
     list_path <- switch(type_data,
                         copernicus = here::here("output", "data_copernicus_remapped"),
@@ -724,7 +724,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     path_output = path_output_m,
                     monthWeek = "month")
 
-        }, mc.cores = 4)
+        }, mc.cores = 2) #change core number if some variables are removed during process
 
     ####### Weekly mean
     message("Mean by week")
@@ -744,7 +744,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     path_output = path_output_w,
                     monthWeek = "week")
 
-        }, mc.cores = 4)
+        }, mc.cores = 2) #change core number if some variables are removed during process
 
     # Create baseline if "baseline_period" target not NULL
     message("Create baseline")
@@ -765,7 +765,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     period = "baseline", 
                     path_output = path_output_b)
 
-        }, mc.cores = 4)
+        }, mc.cores = 2)
 
     }else(message("You don't want created a baseline, arguments of 'baseline_period' target are NULL"))
 

@@ -32,7 +32,7 @@ list(
                                             newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
     ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe"), compo2 = c("CURRENTn", "WINDn"), name = c("CURRENT", "WIND")))
     ,tar_target(bathy_CDO,          TRUE)
-    #,tar_target(ano_vars,           vars = c("SST0x100"))
+    ,tar_target(ano_vars,           c("SST0x100"))
 
     ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
@@ -63,13 +63,13 @@ list(
     ,tar_target(http_data, http_download(http_vars, path_output = here::here("output", "data_copernicus"), skip = TRUE))
 
     # Shaping copernicus data downloaded (observed)
-    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = FALSE), format = "file")
+    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = TRUE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
     ,tar_target(connectPip_copernicus, connectPip(data = speedCompo_copernicus, type_data = "copernicus"), format = "file")
     ,tar_target(grad_copernicus, grad_copernicus(connectPip_copernicus), format = "file")
-    #,tar_target(anomaly, anomaly(grad_copernicus, vars = ano_vars, skip = FALSE), format = "file")
-    ,tar_target(regrid_copernicus, regrid(data = grad_copernicus, type_data = "copernicus"), format = "file")
+    ,tar_target(anomaly, anomaly(connectPip_copernicus, ano_vars, skip = FALSE), format = "file")
+    ,tar_target(regrid_copernicus, regrid(grad_copernicus, anomaly, type_data = "copernicus"), format = "file")
 
 )

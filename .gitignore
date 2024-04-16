@@ -1,4 +1,8 @@
 output/*
+output_*
+*.nc
+*.grd
+*.gri
 
 #data folder
 *_logging.txt
