@@ -253,14 +253,19 @@ regrid <- function(grad_copernicus, anomaly, type_data) {
         
             return_path <- unlist(lapply(files, function(y){
 
-                message(paste0("################ Processing : ", y))
+                message(paste0("################ Processing (", grep(y, files), "/", length(files), ") : ", y))
 
                 rast_original <- raster::stack(y)
-                desired_reso <- targets::tar_read("spat_reso")
+                spat_reso <- targets::tar_read("spat_reso")
+
+                # Change resolution (degradation)
+                if(raster::res(rast_original)[1] != raster::res(rast_original)[2]) stop("The cells are not square")
+                if(raster::res(rast_original)[1] > spat_reso$reso) stop(paste0("Impossible to degrade spatial resolution, initial resolution too high (", raster::res(rast_original)[1], " degrees compared to ", spat_reso$reso, " degrees) for : ", y))
+                rast_deg <- raster::aggregate(rast_original, fact = spat_reso$reso/raster::res(rast_original)[1], fun = mean)
 
                 # Create reference grid
-                rast_ref <- raster::raster( nrows = as.numeric(strsplit(desired_reso, "[*]")[[1]][2]), 
-                                            ncols = as.numeric(strsplit(desired_reso, "[*]")[[1]][1]), 
+                rast_ref <- raster::raster( nrows = spat_reso$grid_nrow, 
+                                            ncols = spat_reso$grid_ncol, 
                                             xmn = -180,
                                             xmx = 180,
                                             ymn = -90,
@@ -270,17 +275,17 @@ regrid <- function(grad_copernicus, anomaly, type_data) {
                 # Remapped file all bandes of a variable
                 raster_stack <- raster::stack()
                 
-                for (ii in 1:dim(rast_original)[3]){ 
+                for (ii in 1:dim(rast_deg)[3]){ 
 
-                    name_bande <- names(rast_original)[ii]
-                    raster_bande <- rast_original[[name_bande]]
+                    name_bande <- names(rast_deg)[ii]
+                    raster_bande <- rast_deg[[name_bande]]
                     rast_remapped <- raster::resample(raster_bande, rast_ref, method = "bilinear")
                     names(rast_remapped) <- name_bande
 
                     raster_stack <- raster::stack(raster_stack, rast_remapped)
                 }
 
-                # Exportation files regrided
+                # Exportation files degraded and regrided
                 path_out <- paste0(gsub("remapped", "final", list_path), "/", gsub(paste0(list_path, "/"), "", y))
                 outpath(dirname(path_out))
                 raster::writeRaster(raster_stack, 

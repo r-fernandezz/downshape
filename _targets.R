@@ -26,7 +26,7 @@ list(
                                             name = c("BATHY")))
     ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2008-01-01T00:00:00"))
     ,tar_target(baseline_period,    list(   start = NULL, end = NULL))
-    ,tar_target(spat_reso,          "180*90")
+    ,tar_target(spat_reso,          list(   reso = 2, grid_nrow = 90, grid_ncol = 180))
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
     ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"),
                                             newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
