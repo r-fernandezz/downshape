@@ -38,32 +38,28 @@ anomaly <- function(connectPip_copernicus, ano_vars = NULL, skip = FALSE){
                     message(paste0("--> Variable processing :", list_file_full[i]))
                     v <- raster::stack(list_file_full[i])
 
+                    # Select climatology
                     clim_list <- list.files(here::here("data"), pattern = paste0(ano_vars[ii], "_climatology"), full.names = TRUE) #all climatology
                     clim_list <- grep(paste0(t, "[.]"), clim_list, value = TRUE) #weekly or monthly climatology
                     clim_list <- grep(paste0("[.]grd$|[.]nc$"), clim_list, value = TRUE) #remove .grid files
-                    if(length(clim_list) < 0) stop(paste0("Climatology not available for the variable : ", ano_vars[ii]))
+                    if(length(clim_list) == 0) stop(paste0("Climatology not available for the variable : ", ano_vars[ii]))
 
                     message(paste0("--> Climatology processing :", clim_list))
                     clim <- raster::stack(clim_list)
 
-                    # Check errors
-                    if(TRUE %in% c(dim(v)[1:2] != dim(clim)[1:2])) stop(paste0(  "Variable and climatology dimension are different", "\n",
-                                                                        "--> variable : ", list_file_full[i], "\n",
-                                                                        "--> climatology : ", clim_list, "\n"))
-
                     # Anomaly calculation anomaly 
-                    num_weekMonth <- function(raster, time){ #transforme layer date to week number
+                    num_weekMonth <- function(raster, time){ #transforme layer date to week or month number
                         date_init <- gsub("X", "", names(raster))
                         date <- gsub("[.]", "-", date_init)
 
                         if(time == "week"){
-                            date <- as.numeric(format(as.Date(date), "%U")) + 1 #betweeen 1 and 52 (not 0 and 51)
+                            date <- strftime(as.Date(date), format = "%V")
                             date <- paste0("Week_", date)
                             return(list(date_init, date))
                         }
 
                         if(time == "month"){
-                            date <- format(as.Date(date), "%m")
+                            date <- strftime(as.Date(date), format = "%m")
                             date <- paste0("Month_", date)
                             return(list(date_init, date))
                         }
