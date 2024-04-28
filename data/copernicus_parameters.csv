@@ -1,8 +1,0 @@
-my_variable_name,dataset_id,dataset_version,longitude_min,longitude_max,latitude_min,latitude_max,date_min,date_max,depth_min,depth_max,variable,DOI
-WINDn,cmems_obs-wind_glo_phy_my_l3-metopa-ascat-des-0.125deg_P1D-i,202311,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,0,northward_wind,https://doi.org/10.48670/moi-00183
-WINDe,cmems_obs-wind_glo_phy_my_l3-metopa-ascat-des-0.125deg_P1D-i,202311,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,0,eastward_wind,https://doi.org/10.48670/moi-00183
-CURRENTe,dataset-armor-3d-rep-weekly,202012,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,100,ugo,https://doi.org/10.48670/moi-00052
-CURRENTn,dataset-armor-3d-rep-weekly,202012,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,100,vgo,https://doi.org/10.48670/moi-00052
-SST,dataset-armor-3d-rep-weekly,202012,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,100,to,https://doi.org/10.48670/moi-00052
-SSH,dataset-armor-3d-rep-weekly,202012,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,100,zo,https://doi.org/10.48670/moi-00052
-CHLA,cmems_obs_glo_bgc3d_rep_weekly,202112,10,155,-55,31,2007-01-01 00:00:00,2008-01-01 00:00:00,0,100,chl,https://doi.org/10.48670/moi-00046
