@@ -27,8 +27,7 @@ anomaly <- function(connectPip_copernicus, ano_vars = NULL, skip = FALSE){
                 list_file <- list.files(here::here("output", "data_copernicus_remapped", t), pattern = "[.]nc$")
                 list_file_full <- list.files(here::here("output", "data_copernicus_remapped", t), pattern = "[.]nc$", full.name = TRUE)
                 vars_available <- unlist(lapply(strsplit(basename(list_file), "_"),"[[", 1))
-                boolean <- ano_vars %in% gsub("[.]nc", "", vars_available)
-                place <- grep(ano_vars, vars_available)
+                place <- unlist(lapply(ano_vars, function(x){grep(x, vars_available)})) #conserved order
                 
                 ii <- 0 
                 for(i in place){ #for all target variables in "ano_vars"

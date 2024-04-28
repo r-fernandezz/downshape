@@ -6,6 +6,7 @@ output_*
 
 #data folder
 *_logging.txt
+copernicus_parameters.csv
 
 # root files and folders
 downshape.code-workspace
