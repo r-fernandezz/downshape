@@ -20,8 +20,8 @@ list(
     #                                         month_choose = c(2, 3, 4, 5, 6, 7, 8, 9)))
     # ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("STTcmip", "STTcmip0x100")))
 
-    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"), 
-                                            reso = c("FIXE", "week", "week", "week", "week", "week", "day", "day"))) 
+    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENT", "SST", "SSH", "CHLA", "WIND"), 
+                                            reso = c("FIXE", "week", "week", "week", "week", "day"))) 
     ,tar_target(http_vars,          list(   http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                             name = c("BATHY")))
     ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2008-01-01T00:00:00"))
@@ -42,7 +42,7 @@ list(
     # ,tar_target(select_dataset, select_dataset(available_dataset_df, skip = FALSE), format = "file")
     # ,tar_target(cmip_data, download_cmip_data(select_dataset, time_span, skip = FALSE), format = "file")
 
-    # Shaping esgf data downloaded (CMIP6)
+    # # Shaping esgf data downloaded (CMIP6)
     # ,tar_target(renameVar_cmip, renameVar(data = cmip_data, type_data = "cmip6", skip = TRUE), format = "file")
     # ,tar_target(concatenate_cmip, concatenate_cmip(renameVar_cmip), format = "file")
     # ,tar_target(remapCDO_cmip, remapCDO_cmip(concatenate_cmip), format = "file")
@@ -65,9 +65,9 @@ list(
     # Shaping copernicus data downloaded (observed)
     ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = TRUE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
-    ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus), format = "file")
-    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(remapCDO_copernicus, vars_speed, remove = FALSE), format = "file")
-    ,tar_target(connectPip_copernicus, connectPip(data = speedCompo_copernicus, type_data = "copernicus"), format = "file")
+    ,tar_target(speedCompo_copernicus, speedCompo_copernicus(concatenate_copernicus, vars_speed, remove = FALSE), format = "file")
+    ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus, speedCompo_copernicus, vars_speed, renameVar), format = "file")
+    ,tar_target(connectPip_copernicus, connectPip(data = remapCDO_copernicus, type_data = "copernicus"), format = "file")
     ,tar_target(grad_copernicus, grad_copernicus(connectPip_copernicus), format = "file")
     ,tar_target(anomaly, anomaly(connectPip_copernicus, ano_vars, skip = FALSE), format = "file")
     ,tar_target(regrid_copernicus, regrid(grad_copernicus, anomaly, type_data = "copernicus"), format = "file")

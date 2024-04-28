@@ -384,10 +384,23 @@ remapCDO <- function(   file_path,
     #################### Remove variable no used if data have more than one variables
     vars_used <- strsplit(basename(file_path), "_")[[1]][1]
 
-    if( vars_used != "BATHY"){
+    if( vars_used == "BATHY"){
 
-        vars_used <- grep(paste0(vars_used, "$"), targets::tar_read(renameVar)$tabname)
-        vars_used <- targets::tar_read(renameVar)$newname[vars_used]
+        f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
+        file.rename(f_seltime, f_varname)
+
+    }else{
+        vars_speed <- targets::tar_read("vars_speed")
+
+        if(vars_used %in% vars_speed$name){ #speed variables are renamed "Component1Component2" with speedCompo()
+            nameIn_compo1 <- targets::tar_read(vars_speed)$compo1[grep(vars_used, targets::tar_read(vars_speed)$name)]
+            nameIn_compo2 <- targets::tar_read(vars_speed)$compo2[grep(vars_used, targets::tar_read(vars_speed)$name)]
+            vars_used <- paste0(nameIn_compo1, nameIn_compo2)
+        }else{
+            vars_used <- grep(paste0(vars_used, "$"), targets::tar_read(renameVar)$tabname)
+            vars_used <- targets::tar_read(renameVar)$newname[vars_used]
+        }
+        
         f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
         com_varname <- paste0("cdo select,name=", vars_used, " ", f_seltime, " ", f_varname)
         message("### Running CDO command to remove variable not used :  \n", "--->", com_varname)
@@ -396,10 +409,6 @@ remapCDO <- function(   file_path,
         ifelse( file.exists(f_varname),
                 unlink(f_seltime),
                 stop(paste0("File not created : ", f_varname)))
-
-    }else{
-        f_varname <- gsub(".nc", "_rmVars.nc", f_seltime)
-        file.rename(f_seltime, f_varname)
     }
     
 
@@ -701,16 +710,19 @@ remapCDO_cmip <- function(concatenate_cmip){
 #'
 #' @export Processed files (.nc)
 
-remapCDO_copernicus <- function(concatenate_copernicus) {
+remapCDO_copernicus <- function(concatenate_copernicus, speedCompo_copernicus, vars_speed, renameVar) {
     
     path_output <- here::here("output", "data_copernicus_remapped")
     
     ####### Remove folder and creat a folder empty
     if(file.exists(path_output)) fs::dir_delete(path_output)
     dir.create(path_output, showWarnings = FALSE)
-
-    list_file <- list.files(here::here("output", "data_copernicus"), pattern = ".nc$", full.name = TRUE)
     
+    # Remove files component of speed variables and add speed variables
+    v_speed <- grep(paste(vars_speed$compo1, vars_speed$compo2, sep = "|", collapse = "|"), concatenate_copernicus)
+    list_file <- concatenate_copernicus[-v_speed]
+    list_file <- c(list_file, speedCompo_copernicus)
+
     ####### Monthly mean
     message("Mean by month")
 
@@ -729,7 +741,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     path_output = path_output_m,
                     monthWeek = "month")
 
-        }, mc.cores = 2) #change core number if some variables are removed during process
+        }, mc.cores = 1) #change core number if some variables are removed during process
 
     ####### Weekly mean
     message("Mean by week")
@@ -749,7 +761,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     path_output = path_output_w,
                     monthWeek = "week")
 
-        }, mc.cores = 2) #change core number if some variables are removed during process
+        }, mc.cores = 1) #change core number if some variables are removed during process
 
     # Create baseline if "baseline_period" target not NULL
     message("Create baseline")
@@ -770,7 +782,7 @@ remapCDO_copernicus <- function(concatenate_copernicus) {
                     period = "baseline", 
                     path_output = path_output_b)
 
-        }, mc.cores = 2)
+        }, mc.cores = 1)
 
     }else(message("You don't want created a baseline, arguments of 'baseline_period' target are NULL"))
 
@@ -813,22 +825,14 @@ speedCompo <- function( path_compo1,
     com_mergeTEMPO <- paste0("cdo merge ", path_compo1, " ", path_compo2, " ", f_mergeTEMPO)
     system(com_mergeTEMPO)
 
-    # remove depth name (ex: chl50x100 -> chl) to apply cdo command on true variable name
-    new_name <- lapply(list(name_compo1 = name_compo1, 
-                            name_compo2 = name_compo2, 
-                            name_speed = name_speed ), 
-                        function(x) gsub("[0-9]{0,6}x[0-9]{0,6}", "", x))
-
     # Correspondance between variable names inside NetCDF files and the table
-    nameIn_compo1 <- targets::tar_read(renameVar)$newname[grep(new_name$name_compo1, targets::tar_read(renameVar)$tabname)]
-    nameIn_compo2 <- targets::tar_read(renameVar)$newname[grep(new_name$name_compo2, targets::tar_read(renameVar)$tabname)]
-    new_name <- list(   name_compo1 = nameIn_compo1,
-                        name_compo2 = nameIn_compo2, 
-                        name_speed = paste0(nameIn_compo1, nameIn_compo2))
-
+    nameIn_compo1 <- targets::tar_read(renameVar)$newname[grep(name_compo1, targets::tar_read(renameVar)$tabname)]
+    nameIn_compo2 <- targets::tar_read(renameVar)$newname[grep(name_compo2, targets::tar_read(renameVar)$tabname)]
+    name <- paste0(nameIn_compo1, nameIn_compo2)
+    
     f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
-    com_merge <- paste0("cdo expr,", "'", new_name$name_speed, "=", 
-                        "sqrt(", new_name$name_compo1, "*", new_name$name_compo1, "+", new_name$name_compo2, "*", new_name$name_compo2, ")", "' ", 
+    com_merge <- paste0("cdo expr,", "'", name, "=", 
+                        "sqrt(", name_compo1, "*", name_compo1, "+", name_compo2, "*", name_compo2, ")", "' ", 
                         f_mergeTEMPO, " ", f_merge)
     message("### Running CDO command to calcule speed :  \n", "--->", com_merge)
     system(com_merge)
@@ -949,60 +953,42 @@ speedCompo_cmip <- function(file_path = remapCDO_cmip,
 #' @export Processed files (.nc)
 #'
 
-speedCompo_copernicus <- function(file_path = remapCDO_copernicus, 
-                                    vars_speed,
+speedCompo_copernicus <- function(  file_path = concatenate_copernicus, 
+                                    vars_speed = targets::tar_read("vars_speed"),
                                     remove = FALSE) {
 
-    # Extract path for monthly and weekly data 
+    # Select variable for speed calculation
+    vars <- grep(paste(vars_speed$compo1, vars_speed$compo2, sep = "|", collapse = "|"), file_path, value = TRUE)
     path_root <- unique(dirname(file_path))
-    temp_folder <- basename(path_root)
 
-    # Integrate depth variables (U0x50, chl50x100, etc...) in vars_speed targets
-    vsplit <- sapply(strsplit(basename(file_path), "_"), "[[", 1)
-    vsplit_compo1 <- unique(grep(paste0(vars_speed$compo1, collapse = "|"), vsplit, value = TRUE))
-    vsplit_compo2 <- unique(grep(paste0(vars_speed$compo2, collapse = "|"), vsplit, value = TRUE))
-    boleen <- sort(vsplit_compo1) == sort(vars_speed$compo1)
-    if(FALSE %in% boleen){
-        vars_speed$compo1 <- vsplit_compo1
-        vars_speed$compo2 <- vsplit_compo2
-        vars_speed$name <- paste0(gsub("[0-9]{1,10}x[0-9]{1,10}", "", vars_speed$compo1), vars_speed$compo2)
+    # Speed calculation
+    return_stock <- c()
+
+    for(i in 1:length(vars_speed$name)){
+
+        # Select variable with two coponents
+        grep_var <- grep(basename(vars), pattern = paste0("^(", vars_speed$compo1[i], "_)", "|", "^(", vars_speed$compo2[i], "_)"), value = TRUE)
+        if(length(grep_var) > 2) stop("More than one file found to calculate speed: \n", paste(grep_var, collapse = "\n"))
+
+        if(length(grep_var) == 2){ # if pattern "fs" object correspond to cmip6 variable names, length = 0
+                
+                message("Calcul speed with variables", " : \n", paste0(grep_var, collapse = "\n"))
+
+                compo <- speedCompo(path_compo1 = paste(path_root, grep_var[1], sep = "/"), 
+                                    path_compo2 = paste(path_root, grep_var[2], sep = "/"), 
+                                    name_compo1 = vars_speed$compo1[i], 
+                                    name_compo2 = vars_speed$compo2[i],
+                                    name_speed = vars_speed$name[i],
+                                    remove = remove
+                        )
+
+                return_stock <- c(return_stock, compo)
+
+        }else{stop(paste0("Impossible to calcul speed variable with this unique file : \n", grep_var))}
+
     }
 
-    # Speed calcul
-    for(f in 1:length(temp_folder)){ #filter by monthly, weekly or baseline data
-
-        for(i in 1:length(vars_speed$compo1)){
-
-            grep_var <- grep(file_path, pattern = paste0("/", temp_folder[f], "/"), value = TRUE)
-
-            # Select variable with two coponents
-            grep_var <- grep(basename(grep_var), pattern = paste0("^(", vars_speed$compo1[i], "_)", "|", "^(", vars_speed$compo2[i], "_)"), value = TRUE)
-            if(length(grep_var) > 2) stop("More than one file found to calculate speed: \n", paste(grep_var, collapse = "\n"))
-
-            if(length(grep_var) == 2){ # if pattern "fs" object correspond to cmip6 variable names, length = 0
-                    
-                    message("Calcul speed with variables", " (",temp_folder[f], ") : \n", paste0(grep_var, collapse = "\n"))
-
-                    compo <- speedCompo(path_compo1 = paste(path_root[f], grep_var[1], sep = "/"), 
-                                        path_compo2 = paste(path_root[f], grep_var[2], sep = "/"), 
-                                        name_compo1 = vars_speed$compo1[i], 
-                                        name_compo2 = vars_speed$compo2[i],
-                                        name_speed = vars_speed$name[i],
-                                        remove = remove
-                                                        )
-
-            }
-
-        }
-    }
-
-    # Return all file after this step - all file after previous step = only file create during this step
-    all <- list.files(here::here("output", "data_copernicus_remapped"), recursive = TRUE, full.name = TRUE)
-    previous <- file_path
-    place <- grep(paste0(previous, collapse = "|"), all)
-    return <- all[-place]
-
-    return(return)
+    return(return_stock)
 
 
 }
