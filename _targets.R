@@ -32,7 +32,7 @@ list(
                                             newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
     ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe"), compo2 = c("CURRENTn", "WINDn"), name = c("CURRENT", "WIND")))
     ,tar_target(bathy_CDO,          TRUE)
-    ,tar_target(ano_vars,           c("SST0x100"))
+    ,tar_target(ano_vars,           c("SST0x100", "CHLA0x100"))
 
     ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
@@ -59,7 +59,7 @@ list(
     # Download copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
     ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = TRUE), format = "file")
-    ,tar_target(bathy_vars, downloadCDO_bathy(bathy_CDO, skip = TRUE), format = "file")
+    ,tar_target(bathy_vars, downloadCDO_bathy(bathy_CDO, skip = FALSE), format = "file")
     ,tar_target(http_data, http_download(http_vars, path_output = here::here("output", "data_copernicus"), skip = TRUE))
 
     # Shaping copernicus data downloaded (observed)
