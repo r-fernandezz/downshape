@@ -256,11 +256,11 @@ of variable is “topo_cdo_NOAA_ETOPO2_2006_brut.nc”. If “FALSE”
 bathymetry doesn’t downloaded.
 
 :heavy_check_mark: **\[ano_vars\]** : character. Name of the variable
-with which you want to calculate the anomaly. This calculation uses the
-climatology of the same variable, and the climatology file name must be
-the same as the variable in the output folder with this format. Monthly
-and weekly climatology must to be availables:
-‘SST0x100_climatology_XX_XXX_week.tif’ and
+with which you want to calculate the anomaly. This calculation utilizes
+the climatology data for the same variable, and the filename of the
+climatology file must match the variable name in the output folder
+according to the following format.Monthly and weekly climatology must to
+be availables: ‘SST0x100_climatology_XX_XXX_week.tif’ and
 ‘SST0x100_climatology_XX_XXX_month.tif’.
 
 ## :bookmark: Other pipeline usage and input data
