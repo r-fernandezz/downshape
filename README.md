@@ -26,7 +26,7 @@ graph LR
     direction LR
     x0c817e56268c947c(["climato_cmip"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     xbbe4eafa679df977(["climato_period"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
-    x37179b61a203cbd3(["grad_copernicus"]):::uptodate --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
+    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     xab1c13260db879af(["match_name"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated --> x178958aede3793d9(["varsBiasCorrected"]):::outdated
     xac02e5e58926353b(["experiments"]):::uptodate --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
@@ -34,41 +34,41 @@ graph LR
     x2c0118dd07b06ac8(["time_span"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x8f15ec77b8dbd81a(["vars"]):::outdated --> x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated
     x178958aede3793d9(["varsBiasCorrected"]):::outdated --> x0754d07deb71dd34(["MeanModel"]):::outdated
-    x9b87618f04cad4de(["anomaly"]):::uptodate --> x86e690a15fc5d647(["regrid_copernicus"]):::uptodate
-    x37179b61a203cbd3(["grad_copernicus"]):::uptodate --> x86e690a15fc5d647(["regrid_copernicus"]):::uptodate
+    x9b87618f04cad4de(["anomaly"]):::outdated --> x86e690a15fc5d647(["regrid_copernicus"]):::outdated
+    x37179b61a203cbd3(["grad_copernicus"]):::outdated --> x86e690a15fc5d647(["regrid_copernicus"]):::outdated
     x21b09bf88a2ff147(["baseline_period"]):::uptodate --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
     xbbe4eafa679df977(["climato_period"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
     xbce5cad1cf7e7103(["futur_period"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
     x57dd1d5e854c11b6(["historical_period"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
     xe5de19f3be59da20(["speedCompo_cmip"]):::outdated --> xf21dac5ab86940da(["mergeHistorical_cmip"]):::outdated
-    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::uptodate
+    xf5c6fd225c377a3d(["bathy_CDO"]):::uptodate --> xb5817e1daca13dcc(["bathy_vars"]):::outdated
     x4fe875b2492d0106(["concatenate_cmip"]):::outdated --> xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated
-    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::uptodate
+    x71e926299248ce3f(["http_vars"]):::uptodate --> x35b468daf9281b76(["http_data"]):::outdated
     x4c3d86d2401270ef(["grad_cmip"]):::outdated --> x14e8a4fa0f44afa5(["regrid_cmip"]):::outdated
     xf4b49e2ba07661b1(["remapCDO_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
     x7a197bdf5f12681a(["vars_speed_cmip"]):::outdated --> xe5de19f3be59da20(["speedCompo_cmip"]):::outdated
-    xd2707862cf793d3a(["connectPip_copernicus"]):::uptodate --> x37179b61a203cbd3(["grad_copernicus"]):::uptodate
+    xd2707862cf793d3a(["connectPip_copernicus"]):::outdated --> x37179b61a203cbd3(["grad_copernicus"]):::outdated
     x3f5ab24ee8d242b4(["select_dataset"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
     x2c0118dd07b06ac8(["time_span"]):::outdated --> xd8e5f2013a341013(["cmip_data"]):::outdated
-    xb5817e1daca13dcc(["bathy_vars"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate
-    x35b468daf9281b76(["http_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate
-    xd7bca5ba4e5f539d(["obs_data"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate
+    xb5817e1daca13dcc(["bathy_vars"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    x35b468daf9281b76(["http_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd7bca5ba4e5f539d(["obs_data"]):::outdated --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xe44467b2b079fc18(["renameVar_copernicus"]):::outdated
     x6fcf9b0e7fc429ff(["available_dataset_json"]):::outdated --> xe895740a9b7896f7(["available_dataset_df"]):::outdated
     x0754d07deb71dd34(["MeanModel"]):::outdated --> x4c3d86d2401270ef(["grad_cmip"]):::outdated
-    x4301c707c2ab0cdc(["tab_parameters"]):::uptodate --> xd7bca5ba4e5f539d(["obs_data"]):::uptodate
-    xe44467b2b079fc18(["renameVar_copernicus"]):::uptodate --> x9289bfb53112cf3b(["concatenate_copernicus"]):::uptodate
+    x4301c707c2ab0cdc(["tab_parameters"]):::outdated --> xd7bca5ba4e5f539d(["obs_data"]):::outdated
+    xe44467b2b079fc18(["renameVar_copernicus"]):::outdated --> x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated
     xe895740a9b7896f7(["available_dataset_df"]):::outdated --> x3f5ab24ee8d242b4(["select_dataset"]):::outdated
     x0262297569c18022(["renameVar_cmip"]):::outdated --> x4fe875b2492d0106(["concatenate_cmip"]):::outdated
-    xb5a86a9ebe0b7b97(["ano_vars"]):::uptodate --> x9b87618f04cad4de(["anomaly"]):::uptodate
-    xd2707862cf793d3a(["connectPip_copernicus"]):::uptodate --> x9b87618f04cad4de(["anomaly"]):::uptodate
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
-    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
-    xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate
-    x9289bfb53112cf3b(["concatenate_copernicus"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::uptodate
-    xec6283d15a25ed08(["remapCDO_copernicus"]):::uptodate --> xd2707862cf793d3a(["connectPip_copernicus"]):::uptodate
+    xb5a86a9ebe0b7b97(["ano_vars"]):::outdated --> x9b87618f04cad4de(["anomaly"]):::outdated
+    xd2707862cf793d3a(["connectPip_copernicus"]):::outdated --> x9b87618f04cad4de(["anomaly"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated
+    x9289bfb53112cf3b(["concatenate_copernicus"]):::outdated --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xca459201a27e8460(["vars_speed"]):::uptodate --> xfc6ed28680e5db72(["speedCompo_copernicus"]):::outdated
+    xec6283d15a25ed08(["remapCDO_copernicus"]):::outdated --> xd2707862cf793d3a(["connectPip_copernicus"]):::outdated
     xd8e5f2013a341013(["cmip_data"]):::outdated --> x0262297569c18022(["renameVar_cmip"]):::outdated
     xd15c82dcb79a7c2e(["renameVar"]):::uptodate --> x0262297569c18022(["renameVar_cmip"]):::outdated
     xbbe4eafa679df977(["climato_period"]):::outdated --> x0c817e56268c947c(["climato_cmip"]):::outdated
@@ -226,24 +226,23 @@ file created. To split variable to several files by deep level. First
 (or n) element of “start” vector correspond to first (or n) element of
 “end” vector. vectors of the list can be empty.
 
-:heavy_check_mark: **\[renameVar\]** : List with “my_variable_name”
-column value into “copernicus_parameters.csv” table and new name you
-want inside netcdf file. First (or n) element of “tabname” vector
-correspond to first (or n) element of “newname” vector. Allow to rename
-into NETCDF file the variable juste after downloading step. The name of
-file stay with “my_variable_name” column value. This vectors gathers all
+:heavy_check_mark: **\[renameVar\]** : List of “my_variable_name” column
+value into “copernicus_parameters.csv” table and new name you want
+inside netcdf file. First (or n) element of “tabname” vector correspond
+to first (or n) element of “newname” vector. Allow to rename into NETCDF
+file the variable juste after downloading step. This vectors gathers all
 variable names used to rename cmip6 and copernicus data **just after
 download step**. In others words, it allows to change name of “variable”
 column into **parameters_copernicus.csv** and “Variable_id” column into
 **selected_datasets.csv** for cmip6 data. If variable name have a name
-with “\_“,”-“,”\#“,” “, rename with **rename** target to one word
-without specials characters otherwise CDO command doesn’t work. All
-vectors of this target list can to be empty. If bathymetry is downloaded
-by downloadCDO_bathy() it will be called”BATHY” and variable name inside
+with “\_“,”-“,”\#“,” “, use this target to rename with one word without
+specials characters (otherwise CDO command doesn’t work). All vectors of
+this target list can to be empty. If bathymetry is downloaded by
+downloadCDO_bathy() it will be called”BATHY” and variable name inside
 the NetCDF file will be not rename (called “topo”).
 
-:heavy_check_mark: **\[vars_speed\]** : List first, second component and
-output variable name. To calcul copernicus variables speed with two
+:heavy_check_mark: **\[vars_speed\]** : List first, second components
+and output variable name to calcul copernicus variables speed with two
 components. First (or n) element of “compo1” vector correspond to first
 (or n) element of “compo2” vector. All variables must have unique
 component names. The first and second vector give the variable names
@@ -257,11 +256,13 @@ bathymetry doesn’t downloaded.
 
 :heavy_check_mark: **\[ano_vars\]** : character. Name of the variable
 with which you want to calculate the anomaly. This calculation utilizes
-the climatology data for the same variable, and the filename of the
-climatology file must match the variable name in the output folder
-according to the following format.Monthly and weekly climatology must to
-be availables: ‘SST0x100_climatology_XX_XXX_week.tif’ and
-‘SST0x100_climatology_XX_XXX_month.tif’.
+the climatology data for the same variable (create manually into data
+folder), and the filename of the climatology file must match the
+variable name in the output folder according to the following format.
+Monthly and weekly climatology must to be availables:
+‘SST0x100_climatology_XX_XXX_week.nc’ and
+‘SST0x100_climatology_XX_XXX_month.nc’. NetCDF and GRD extension are
+supported.
 
 ## :bookmark: Other pipeline usage and input data
 
