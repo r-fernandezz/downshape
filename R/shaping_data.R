@@ -832,7 +832,7 @@ speedCompo <- function( path_compo1,
     
     f_merge <- gsub("_TEMPO.nc", "_speedCompo.nc", f_mergeTEMPO)
     com_merge <- paste0("cdo expr,", "'", name, "=", 
-                        "sqrt(", name_compo1, "*", name_compo1, "+", name_compo2, "*", name_compo2, ")", "' ", 
+                        "sqrt(", nameIn_compo1, "*", nameIn_compo1, "+", nameIn_compo2, "*", nameIn_compo2, ")", "' ", 
                         f_mergeTEMPO, " ", f_merge)
     message("### Running CDO command to calcule speed :  \n", "--->", com_merge)
     system(com_merge)
