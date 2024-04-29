@@ -20,19 +20,19 @@ list(
     #                                         month_choose = c(2, 3, 4, 5, 6, 7, 8, 9)))
     # ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("STTcmip", "STTcmip0x100")))
 
-    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENT", "SST", "SSH", "CHLA", "WIND"), 
-                                            reso = c("FIXE", "week", "week", "week", "week", "day"))) 
+    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENT", "SST", "SSH", "CHLA1", "CHLA2", "WIND1", "WIND2"), 
+                                            reso = c("FIXE", "week", "week", "week", "week", "day", "day", "day"))) 
     ,tar_target(http_vars,          list(   http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                             name = c("BATHY")))
-    ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2008-01-01T00:00:00"))
+    ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2024-03-01T00:00:00"))
     ,tar_target(baseline_period,    list(   start = NULL, end = NULL))
     ,tar_target(spat_reso,          list(   reso = 2, grid_nrow = 90, grid_ncol = 180))
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
-    ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"),
-                                            newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
-    ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe"), compo2 = c("CURRENTn", "WINDn"), name = c("CURRENT", "WIND")))
+    ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA1", "CHLA2", "WINDn1", "WINDe1", "WINDn2", "WINDe2"),
+                                            newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "CHLA", "WINDn", "WINDe", "WINDn", "WINDe")))
+    ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe1", "WINDe2"), compo2 = c("CURRENTn", "WINDn1", "WINDn2"), name = c("CURRENT", "WIND1", "WIND2")))
     ,tar_target(bathy_CDO,          TRUE)
-    ,tar_target(ano_vars,           c("SST0x100", "CHLA0x100"))
+    ,tar_target(ano_vars,           c("SST0x100", "CHLA10x100", "CHLA20x100"))
 
     ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
