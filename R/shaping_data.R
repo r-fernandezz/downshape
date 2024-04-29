@@ -392,9 +392,13 @@ remapCDO <- function(   file_path,
     }else{
         vars_speed <- targets::tar_read("vars_speed")
 
-        if(vars_used %in% vars_speed$name){ #speed variables are renamed "Component1Component2" with speedCompo()
+        if(vars_used %in% vars_speed$name){ #speed variables are renamed "newname1newname2" with renameVar target and speedCompo() function
             nameIn_compo1 <- targets::tar_read(vars_speed)$compo1[grep(vars_used, targets::tar_read(vars_speed)$name)]
+            nameIn_compo1 <-targets::tar_read(renameVar)$newname[grep(nameIn_compo1, targets::tar_read(renameVar)$tabname)]
+
             nameIn_compo2 <- targets::tar_read(vars_speed)$compo2[grep(vars_used, targets::tar_read(vars_speed)$name)]
+            nameIn_compo2 <-targets::tar_read(renameVar)$newname[grep(nameIn_compo2, targets::tar_read(renameVar)$tabname)]
+
             vars_used <- paste0(nameIn_compo1, nameIn_compo2)
         }else{
             vars_used <- grep(paste0(vars_used, "$"), targets::tar_read(renameVar)$tabname)
