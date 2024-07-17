@@ -20,19 +20,19 @@ list(
     #                                         month_choose = c(2, 3, 4, 5, 6, 7, 8, 9)))
     # ,tar_target(match_name,         list(   copernicus = c("SST", "SST0x100"), cmip = c("STTcmip", "STTcmip0x100")))
 
-    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENT", "SST", "SSH", "CHLA", "WIND"), 
-                                            reso = c("FIXE", "week", "week", "week", "week", "day"))) 
+    ,tar_target(resotempo,          list(   vars = c("BATHY", "CURRENT", "SST", "SSH", "CHLA1", "CHLA2", "WIND1", "WIND2"), 
+                                            reso = c("FIXE", "week", "week", "week", "week", "day", "day", "day"))) 
     ,tar_target(http_vars,          list(   http = c("https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO2/ETOPO2v2-2006/ETOPO2v2g/netCDF/ETOPO2v2g_f4_netCDF.zip"),
                                             name = c("BATHY")))
-    ,tar_target(current_period,     list(   start = "2011-09-01T00:00:00", end = "2013-04-01T00:00:00"))
+    ,tar_target(current_period,     list(   start = "2007-01-01T00:00:00", end = "2022-12-28T00:00:00"))
     ,tar_target(baseline_period,    list(   start = NULL, end = NULL))
     ,tar_target(spat_reso,          list(   reso = 2, grid_nrow = 90, grid_ncol = 180))
     ,tar_target(deep_level,         list(   start = c(0, 0), end = c(1, 100)))
-    ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA", "WINDn", "WINDe"),
-                                            newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "WINDn", "WINDe")))
-    ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe"), compo2 = c("CURRENTn", "WINDn"), name = c("CURRENT", "WIND")))
+    ,tar_target(renameVar,          list(   tabname = c("CURRENTe", "CURRENTn", "SST", "SSH", "CHLA1", "CHLA2", "WINDn1", "WINDe1", "WINDn2", "WINDe2"),
+                                            newname = c("CURRENTe", "CURRENTn",  "SST", "SSH", "CHLA", "CHLA", "WINDn", "WINDe", "WINDn", "WINDe")))
+    ,tar_target(vars_speed,         list(   compo1 = c("CURRENTe", "WINDe1", "WINDe2"), compo2 = c("CURRENTn", "WINDn1", "WINDn2"), name = c("CURRENT", "WIND1", "WIND2")))
     ,tar_target(bathy_CDO,          TRUE)
-    ,tar_target(ano_vars,           c("SST0x100", "CHLA0x100"))
+    ,tar_target(ano_vars,           c("SST0x100", "CHLA10x100", "CHLA20x100"))
 
     ################################# Part 1 : CMIP data process (commit all targets if you don't use this part) #################################
 
@@ -58,12 +58,12 @@ list(
 
     # Download copernicus data (observed)
     ,tar_target(tab_parameters, here::here("data", "copernicus_parameters.csv"), format = "file")
-    ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = TRUE), format = "file")
-    ,tar_target(bathy_vars, downloadCDO_bathy(bathy_CDO, skip = TRUE), format = "file")
+    ,tar_target(obs_data, copernicus_download_api(tab_parameters, skip = FALSE), format = "file")
+    ,tar_target(bathy_vars, downloadCDO_bathy(bathy_CDO, skip = FALSE), format = "file")
     ,tar_target(http_data, http_download(http_vars, path_output = here::here("output", "data_copernicus"), skip = TRUE))
 
     # Shaping copernicus data downloaded (observed)
-    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = TRUE), format = "file")
+    ,tar_target(renameVar_copernicus, renameVar(data = c(obs_data, http_data, bathy_vars), type_data = "copernicus", skip = FALSE), format = "file")
     ,tar_target(concatenate_copernicus, concatenate_copernicus(renameVar_copernicus), format = "file")
     ,tar_target(speedCompo_copernicus, speedCompo_copernicus(concatenate_copernicus, vars_speed, remove = FALSE), format = "file")
     ,tar_target(remapCDO_copernicus, remapCDO_copernicus(concatenate_copernicus, speedCompo_copernicus, vars_speed, renameVar), format = "file")
