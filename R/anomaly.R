@@ -65,6 +65,12 @@ anomaly <- function(connectPip_copernicus, ano_vars = NULL, skip = FALSE){
 
                     }
 
+                    # Check if origin are similar before anomaly calculation
+                    bolean <- raster::origin(v) == raster::origin(clim)
+                    if(bolean[1] == FALSE | bolean[2] == FALSE){
+                        v <- raster::resample(v, clim, method = "bilinear")
+                    }
+
                     if(t == "week"){
 
                         num <- num_weekMonth(v, "week")
